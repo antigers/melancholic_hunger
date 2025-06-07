@@ -27,19 +27,6 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     }
 
     /**
-     * Restores player's health after eating food
-     */
-    @Inject(
-        method = "eatFood",
-        at = @At("HEAD")
-    )
-    private void melancholic_hunger$playerEatFood(
-            World world, ItemStack itemStack, FoodComponent foodComponent, CallbackInfoReturnable<ItemStack> callback
-    ) {
-        PlayerComponents.HEALTH_REGENERATION.get(this).eat(itemStack, foodComponent);
-    }
-
-    /**
      * Doesn't allow for the player to eat food if health is full
      */
     @WrapMethod(method = "canConsume")

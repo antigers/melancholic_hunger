@@ -8,3 +8,5 @@ accessible field net/minecraft/client/texture/SpriteContents image Lnet/minecraf
 accessible field net/minecraft/client/gui/DrawContext vertexConsumers Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;
 
 accessible class net/minecraft/client/MinecraftClient$LoadingContext
+
+accessible method net/minecraft/client/gui/DrawContext drawSpriteRegion (Ljava/util/function/Function;Lnet/minecraft/client/texture/Sprite;IIIIIIIII)V

@@ -6,7 +6,8 @@
 		"HungerManagerMixin",
 		"PlayerEntityMixin",
 		"LivingEntityMixin",
-		"ItemStackMixin"
+		"ItemStackMixin",
+		"FoodComponentMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

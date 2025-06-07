@@ -5,18 +5,21 @@ import antigers.melancholic_hunger.hud.ExperienceBarAnimation;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.LayeredDrawer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.LayeredDrawer;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.gui.screen.ingame.*;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.util.profiler.Profilers;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
@@ -30,19 +33,25 @@ import antigers.melancholic_hunger.hud.RestoredHeartsDrawHelper;
 import antigers.melancholic_hunger.hud.ExperienceHudRenderer;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.function.Function;
+
 @Mixin(InGameHud.class)
 public abstract class InGameHudMixin implements ExperienceHudRenderer {
     @Shadow @Final private MinecraftClient client;
-    @Shadow private void renderExperienceLevel(DrawContext context, RenderTickCounter tickCounter) {};
     @Shadow @Nullable protected abstract PlayerEntity getCameraPlayer();
-    @Shadow private void renderExperienceBar(DrawContext context, int x) {};
+    @Shadow private void renderExperienceBar(DrawContext context, int x) {}
+    @Shadow private void renderExperienceLevel(DrawContext context, RenderTickCounter tickCounter) {}
     @Shadow protected abstract boolean shouldRenderExperience();
     @Shadow protected abstract int getHeartCount(@Nullable LivingEntity entity);
     @Shadow protected abstract int getHeartRows(int heartCount);
     @Shadow @Nullable protected abstract LivingEntity getRiddenEntity();
+    @Shadow public abstract TextRenderer getTextRenderer();
     @Shadow @Final private Random random;
+    @Shadow @Final private static Identifier EXPERIENCE_BAR_BACKGROUND_TEXTURE;
+    @Shadow @Final private static Identifier EXPERIENCE_BAR_PROGRESS_TEXTURE;
     @Shadow @Final private static Identifier ARMOR_EMPTY_TEXTURE;
     @Shadow @Final private static Identifier ARMOR_HALF_TEXTURE;
+
     @Unique private static final Identifier VANILLA_ARMOR_EMPTY_TEXTURE = Identifier.of(
             "melancholic_hunger", "hud/armor_empty"
     );
@@ -53,6 +62,20 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
             "melancholic_hunger", "hud/armor_half_inversed"
     );
     @Unique private final ExperienceBarAnimation melancholic_hunger$experienceBarAnimation = new ExperienceBarAnimation();
+
+    @Unique
+    private boolean melancholic_hunger$shouldRenderExperience() {
+        if (!this.shouldRenderExperience()) {
+            return false;
+        }
+        if (!YACLConfig.hideExperienceBar()) {
+            return true;
+        }
+        return (
+                (!YACLConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen()) ||
+                        melancholic_hunger$experienceBarAnimation.shouldDraw()
+        );
+    }
 
     /**
      * Disables rendering of experience bar
@@ -65,17 +88,7 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
         )
     )
     private boolean melancholic_hunger$disableExperienceBarRender(InGameHud instance, Operation<Boolean> original) {
-        if (!YACLConfig.hideExperienceBar()) {
-            return original.call(instance);
-        }
-        if (
-                (!YACLConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen()) ||
-                        melancholic_hunger$experienceBarAnimation.shouldDraw()
-
-        ) {
-            return original.call(instance);
-        }
-        return false;
+        return melancholic_hunger$shouldRenderExperience();
     }
 
     /**
@@ -93,21 +106,40 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
     private LayeredDrawer melancholic_hunger$disableExperienceLevelRender(
             LayeredDrawer instance, LayeredDrawer.Layer layer, Operation<LayeredDrawer> original
     ) {
-        return instance;
+        LayeredDrawer.Layer wrappedLayer = (context, tickCounter) -> {
+            if (melancholic_hunger$shouldRenderExperience()) {
+                this.renderExperienceLevel(context, tickCounter);
+            }
+        };
+        return original.call(instance, wrappedLayer);
     }
 
     /**
-     * Changes height of the experience bar according to the animation position
+     * Sets opacity of the experience level according to the animation
      */
-    @WrapOperation(
-            method = "renderExperienceBar",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/DrawContext;getScaledWindowHeight()I"
-            )
+    @WrapMethod(
+            method = "renderExperienceLevel"
     )
-    private int melancholic_hunger$modifyExpBarY(DrawContext instance, Operation<Integer> original) {
-        return original.call(instance) - melancholic_hunger$experienceBarAnimation.getCurrentPos() + 7;
+    private void melancholic_hunger$renderExperienceLevel(
+            DrawContext context, RenderTickCounter tickCounter, Operation<Void> original
+    ) {
+        int level = this.client.player.experienceLevel;
+        if (level <= 0) {
+            return;
+        }
+        Profilers.get().push("expLevel");
+        String string = "" + level;
+        int x = (context.getScaledWindowWidth() - this.getTextRenderer().getWidth(string)) / 2;
+        int y = context.getScaledWindowHeight() - 28 - melancholic_hunger$experienceBarAnimation.getCurrentPos();
+        // If alpha gets to values lower than 4, it's full opacity for some reason. So capping minimum value to 4
+        int alpha = Math.max(4, (int) (melancholic_hunger$experienceBarAnimation.getCurrentOpacity() * 255));
+        int zeroColor = ColorHelper.withAlpha(alpha, 0);
+        context.drawText(this.getTextRenderer(), string, x + 1, y, zeroColor, false);
+        context.drawText(this.getTextRenderer(), string, x - 1, y, zeroColor, false);
+        context.drawText(this.getTextRenderer(), string, x, y + 1, zeroColor, false);
+        context.drawText(this.getTextRenderer(), string, x, y - 1, zeroColor, false);
+        context.drawText(this.getTextRenderer(), string, x, y, ColorHelper.withAlpha(alpha, 8453920), false);
+        Profilers.get().pop();
     }
 
     /**
@@ -142,17 +174,25 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
     }
 
     /**
-     * Sets opacity of both experience bar and level according to the animation
+     * Sets opacity of the experience bar according to the animation
      */
     @WrapMethod(
             method = "renderExperienceBar"
     )
     private void melancholic_hunger$addExperienceBarShading(DrawContext context, int x, Operation<Void> original) {
-        float currentOpacity = melancholic_hunger$experienceBarAnimation.getCurrentOpacity();
-        context.setShaderColor(1.0F, 1.0F, 1.0F, currentOpacity);
-        original.call(context, x);
-        this.renderExperienceLevel(context, null);
-        context.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        Profilers.get().push("expBar");
+        if (this.client.player.getNextLevelExperience() > 0) {
+            int width = (int)(this.client.player.experienceProgress * 183.0F);
+            int y = context.getScaledWindowHeight() - 22 - melancholic_hunger$experienceBarAnimation.getCurrentPos();
+            int alpha = (int) (melancholic_hunger$experienceBarAnimation.getCurrentOpacity() * 255);
+            int color = ColorHelper.withAlpha(alpha, Colors.WHITE);
+            context.drawGuiTexture(RenderLayer::getGuiTextured, EXPERIENCE_BAR_BACKGROUND_TEXTURE, x, y, 182, 5, color);
+            if (width > 0) {
+                Sprite sprite = this.client.getGuiAtlasManager().getSprite(EXPERIENCE_BAR_PROGRESS_TEXTURE);
+                context.drawSpriteRegion(RenderLayer::getGuiTextured, sprite, 182, 5, 0, 0, x, y, width, 5, color);
+            }
+        }
+        Profilers.get().pop();
     }
 
     @Unique
@@ -175,6 +215,7 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
     public void melancholic_hunger$renderExperienceHud(DrawContext drawContext) {
         if (YACLConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen()) {
             this.renderExperienceBar(drawContext, drawContext.getScaledWindowWidth() / 2 - 91);
+            this.renderExperienceLevel(drawContext, null);
         }
     }
 
@@ -262,22 +303,18 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
             DrawContext drawContext, Identifier texture, int x, int y, int width, int height
     ) {
         Sprite sprite = MinecraftClient.getInstance().getGuiAtlasManager().getSprite(texture);
-        RenderSystem.setShaderTexture(0, sprite.getAtlasId());
-        RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-
-        Matrix4f matrix4f = drawContext.getMatrices().peek().getPositionMatrix();
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder builder = tessellator.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
-
         float u1 = sprite.getMinU(), u2 = sprite.getMaxU();
         float v1 = sprite.getMinV(), v2 = sprite.getMaxV();
+        float x1 = (float) x, x2 = x + width;
+        float y1 = (float) y, y2 = y + height;
 
-        builder.vertex(matrix4f, x, y + height, 0.0F).texture(u2, v2);
-        builder.vertex(matrix4f, x + width, y + height, 0.0F).texture(u1, v2);
-        builder.vertex(matrix4f, x + width, y, 0.0F).texture(u1, v1);
-        builder.vertex(matrix4f, x, y, 0.0F).texture(u2, v1);
-
-        BufferRenderer.drawWithGlobalProgram(builder.end());
+        RenderLayer renderLayer = RenderLayer.getGuiTextured(sprite.getAtlasId());
+        Matrix4f matrix4f = drawContext.getMatrices().peek().getPositionMatrix();
+        VertexConsumer vertexConsumer = drawContext.vertexConsumers.getBuffer(renderLayer);
+        vertexConsumer.vertex(matrix4f, x1, y2, 0.0F).texture(u2, v2).color(-1);
+        vertexConsumer.vertex(matrix4f, x2, y2, 0.0F).texture(u1, v2).color(-1);
+        vertexConsumer.vertex(matrix4f, x2, y1, 0.0F).texture(u1, v1).color(-1);
+        vertexConsumer.vertex(matrix4f, x1, y1, 0.0F).texture(u2, v1).color(-1);
     }
 
     @Unique
@@ -298,11 +335,11 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
         method="renderArmor",
         at=@At(
             value="INVOKE",
-            target="Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Lnet/minecraft/util/Identifier;IIII)V"
+            target="Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Ljava/util/function/Function;Lnet/minecraft/util/Identifier;IIII)V"
         )
     )
     private static void melancholic_hunger$moveArmorBar(
-            DrawContext drawContext, Identifier texture, int x, int y, int width, int height, Operation<Void> original
+            DrawContext drawContext, Function<Identifier, RenderLayer> renderLayers, Identifier texture, int x, int y, int width, int height, Operation<Void> original
     ) {
         DrawHudContext drawHudContext = (DrawHudContext) drawContext;
         y = drawHudContext.getArmorBarY();
@@ -318,7 +355,7 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
         else if (DrawHudContext.isDefaultArmorHudTexture) {
             texture = melancholic_hunger$fixVanillaArmorTexture(texture, false);
         }
-        original.call(drawContext, texture, x, y, width, height);
+        original.call(drawContext, renderLayers, texture, x, y, width, height);
     }
 
     /**
@@ -348,9 +385,10 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
             DrawContext context, InGameHud.HeartType type, int x, int y, boolean hardcore, boolean blinking,
             boolean half, int colorRed, int colorGreen, int colorBlue
     ) {
-        context.setShaderColor(colorRed / 255F, colorGreen / 255F, colorBlue / 255F, 1.0F);
-        context.drawGuiTexture(type.getTexture(hardcore, half, blinking), x, y, 9, 9);
-        context.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        context.drawGuiTexture(
+                RenderLayer::getGuiTextured, type.getTexture(hardcore, half, blinking), x, y, 9, 9,
+                ColorHelper.getArgb(colorRed, colorGreen, colorBlue)
+        );
     }
 
     /**
@@ -404,20 +442,21 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
      * Move air bubbles on top of health rows
      */
     @WrapOperation(
-        method="renderStatusBars",
-        at=@At(
-            value="INVOKE",
-            target="Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Lnet/minecraft/util/Identifier;IIII)V"
-        )
+            method="renderAirBubbles",
+            at=@At(
+                    value="INVOKE",
+                    target="Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Ljava/util/function/Function;Lnet/minecraft/util/Identifier;IIII)V"
+            )
     )
     private void melancholic_hunger$moveBubblesBar(
-            DrawContext drawContext, Identifier texture, int x, int y, int width, int height, Operation<Void> original
+            DrawContext drawContext, Function<Identifier, RenderLayer> renderLayers, Identifier texture, int x, int y,
+            int width, int height, Operation<Void> original
     ) {
         DrawHudContext drawHudContext = (DrawHudContext) drawContext;
         if (YACLConfig.hideHungerBar() && !drawHudContext.getHasMountHealth()) {
             // move bar to the left and reverse render order from left to right
             x = drawHudContext.getMirroredX(x);
         }
-        original.call(drawContext, texture, x, drawHudContext.getBubblesBarY(), width, height);
+        original.call(drawContext, renderLayers, texture, x, drawHudContext.getBubblesBarY(), width, height);
     }
 }

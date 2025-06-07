@@ -4,6 +4,7 @@ import antigers.melancholic_hunger.config.YACLConfig;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.loader.api.FabricLoader;
+import net.raphimc.immediatelyfast.ImmediatelyFast;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,5 +21,11 @@ public class MelancholicHunger implements ModInitializer {
 		// However, some things (like resources) may still be uninitialized.
 		YACLConfig.loadFromDisk();
 		nostalgicTweaksInstalled = FabricLoader.getInstance().getModContainer("nostalgic_tweaks").isPresent();
+
+		// Disables hud_batching in Immediately Fast, because it breaks hearts rendering
+		if (FabricLoader.getInstance().getModContainer("immediatelyfast").isPresent()) {
+			ImmediatelyFast.config.hud_batching = false;
+			ImmediatelyFast.runtimeConfig.hud_batching = false;
+		}
 	}
 }

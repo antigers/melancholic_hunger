@@ -1,6 +1,11 @@
 package antigers.melancholic_hunger.hud;
 
+import antigers.melancholic_hunger.MelancholicHunger;
+import antigers.melancholic_hunger.config.SprintingOption;
 import antigers.melancholic_hunger.config.YACLConfig;
+import mod.adrenix.nostalgic.helper.gameplay.stamina.StaminaRenderer;
+import mod.adrenix.nostalgic.tweak.config.CandyTweak;
+import mod.adrenix.nostalgic.tweak.config.GameplayTweak;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -15,6 +20,10 @@ public class DrawHudContext extends DrawContext {
     public static boolean isDefaultArmorHudTexture;
     private final boolean hasMountHealth;
     private final int mountHealthRows;
+    private final boolean playerHasArmor;
+    private final boolean shouldRenderStamina;
+    private final boolean shouldRenderStaminaInPlaceOfHunger;
+    private int staminaBarY;
 
     public DrawHudContext(
             MinecraftClient client, VertexConsumerProvider.Immediate vertexConsumers,
@@ -31,6 +40,10 @@ public class DrawHudContext extends DrawContext {
         this.hudExperienceOffset = hudExperienceOffset;
         this.hasMountHealth = hasMountHealth;
         this.mountHealthRows = mountHealthRows;
+        playerHasArmor = client.player.getArmor() > 0;
+        boolean staminaIsEnabled = MelancholicHunger.nostalgicTweaksInstalled && YACLConfig.sprinting() != SprintingOption.DISABLED && GameplayTweak.STAMINA_SPRINT.get();
+        shouldRenderStamina = staminaIsEnabled && StaminaRenderer.isVisible();
+        shouldRenderStaminaInPlaceOfHunger = staminaIsEnabled && !CandyTweak.HIDE_STAMINA_BAR.get() && !CandyTweak.HIDE_STAMINA_BAR_INACTIVE.get();
     }
 
     public RestoredHeartsDrawHelper getHelper() {
@@ -45,17 +58,34 @@ public class DrawHudContext extends DrawContext {
             // drawing bubbles above all mount health rows
             bubblesBarY = aboveHealthY - 10 * (mountHealthRows - 1);
         }
-        else if (YACLConfig.hideHungerBar()) {
-            // drawing armor in place of hunger bar (same height as health)
-            armorBarY = healthBarY;
-            // drawing bubbles above all health rows
-            bubblesBarY = aboveHealthY;
-        }
-        else {
+        else if (!YACLConfig.hideHungerBar()) {
             // drawing armor above all health rows
             armorBarY = aboveHealthY;
-            // drawing bubbles above the hunger bar
+            if (shouldRenderStamina) {
+                // drawing staminaBarY above the hunger bar
+                staminaBarY = healthBarY - 10;
+                // drawing bubbles above the stamina bar
+                bubblesBarY = healthBarY - 20;
+            } else {
+                // drawing bubbles above the hunger bar
+                bubblesBarY = healthBarY - 10;
+            }
+        }
+        else if (shouldRenderStamina && shouldRenderStaminaInPlaceOfHunger) {
+            // drawing armor above all health rows
+            armorBarY = aboveHealthY;
+            // drawing staminaBarY in place of hunger bar (same height as health)
+            staminaBarY = healthBarY;
+            // drawing bubbles above the stamina bar
             bubblesBarY = healthBarY - 10;
+        }
+        else {
+            // drawing armor in place of hunger bar (same height as health)
+            armorBarY = hasMountHealth ? aboveHealthY : healthBarY;
+            // drawing staminaBarY above the armor bar (if player has armor)
+            staminaBarY = playerHasArmor ? healthBarY - 10 : healthBarY;
+            // drawing bubbles above all health rows
+            bubblesBarY = hasMountHealth ? aboveHealthY - 10 : aboveHealthY;
         }
     }
 
@@ -77,5 +107,15 @@ public class DrawHudContext extends DrawContext {
 
     public boolean getHasMountHealth() {
         return hasMountHealth;
+    }
+
+    public boolean getShouldRenderStaminaInPlaceOfHunger() {
+        return shouldRenderStaminaInPlaceOfHunger;
+    }
+
+    public void renderStamina() {
+        if (shouldRenderStamina) {
+            StaminaRenderer.render(this, getScaledWindowHeight() - staminaBarY);
+        }
     }
 }

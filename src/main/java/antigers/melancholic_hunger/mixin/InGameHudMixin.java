@@ -237,6 +237,7 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
             // hunger bar is drawn at the same height as health bar
             original.call(instance, drawContext, player, drawHudContext.getHealthBarY(), right);
         }
+        drawHudContext.renderStamina();
     }
 
     /**
@@ -306,7 +307,10 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
     ) {
         DrawHudContext drawHudContext = (DrawHudContext) drawContext;
         y = drawHudContext.getArmorBarY();
-        if (YACLConfig.hideHungerBar() && !drawHudContext.getHasMountHealth()) {
+        if (
+                YACLConfig.hideHungerBar() &&
+                        !drawHudContext.getShouldRenderStaminaInPlaceOfHunger() && !drawHudContext.getHasMountHealth()
+        ) {
             // move bar to the right and reverse render order from right to left
             x = drawHudContext.getMirroredX(x);
             if (!DrawHudContext.isDefaultArmorHudTexture) {
@@ -414,7 +418,10 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
             DrawContext drawContext, Identifier texture, int x, int y, int width, int height, Operation<Void> original
     ) {
         DrawHudContext drawHudContext = (DrawHudContext) drawContext;
-        if (YACLConfig.hideHungerBar() && !drawHudContext.getHasMountHealth()) {
+        if (
+                YACLConfig.hideHungerBar() &&
+                        !drawHudContext.getShouldRenderStaminaInPlaceOfHunger() && !drawHudContext.getHasMountHealth()
+        ) {
             // move bar to the left and reverse render order from left to right
             x = drawHudContext.getMirroredX(x);
         }

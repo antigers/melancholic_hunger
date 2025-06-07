@@ -27,7 +27,8 @@
 		]
 	},
 	"mixins": [
-		"melancholic_hunger.mixins.json"
+		"melancholic_hunger.mixins.json",
+		"nostalgic_tweaks.mixins.json"
 	],
 	"depends": {
 		"fabricloader": "*",

@@ -1,13 +1,15 @@
 package antigers.melancholic_hunger.config;
 
-import antigers.melancholic_hunger.MelancholicHunger;
+import antigers.melancholic_hunger.nostalgic_tweaks.NostalgicTweaksConfigHandlerWriter;
 import antigers.melancholic_hunger.components.PlayerComponents;
+import antigers.melancholic_hunger.MelancholicHunger;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
 import dev.isxander.yacl3.gui.YACLScreen;
+import mod.adrenix.nostalgic.config.factory.ConfigBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.component.type.FoodComponent;
@@ -372,6 +374,13 @@ public class YACLConfig {
                     else {
                         // sending config to the server if in multiplayer
                         PlayerComponents.SERVER_CONFIG.get(player).sendToServer(serverData.getImmutable());
+                    }
+                    // writing new settings to nostalgic tweaks config
+                    if (MelancholicHunger.nostalgicTweaksInstalled) {
+                        var handler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
+                        handler.melancholic_hunger$writeConfigToNT(
+                                YACLConfig.serverData.getImmutable(), YACLConfig.clientData.getImmutable()
+                        );
                     }
                 })
         );

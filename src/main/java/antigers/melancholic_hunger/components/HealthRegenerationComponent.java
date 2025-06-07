@@ -63,8 +63,8 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
 
     @Override
     public void readFromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
-        this.consumedNutrition = Math.max(tag.getInt("consumedNutrition"), 0);
-        var consumedFoodsStr = tag.getString("consumedFoods");
+        this.consumedNutrition = Math.max(tag.getInt("consumedNutrition").orElse(0), 0);
+        var consumedFoodsStr = tag.getString("consumedFoods").orElse("");
         if (!consumedFoodsStr.isEmpty()) {
             this.consumedFoods = gson.fromJson(consumedFoodsStr, consumedFoodSetTypeToken);
         }

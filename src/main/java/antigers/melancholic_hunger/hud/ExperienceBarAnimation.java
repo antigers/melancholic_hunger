@@ -1,0 +1,94 @@
+package antigers.melancholic_hunger.hud;
+
+import antigers.melancholic_hunger.config.YACLConfig;
+import net.minecraft.util.Util;
+
+public class ExperienceBarAnimation {
+    private static final int ANIMATION_TIME = 150;
+
+    private long startTime;
+    private boolean isRunning = false;
+    private boolean reverse = true;
+    private int currentPos = 0;
+    private float currentOpacity = 0;
+    private long drawUntil = 0;
+
+    private void beginIfNotAlready(long now) {
+        if (currentPos > 0 || isRunning) {
+            return;
+        }
+        startTime = now;
+        reverse = false;
+        isRunning = true;
+    }
+
+    private void beginReverseIfNotAlready(long now) {
+        if (currentPos < 7 || isRunning) {
+            return;
+        }
+        startTime = now;
+        reverse = true;
+        isRunning = true;
+    }
+
+    public void onGainExperience() {
+        var now = Util.getMeasuringTimeMs();
+        drawUntil = now + 3000;
+        beginIfNotAlready(now);
+    }
+
+    public void update(boolean isExpBarDrawnConstantly) {
+        // this method is called on every frame
+        if (!YACLConfig.hideExperienceBar()) {
+            currentPos = 7;
+            currentOpacity = 1.0F;
+            return;
+        }
+        var now = Util.getMeasuringTimeMs();
+        if (isExpBarDrawnConstantly) {
+            drawUntil = 0;
+            beginIfNotAlready(now);
+        }
+        else if (now > drawUntil) {
+            // starting to go backwards
+            drawUntil = 0;
+            beginReverseIfNotAlready(now);
+        }
+        if (!isRunning) {
+            return;
+        }
+        if (YACLConfig.enableExperienceAnimation()) {
+            var animationTime = now - startTime;
+            if (animationTime < ANIMATION_TIME) {
+                currentOpacity = (float) animationTime / ANIMATION_TIME;
+                currentPos = (int) (currentOpacity * 7);
+            }
+            else {
+                currentOpacity = 1.0F;
+                currentPos = 7;
+                isRunning = false;
+            }
+        }
+        else {
+            currentOpacity = 1.0F;
+            currentPos = 7;
+            isRunning = false;
+        }
+        if (reverse) {
+            currentOpacity = 1.0F - currentOpacity;
+            currentPos = 7 - currentPos;
+        }
+    }
+
+    public int getCurrentPos() {
+        return currentPos;
+    }
+
+    public float getCurrentOpacity() {
+        return currentOpacity;
+    }
+
+    public boolean shouldDraw() {
+        return drawUntil > 0 || currentPos > 0;
+    }
+}

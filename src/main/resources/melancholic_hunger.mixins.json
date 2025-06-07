@@ -1,0 +1,21 @@
+{
+	"required": true,
+	"package": "antigers.melancholic_hunger.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+		"HungerManagerMixin",
+		"PlayerEntityMixin",
+		"LivingEntityMixin",
+		"ItemStackMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"client": [
+		"ClientMixin",
+		"ClientPlayerEntityMixin",
+      	"InGameHudMixin",
+		"ScreenMixin",
+		"YACLListOptionMixin"
+	]
+}

@@ -121,6 +121,23 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
     }
 
     /**
+     * Moves mount health bar according to the exp bar animation position if there is no mount jump bar
+     */
+    @WrapOperation(
+            method="renderMountHealth",
+            at=@At(
+                    value="INVOKE",
+                    target="Lnet/minecraft/client/gui/DrawContext;getScaledWindowHeight()I"
+            )
+    )
+    private int melancholic_hunger$moveMountHealthBar(DrawContext drawContext, Operation<Integer> original) {
+        if (this.client.player.getJumpingMount() == null) {
+            return original.call(drawContext) - melancholic_hunger$experienceBarAnimation.getCurrentPos() + 7;
+        }
+        return original.call(drawContext);
+    }
+
+    /**
      * Sets opacity of both experience bar and level according to the animation
      */
     @WrapMethod(
@@ -188,7 +205,8 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
         var drawRestoredHeartsHelper = new RestoredHeartsDrawHelper(playerEntity, this.random);
         var drawHudContext = new DrawHudContext(
                 this.client, drawContext.vertexConsumers, drawRestoredHeartsHelper,
-                melancholic_hunger$experienceBarAnimation.getCurrentPos()
+                this.client.player.getJumpingMount() != null
+                        ? 7 : melancholic_hunger$experienceBarAnimation.getCurrentPos()
         );
         original.call(inGameHud, drawHudContext);
     }
@@ -281,7 +299,7 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
     ) {
         DrawHudContext drawHudContext = (DrawHudContext) drawContext;
         y = drawHudContext.getArmorBarY();
-        if (YACLConfig.hideHungerBar()) {
+        if (YACLConfig.hideHungerBar() && !drawHudContext.getIsRiding()) {
             // move bar to the right and reverse render order from right to left
             x = drawHudContext.getMirroredX(x);
             if (!DrawHudContext.isDefaultArmorHudTexture) {

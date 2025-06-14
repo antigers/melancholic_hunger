@@ -13,6 +13,7 @@ public class DrawHudContext extends DrawContext {
     private int armorBarY;
     private final RestoredHeartsDrawHelper restoredHeartsDrawHelper;
     public static boolean isDefaultArmorHudTexture;
+    private final boolean isRiding;
 
     public DrawHudContext(
             MinecraftClient client, VertexConsumerProvider.Immediate vertexConsumers,
@@ -26,6 +27,7 @@ public class DrawHudContext extends DrawContext {
         offsetX = windowWidth - ((windowWidth % 2 == 0) ? 9 : 10);
         healthBarY = this.getScaledWindowHeight() - 32 - hudExperienceOffset;
         this.hudExperienceOffset = hudExperienceOffset;
+        isRiding = client.player.getVehicle() != null;
     }
 
     public RestoredHeartsDrawHelper getHelper() {
@@ -35,8 +37,8 @@ public class DrawHudContext extends DrawContext {
     public void prepareArmorAndBubblesBarsDrawing(int healthBarHighestRowY) {
         var aboveHealthY = healthBarHighestRowY - 3 - hudExperienceOffset;
         if (YACLConfig.hideHungerBar()) {
-            // drawing bubbles in place of hunger bar (same height as health)
-            armorBarY = healthBarY;
+            // drawing armor in place of hunger bar (same height as health)
+            armorBarY = isRiding ? aboveHealthY : healthBarY;
             // drawing bubbles above all health rows
             bubblesBarY = aboveHealthY;
         }
@@ -62,5 +64,9 @@ public class DrawHudContext extends DrawContext {
 
     public int getBubblesBarY() {
         return bubblesBarY;
+    }
+
+    public boolean getIsRiding() {
+        return isRiding;
     }
 }

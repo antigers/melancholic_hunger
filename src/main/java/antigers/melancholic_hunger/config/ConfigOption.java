@@ -1,28 +1,27 @@
 package antigers.melancholic_hunger.config;
 
 import antigers.melancholic_hunger.MelancholicHunger;
-import dev.isxander.yacl3.api.ListOption;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.OptionDescription;
 import dev.isxander.yacl3.api.OptionEventListener;
 import dev.isxander.yacl3.api.controller.ControllerBuilder;
-import dev.isxander.yacl3.impl.controller.StringControllerBuilderImpl;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 class ConfigOption<T, U> {
     private static final String CONFIG_PREFIX = "screen.melancholic_hunger.config.";
-    private static final String OPTION_CONFIG_PREFIX = CONFIG_PREFIX + "option.";
+    protected static final String OPTION_CONFIG_PREFIX = CONFIG_PREFIX + "option.";
 
     private record ConfigOptionDependency<U>(ConfigOption<U, ?> configOption, U requiredValue) {
         boolean isCurrentValueEqualsRequired() {
-            return configOption.getValue().equals(requiredValue);
+            return configOption.getter.get().equals(requiredValue);
         }
 
         boolean isPendingValueEqualsRequired() {
@@ -45,22 +44,12 @@ class ConfigOption<T, U> {
         }
     }
 
-    @FunctionalInterface
-    protected interface Getter<T> {
-        T run();
-    }
-
-    @FunctionalInterface
-    protected interface Setter<T> {
-        void run(T value);
-    }
-
-    private final String name;
+    protected final String name;
     private final T defaultValue;
     private final boolean nostalgicTweaksRelated;
-    private final Getter<T> getter;
-    private final Setter<T> setter;
-    private Option<T> YACLOption;
+    protected final Supplier<T> getter;
+    protected final Consumer<T> setter;
+    protected Option<T> YACLOption;
     private final boolean isServerOption;
     private boolean playerHasPermission;
 
@@ -71,7 +60,7 @@ class ConfigOption<T, U> {
 
     public ConfigOption(
             String name, T defaultValue, boolean nostalgicTweaksRelated, boolean isServerOption,
-            Getter<T> getter, Setter<T> setter
+            Supplier<T> getter, Consumer<T> setter
     ) {
         this.name = name;
         this.defaultValue = defaultValue;
@@ -80,17 +69,15 @@ class ConfigOption<T, U> {
         this.setter = setter;
         this.isServerOption = isServerOption;
         playerHasPermission = true;
-        setValueToDefault();
     }
 
-    private void setValueToDefault() {
-        setter.run(defaultValue);
+    protected void setValueToDefault() {
+        setter.accept(defaultValue);
     }
 
     public void validateValue() {
-        if (dependency == null && getter.run() == null) {
+        if (getter.get() == null) {
             setValueToDefault();
-            return;
         }
         updateValueAccordingToDependency();
     }
@@ -100,22 +87,23 @@ class ConfigOption<T, U> {
             return;
         }
         T newValue = dependency.isCurrentValueEqualsRequired() ? valueOnDependencyTrue : valueOnDependencyFalse;
-        setValueForced(newValue);
-    }
-
-    private T getValue() {
-        var res = getter.run();
-        return res != null ? res : defaultValue;
-    }
-
-    private void setValueForced(T value) {
-        if (value == null || getter.run() == value) {
-            return;
+        if (newValue != null) {
+            setValueForced(newValue);
         }
-        setter.run(value);
+    }
+
+    protected void updateDependents() {
         for (var dependent : dependents) {
             dependent.updateValueAccordingToDependency();
         }
+    }
+
+    private void setValueForced(T value) {
+        if (value == null || getter.get() == value) {
+            return;
+        }
+        setter.accept(value);
+        updateDependents();
     }
 
     public void setValue(T value) {
@@ -139,7 +127,7 @@ class ConfigOption<T, U> {
         return this;
     }
 
-    private OptionDescription buildOptionDescription(T value) {
+    protected OptionDescription buildOptionDescription(T value) {
         var descriptionBuilder = OptionDescription.createBuilder().text(
                 Text.translatable(OPTION_CONFIG_PREFIX + name + ".description")
         );
@@ -203,7 +191,7 @@ class ConfigOption<T, U> {
         );
     }
 
-    private boolean getOptionAvailability() {
+    protected boolean getOptionAvailability() {
         if (isServerOption) {
             var client = MinecraftClient.getInstance();
             var player = client.player;
@@ -222,38 +210,11 @@ class ConfigOption<T, U> {
     public Option<T> buildYACLOption(Function<Option<T>, ControllerBuilder<T>> controllerBuilder) {
         YACLOption = Option.<T>createBuilder()
                 .name(Text.translatable(OPTION_CONFIG_PREFIX + name + ".name"))
-                .binding(
-                        defaultValue,
-                        this::getValue,
-                        newVal -> setter.run(newVal)
-                )
+                .binding(defaultValue, getter, setter)
                 .controller(controllerBuilder)
                 .available(getOptionAvailability())
                 .description(this::buildOptionDescription)
                 .build();
         return YACLOption;
-    }
-
-    public ListOption<String> buildStringListYACLOption() {
-        var option = ListOption.<String>createBuilder()
-                .name(Text.translatable(OPTION_CONFIG_PREFIX + name + ".name"))
-                .binding(
-                        (List<String>)defaultValue,
-                        () -> (List<String>)getter.run(),
-                        newVal -> setter.run((T)newVal)
-                )
-                .controller(StringControllerBuilderImpl::new)
-                .initial("\"minecraft:\": 0")
-                .available(getOptionAvailability())
-                .description(buildOptionDescription(null))
-                .addListener(
-                        (opt, event) ->
-                                ((CustomYACLListOption)opt).melancholic_hunger$updateDescription(
-                                        buildOptionDescription(null)
-                                )
-                )
-                .build();
-        YACLOption = (Option<T>)option;
-        return option;
     }
 }

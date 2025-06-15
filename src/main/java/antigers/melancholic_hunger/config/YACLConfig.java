@@ -48,17 +48,6 @@ public class YACLConfig {
         return foodComponent.nutrition();
     }
 
-    private static ArrayList<String> convertMapToListOfStrings(Map<String, Integer> map) {
-        if (map == null) {
-            return null;
-        }
-        var result = new ArrayList<String>();
-        for (var entry : map.entrySet()) {
-            result.add(String.format("\"%s\": %d", entry.getKey(), entry.getValue()));
-        }
-        return result;
-    }
-
     private static final ConfigClassHandler<YACLConfig> HANDLER = ConfigClassHandler.createBuilder(YACLConfig.class)
             .id(Identifier.of("melancholic_hunger", "config"))
             .serializer(config -> GsonConfigSerializerBuilder.create(config)
@@ -124,7 +113,12 @@ public class YACLConfig {
             ).addDependency(SPRINTING, SprintingOption.LIMITED_BY_HEALTH)
     );
 
-    private static List<String> getDefaultItemStackSizes() {
+    private static final ConfigOption<Boolean, Boolean> USE_CUSTOM_FOOD_STACK_SIZES = new ConfigOption<>(
+            "useCustomFoodStackSizes", true, true, true,
+            () -> serverData.useCustomFoodStackSizes, val -> serverData.useCustomFoodStackSizes = val
+    );
+
+    private static LinkedHashMap<String, Integer> getDefaultItemStackSizes() {
         var sizes = new LinkedHashMap<Item, Integer>();
         sizes.put(Items.BEETROOT, 64);
         sizes.put(Items.DRIED_KELP, 64);
@@ -170,38 +164,17 @@ public class YACLConfig {
         sizes.put(Items.RABBIT_STEW, 1);
         sizes.put(Items.SUSPICIOUS_STEW, 1);
 
-        var result = new ArrayList<String>();
+        var result = new LinkedHashMap<String, Integer>();
         for (var entry : sizes.entrySet()) {
-            var itemId = Registries.ITEM.getId(entry.getKey()).toString();
-            result.add(String.format("\"%s\": %d", itemId, entry.getValue()));
+            result.put(Registries.ITEM.getId(entry.getKey()).toString(), entry.getValue());
         }
         return result;
     }
 
-    private static final ConfigOption<Boolean, Boolean> USE_CUSTOM_FOOD_STACK_SIZES = new ConfigOption<>(
-            "useCustomFoodStackSizes", true, true, true,
-            () -> serverData.useCustomFoodStackSizes, val -> serverData.useCustomFoodStackSizes = val
-    );
-
-    private static final ConfigOption<List<String>, Boolean> CUSTOM_FOOD_STACK_SIZES = (
-            new ConfigOption<List<String>, Boolean>(
-                    "customFoodStackSizes", getDefaultItemStackSizes(), true, true,
-                    () -> {
-                        if (serverData.customFoodStackSizes == null) {
-                            return null;
-                        }
-                        return convertMapToListOfStrings(serverData.customFoodStackSizes);
-                    },
-                    val -> {
-                        var result = new LinkedHashMap<String, Integer>();
-                        for (var line : val) {
-                            var splitLine = line.split("\":");
-                            result.put(splitLine[0].replace("\"", "").trim(), Integer.parseInt(splitLine[1].trim()));
-                        }
-                        serverData.customFoodStackSizes = result;
-                    }
-            ).addDependency(USE_CUSTOM_FOOD_STACK_SIZES, true)
-    );
+    private static final ItemIntegerMapConfigOption CUSTOM_FOOD_STACK_SIZES = (ItemIntegerMapConfigOption) new ItemIntegerMapConfigOption(
+            "customFoodStackSizes", getDefaultItemStackSizes(), true, true,
+            () -> serverData.customFoodStackSizes, val -> serverData.customFoodStackSizes = val
+    ).addDependency(USE_CUSTOM_FOOD_STACK_SIZES, true);
 
     private static final ConfigOption<Boolean, NullType> HIDE_EXPERIENCE_BAR = new ConfigOption<>(
             "hideExperienceBar", true, true, false,
@@ -282,7 +255,7 @@ public class YACLConfig {
                 .name(Text.translatable(CONFIG_PREFIX + "food_category_name"))
                 .tooltip(Text.translatable(CONFIG_PREFIX + "food_category_tooltip"))
                 .option(USE_CUSTOM_FOOD_STACK_SIZES.buildYACLOption(YACLConfig::createBooleanController))
-                .option(CUSTOM_FOOD_STACK_SIZES.buildStringListYACLOption())
+                .option(CUSTOM_FOOD_STACK_SIZES.buildYACLOption())
                 .build();
     }
 
@@ -396,7 +369,7 @@ public class YACLConfig {
         GRADUAL_HEALTH_REGENERATION.setValue(newServerData.gradualHealthRegeneration());
         GRADUAL_HEALTH_REGENERATION_SPEED.setValue(newServerData.gradualHealthRegenerationSpeed());
         USE_CUSTOM_FOOD_STACK_SIZES.setValue(newServerData.useCustomFoodStackSizes());
-        CUSTOM_FOOD_STACK_SIZES.setValue(convertMapToListOfStrings(newServerData.customFoodStackSizes()));
+        CUSTOM_FOOD_STACK_SIZES.setValue(newServerData.customFoodStackSizes());
         SPRINTING.setValue(newServerData.sprinting());
         SPRINTING_HEALTH_LIMIT.setValue(newServerData.sprintingHealthLimit());
         return true;

@@ -313,8 +313,8 @@ public class YACLConfig {
                     boolean isSinglePlayer = client.isInSingleplayer();
                     var player = client.player;
                     if (!MelancholicHunger.nostalgicTweaksInstalled) {
-                        // hideHungerBar is hidden when NT is not installed, so we have to check that it has the correct value
-                        HIDE_HUNGER_BAR.updateValueAccordingToDependency();
+                        // hideHungerBar option is hidden when NT is not installed, so we have to correct its value
+                        clientData.hideHungerBar = serverData.disableHunger;
                     }
                     if (isSinglePlayer || player == null) {
                         // writing config file if in singleplayer or if on title screen
@@ -337,6 +337,10 @@ public class YACLConfig {
                 SHOW_EXPERIENCE_ON_SCREENS, SHOW_EXPERIENCE_ON_GAIN, ENABLE_EXPERIENCE_ANIMATION, RENDER_EXPERIENCE_OVER_BACKGROUND
         )) {
             option.validateValue();
+        }
+        if (!MelancholicHunger.nostalgicTweaksInstalled) {
+            // hideHungerBar option is hidden when NT is not installed, so we have to correct its value
+            HIDE_HUNGER_BAR.setValue(false);
         }
     }
 

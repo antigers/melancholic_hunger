@@ -21,7 +21,12 @@ class ConfigOption<T, U> {
 
     private record ConfigOptionDependency<U>(ConfigOption<U, ?> configOption, U requiredValue) {
         boolean isCurrentValueEqualsRequired() {
-            return configOption.getter.get().equals(requiredValue);
+            U value = configOption.getter.get();
+            if (value == null) {
+                configOption.validateValue();
+                value = configOption.getter.get();
+            }
+            return requiredValue.equals(value);
         }
 
         boolean isPendingValueEqualsRequired() {
@@ -82,13 +87,9 @@ class ConfigOption<T, U> {
         updateValueAccordingToDependency();
     }
 
-    public void updateValueAccordingToDependency() {
-        if (dependency == null) {
-            return;
-        }
-        T newValue = dependency.isCurrentValueEqualsRequired() ? valueOnDependencyTrue : valueOnDependencyFalse;
-        if (newValue != null) {
-            setValueForced(newValue);
+    protected void updateValueAccordingToDependency() {
+        if (dependency != null && !dependency.isCurrentValueEqualsRequired()) {
+            setValueForced(valueOnDependencyFalse);
         }
     }
 

@@ -1,12 +1,16 @@
 package antigers.melancholic_hunger.mixin;
 
 import antigers.melancholic_hunger.config.YACLConfig;
-import antigers.melancholic_hunger.hud.ExperienceBarAnimation;
+import antigers.melancholic_hunger.hud.*;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.LayeredDrawer;
+import net.minecraft.client.gl.RenderPipelines;
+import net.minecraft.client.gui.hud.bar.Bar;
+import net.minecraft.client.gui.hud.bar.ExperienceBar;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -14,44 +18,44 @@ import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.gui.screen.ingame.*;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.client.world.ClientWaypointHandler;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.util.profiler.Profilers;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 
-import antigers.melancholic_hunger.hud.DrawHudContext;
-import antigers.melancholic_hunger.hud.RestoredHeartsDrawHelper;
-import antigers.melancholic_hunger.hud.ExperienceHudRenderer;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.function.Function;
+import java.util.Objects;
 
 @Mixin(InGameHud.class)
 public abstract class InGameHudMixin implements ExperienceHudRenderer {
+    @Shadow private Pair<InGameHud.BarType, Bar> currentBar;
     @Shadow @Final private MinecraftClient client;
     @Shadow @Nullable protected abstract PlayerEntity getCameraPlayer();
-    @Shadow private void renderExperienceBar(DrawContext context, int x) {}
-    @Shadow private void renderExperienceLevel(DrawContext context, RenderTickCounter tickCounter) {}
-    @Shadow protected abstract boolean shouldRenderExperience();
     @Shadow protected abstract int getHeartCount(@Nullable LivingEntity entity);
     @Shadow protected abstract int getHeartRows(int heartCount);
     @Shadow @Nullable protected abstract LivingEntity getRiddenEntity();
     @Shadow public abstract TextRenderer getTextRenderer();
     @Shadow @Final private Random random;
-    @Shadow @Final private static Identifier EXPERIENCE_BAR_BACKGROUND_TEXTURE;
-    @Shadow @Final private static Identifier EXPERIENCE_BAR_PROGRESS_TEXTURE;
     @Shadow @Final private static Identifier ARMOR_EMPTY_TEXTURE;
     @Shadow @Final private static Identifier ARMOR_HALF_TEXTURE;
+    @Shadow private boolean shouldShowExperienceBar() {return false;}
+    @Shadow private InGameHud.BarType getCurrentBarType() {return InGameHud.BarType.EMPTY;}
 
+    @Unique private static final Identifier EXPERIENCE_BAR_BACKGROUND_TEXTURE = Identifier.ofVanilla(
+            "hud/experience_bar_background"
+    );
+    @Unique private static final Identifier EXPERIENCE_BAR_PROGRESS_TEXTURE = Identifier.ofVanilla(
+            "hud/experience_bar_progress"
+    );
     @Unique private static final Identifier VANILLA_ARMOR_EMPTY_TEXTURE = Identifier.of(
             "melancholic_hunger", "hud/armor_empty"
     );
@@ -61,146 +65,155 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
     @Unique private static final Identifier VANILLA_ARMOR_HALF_TEXTURE_INVERSED = Identifier.of(
             "melancholic_hunger", "hud/armor_half_inversed"
     );
-    @Unique private final ExperienceBarAnimation melancholic_hunger$experienceBarAnimation = new ExperienceBarAnimation();
+    @Unique private final BarAnimation melancholic_hunger$barAnimation = new BarAnimation(
+            currentBarType -> (currentBarType != InGameHud.BarType.EMPTY)
+    );
+    @Unique private final BarAnimation melancholic_hunger$expLevelAnimation = new BarAnimation(
+            currentBarType -> (!YACLConfig.hideExperienceBar())
+    );
 
+    /**
+     * Checks for special cases in which the exp bar should be rendered when it's set to be hidden in the config
+     */
     @Unique
     private boolean melancholic_hunger$shouldRenderExperience() {
-        if (!this.shouldRenderExperience()) {
-            return false;
-        }
-        if (!YACLConfig.hideExperienceBar()) {
-            return true;
-        }
         return (
-                (!YACLConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen()) ||
-                        melancholic_hunger$experienceBarAnimation.shouldDraw()
+                // exp has been gained recently
+                 this.shouldShowExperienceBar() ||
+                // exp should be rendered while the current screen is open
+                (!YACLConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen())
+                // exp bar disappearance animation is not finished yet
+                || melancholic_hunger$expLevelAnimation.shouldStillDrawExperience()
         );
     }
 
     /**
-     * Disables rendering of experience bar
+     * Sets the position and opacity for the exp level according to the animation
      */
-    @WrapOperation(
-        method = "renderMainHud",
-        at = @At(
-            value="INVOKE",
-            target="Lnet/minecraft/client/gui/hud/InGameHud;shouldRenderExperience()Z"
-        )
-    )
-    private boolean melancholic_hunger$disableExperienceBarRender(InGameHud instance, Operation<Boolean> original) {
-        return melancholic_hunger$shouldRenderExperience();
+    @Unique
+    private void melancholic_hunger$renderExperienceLevel(DrawContext context, TextRenderer textRenderer, int level) {
+        Text text = Text.translatable("gui.experience.level", level);
+        Objects.requireNonNull(textRenderer);
+        int x = (context.getScaledWindowWidth() - textRenderer.getWidth(text)) / 2;
+        int y = context.getScaledWindowHeight() - 28 - melancholic_hunger$barAnimation.getCurrentPos();
+        // If alpha gets to values lower than 4, it's full opacity for some reason. So capping minimum value to 4
+        int alpha = Math.max(4, (int) (melancholic_hunger$expLevelAnimation.getCurrentOpacity() * 255));
+        int zeroColor = ColorHelper.withAlpha(alpha, -16777216);
+        context.drawText(textRenderer, text, x + 1, y, zeroColor, false);
+        context.drawText(textRenderer, text, x - 1, y, zeroColor, false);
+        context.drawText(textRenderer, text, x, y + 1, zeroColor, false);
+        context.drawText(textRenderer, text, x, y - 1, zeroColor, false);
+        context.drawText(textRenderer, text, x, y, ColorHelper.withAlpha(alpha, -8323296), false);
     }
 
     /**
-     * Disables rendering of experience level.
-     * Using ordinal = 3 because renderExperienceLevel is the forth layer added to the layeredDrawer
+     * Checks if the exp level should be rendered
      */
     @WrapOperation(
-        method = "<init>",
-        at = @At(
-            value="INVOKE",
-            target="Lnet/minecraft/client/gui/LayeredDrawer;addLayer(Lnet/minecraft/client/gui/LayeredDrawer$Layer;)Lnet/minecraft/client/gui/LayeredDrawer;",
-            ordinal=3
-        )
+            method = "renderMainHud",
+            at = @At(
+                    value="INVOKE",
+                    target = "Lnet/minecraft/client/gui/hud/bar/Bar;drawExperienceLevel(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/client/font/TextRenderer;I)V"
+            )
     )
-    private LayeredDrawer melancholic_hunger$disableExperienceLevelRender(
-            LayeredDrawer instance, LayeredDrawer.Layer layer, Operation<LayeredDrawer> original
+    private void melancholic_hunger$wrapDrawExperienceLevel(
+            DrawContext context, TextRenderer textRenderer, int level, Operation<Void> original
     ) {
-        LayeredDrawer.Layer wrappedLayer = (context, tickCounter) -> {
-            if (melancholic_hunger$shouldRenderExperience()) {
-                this.renderExperienceLevel(context, tickCounter);
-            }
-        };
-        return original.call(instance, wrappedLayer);
+        if (!YACLConfig.hideExperienceBar() || melancholic_hunger$shouldRenderExperience()) {
+            melancholic_hunger$renderExperienceLevel(context, textRenderer, level);
+        }
     }
 
     /**
-     * Sets opacity of the experience level according to the animation
+     * Sets the position and opacity for the exp bar according to the animation
      */
-    @WrapMethod(
-            method = "renderExperienceLevel"
-    )
-    private void melancholic_hunger$renderExperienceLevel(
-            DrawContext context, RenderTickCounter tickCounter, Operation<Void> original
-    ) {
-        int level = this.client.player.experienceLevel;
-        if (level <= 0) {
+    @Unique
+    private void melancholic_hunger$renderExperienceBar(Bar bar, DrawContext context) {
+        ClientPlayerEntity clientPlayerEntity = this.client.player;
+        if (clientPlayerEntity.getNextLevelExperience() <= 0) {
             return;
         }
-        Profilers.get().push("expLevel");
-        String string = "" + level;
-        int x = (context.getScaledWindowWidth() - this.getTextRenderer().getWidth(string)) / 2;
-        int y = context.getScaledWindowHeight() - 28 - melancholic_hunger$experienceBarAnimation.getCurrentPos();
-        // If alpha gets to values lower than 4, it's full opacity for some reason. So capping minimum value to 4
-        int alpha = Math.max(4, (int) (melancholic_hunger$experienceBarAnimation.getCurrentOpacity() * 255));
-        int zeroColor = ColorHelper.withAlpha(alpha, 0);
-        context.drawText(this.getTextRenderer(), string, x + 1, y, zeroColor, false);
-        context.drawText(this.getTextRenderer(), string, x - 1, y, zeroColor, false);
-        context.drawText(this.getTextRenderer(), string, x, y + 1, zeroColor, false);
-        context.drawText(this.getTextRenderer(), string, x, y - 1, zeroColor, false);
-        context.drawText(this.getTextRenderer(), string, x, y, ColorHelper.withAlpha(alpha, 8453920), false);
-        Profilers.get().pop();
+        int x = bar.getCenterX(this.client.getWindow());
+        int y = context.getScaledWindowHeight() - 22 - melancholic_hunger$barAnimation.getCurrentPos();
+        int alpha = (int) (melancholic_hunger$barAnimation.getCurrentOpacity() * 255);
+        int color = ColorHelper.withAlpha(alpha, Colors.WHITE);
+        int progressWidth = (int)(clientPlayerEntity.experienceProgress * 183.0F);
+        context.drawGuiTexture(
+                RenderPipelines.GUI_TEXTURED, EXPERIENCE_BAR_BACKGROUND_TEXTURE, x, y, 182, 5, color
+        );
+        if (progressWidth > 0) {
+            context.drawGuiTexture(
+                    RenderPipelines.GUI_TEXTURED, EXPERIENCE_BAR_PROGRESS_TEXTURE, 182, 5, 0, 0,
+                    x, y, progressWidth, 5, color
+            );
+        }
     }
 
     /**
-     * Changes height of the experience level according to the animation position
+     * Calls the custom method to render the exp bar
      */
     @WrapOperation(
-            method = "renderExperienceLevel",
+            method = "renderMainHud",
+            at = @At(
+                    value="INVOKE",
+                    target = "Lnet/minecraft/client/gui/hud/bar/Bar;renderBar(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/client/render/RenderTickCounter;)V"
+            )
+    )
+    private void melancholic_hunger$wrapRenderBar(
+            Bar bar, DrawContext context, RenderTickCounter renderTickCounter, Operation<Void> original
+    ) {
+        if (bar instanceof ExperienceBar) {
+            melancholic_hunger$renderExperienceBar(bar, context);
+            return;
+        }
+        original.call(bar, context, renderTickCounter);
+    }
+
+    /**
+     * Disables rendering of the locator bar if it is hidden in the config
+     */
+    @WrapOperation(
+            method = "getCurrentBarType",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/DrawContext;getScaledWindowHeight()I"
+                    target = "Lnet/minecraft/client/world/ClientWaypointHandler;hasWaypoint()Z"
             )
     )
-    private int melancholic_hunger$modifyExpLevelY(DrawContext instance, Operation<Integer> original) {
-        return original.call(instance) - melancholic_hunger$experienceBarAnimation.getCurrentPos() + 7;
+    private boolean melancholic_hunger$hideLocatorBar(ClientWaypointHandler instance, Operation<Boolean> original) {
+        if (YACLConfig.hideLocatorBar()) {
+            return false;
+        }
+        return original.call(instance);
     }
 
     /**
-     * Moves mount health bar according to the exp bar animation position if there is no mount jump bar
+     * Manipulates which bar should be rendered according to the config values
      */
-    @WrapOperation(
-            method="renderMountHealth",
-            at=@At(
-                    value="INVOKE",
-                    target="Lnet/minecraft/client/gui/DrawContext;getScaledWindowHeight()I"
-            )
-    )
-    private int melancholic_hunger$moveMountHealthBar(DrawContext drawContext, Operation<Integer> original) {
-        if (this.client.player.getJumpingMount() == null) {
-            return original.call(drawContext) - melancholic_hunger$experienceBarAnimation.getCurrentPos() + 7;
+    @WrapMethod(method="getCurrentBarType")
+    private InGameHud.BarType melancholic_hunger$getCurrentBarType(Operation<InGameHud.BarType> original) {
+        InGameHud.BarType barType = original.call();
+        if (barType == InGameHud.BarType.JUMPABLE_VEHICLE || !this.client.interactionManager.hasExperienceBar()) {
+            return barType;
         }
-        return original.call(drawContext);
-    }
-
-    /**
-     * Sets opacity of the experience bar according to the animation
-     */
-    @WrapMethod(
-            method = "renderExperienceBar"
-    )
-    private void melancholic_hunger$addExperienceBarShading(DrawContext context, int x, Operation<Void> original) {
-        Profilers.get().push("expBar");
-        if (this.client.player.getNextLevelExperience() > 0) {
-            int width = (int)(this.client.player.experienceProgress * 183.0F);
-            int y = context.getScaledWindowHeight() - 22 - melancholic_hunger$experienceBarAnimation.getCurrentPos();
-            int alpha = (int) (melancholic_hunger$experienceBarAnimation.getCurrentOpacity() * 255);
-            int color = ColorHelper.withAlpha(alpha, Colors.WHITE);
-            context.drawGuiTexture(RenderLayer::getGuiTextured, EXPERIENCE_BAR_BACKGROUND_TEXTURE, x, y, 182, 5, color);
-            if (width > 0) {
-                Sprite sprite = this.client.getGuiAtlasManager().getSprite(EXPERIENCE_BAR_PROGRESS_TEXTURE);
-                context.drawSpriteRegion(RenderLayer::getGuiTextured, sprite, 182, 5, 0, 0, x, y, width, 5, color);
-            }
+        if (melancholic_hunger$shouldRenderExperience()) {
+            // making the exp bar to render in our special cases
+            return InGameHud.BarType.EXPERIENCE;
+        } else if (barType == InGameHud.BarType.EXPERIENCE && YACLConfig.hideExperienceBar()) {
+            // making the exp bar to not render when it's set to be hidden in the config
+            return InGameHud.BarType.EMPTY;
+        } else if (
+                YACLConfig.renderExperienceOverBackground() &&
+                        melancholic_hunger$needToRenderExperienceHudOnCurrentScreen()
+        ) {
+            // making any bar to not render when we have an exp bar rendered on top of everything
+            return InGameHud.BarType.EMPTY;
         }
-        Profilers.get().pop();
+        return barType;
     }
 
     @Unique
     public boolean melancholic_hunger$needToRenderExperienceHudOnCurrentScreen() {
         // rendering only if some certain interface screen is open (inventory, enchantment table, etc.)
-        if (!this.shouldRenderExperience()) {
-            return false;
-        }
         var currentScreen = this.client.currentScreen;
         return (
                 (YACLConfig.showExperienceInInventory() && currentScreen instanceof InventoryScreen) ||
@@ -212,51 +225,67 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
         );
     }
 
-    public void melancholic_hunger$renderExperienceHud(DrawContext drawContext) {
+    /**
+     * Renders the exp bar and level from an outside draw context, which is used to render it over the screens' background
+     */
+    public void melancholic_hunger$renderExperienceHudOverBackground(DrawContext drawContext) {
+        if (!this.client.interactionManager.hasExperienceBar()) {
+            return;
+        }
         if (YACLConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen()) {
-            this.renderExperienceBar(drawContext, drawContext.getScaledWindowWidth() / 2 - 91);
-            this.renderExperienceLevel(drawContext, null);
+            melancholic_hunger$renderExperienceBar(this.currentBar.getValue(), drawContext);
+            if (this.client.player.experienceLevel > 0) {
+                melancholic_hunger$renderExperienceLevel(drawContext, this.client.textRenderer, this.client.player.experienceLevel);
+            }
         }
-    }
-
-    public void melancholic_hunger$onAddExperience() {
-        if (YACLConfig.showExperienceOnGain()) {
-            melancholic_hunger$experienceBarAnimation.onGainExperience();
-        }
-    }
-
-    @Inject(method = "renderMainHud", at = @At("HEAD"))
-    private void melancholic_hunger$calculateHudOffset(
-            DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci
-    ) {
-        melancholic_hunger$experienceBarAnimation.update(melancholic_hunger$needToRenderExperienceHudOnCurrentScreen());
     }
 
     /**
-     * Replaces default DrawContext object with the custom DrawHudContext object
+     * Moves the mount health bar according to the exp bar animation position if there is no mount jump bar
      */
     @WrapOperation(
-        method="renderMainHud",
-        at=@At(
-            value="INVOKE",
-            target="Lnet/minecraft/client/gui/hud/InGameHud;renderStatusBars(Lnet/minecraft/client/gui/DrawContext;)V"
-        )
+            method="renderMountHealth",
+            at=@At(
+                    value="INVOKE",
+                    target="Lnet/minecraft/client/gui/DrawContext;getScaledWindowHeight()I"
+            )
     )
-    private void melancholic_hunger$replaceDrawContext(InGameHud inGameHud, DrawContext drawContext, Operation<Void> original) {
-        PlayerEntity playerEntity = this.getCameraPlayer();
-        if (playerEntity == null) {
-            return;
+    private int melancholic_hunger$moveMountHealthBar(DrawContext drawContext, Operation<Integer> original) {
+        if (this.client.player.getJumpingMount() == null) {
+            return original.call(drawContext) - melancholic_hunger$barAnimation.getCurrentPos() + 7;
         }
-        var drawRestoredHeartsHelper = new RestoredHeartsDrawHelper(playerEntity, this.random);
+        return original.call(drawContext);
+    }
+
+    @Unique
+    private DrawHudContext melancholic_hunger$getDrawHudContext(DrawContext drawContext, InGameHud.BarType currentBarType) {
+        var drawRestoredHeartsHelper = new RestoredHeartsDrawHelper(this.getCameraPlayer(), this.random);
+        boolean hasNonExperienceBar = currentBarType == InGameHud.BarType.JUMPABLE_VEHICLE || currentBarType == InGameHud.BarType.LOCATOR;
         int mountHealthHeartCount = this.getHeartCount(this.getRiddenEntity());
         boolean hasMountHealth = mountHealthHeartCount > 0;
         int mountHealthRows = this.getHeartRows(mountHealthHeartCount);
-        var drawHudContext = new DrawHudContext(
-                this.client, drawContext.vertexConsumers, drawRestoredHeartsHelper,
-                this.client.player.getJumpingMount() != null
-                        ? 7 : melancholic_hunger$experienceBarAnimation.getCurrentPos(), hasMountHealth, mountHealthRows
+        return new DrawHudContext(
+                this.client, drawContext.state, drawRestoredHeartsHelper,
+                hasNonExperienceBar ? 7 : melancholic_hunger$barAnimation.getCurrentPos(),
+                melancholic_hunger$barAnimation, hasMountHealth, mountHealthRows
         );
-        original.call(inGameHud, drawHudContext);
+    }
+
+    @WrapMethod(method = "renderMainHud")
+    private void melancholic_hunger$wrapRenderMainHud(
+            DrawContext drawContext, RenderTickCounter tickCounter, Operation<Void> original
+    ) {
+        InGameHud.BarType currentBarType = this.getCurrentBarType();
+
+        // updating the bar animations in the begging of every frame
+        boolean shouldDrawExperience = this.shouldShowExperienceBar() || melancholic_hunger$needToRenderExperienceHudOnCurrentScreen();
+        InGameHud.BarType animationBarType = shouldDrawExperience ? InGameHud.BarType.EXPERIENCE : currentBarType;
+        melancholic_hunger$barAnimation.update(animationBarType, shouldDrawExperience);
+        melancholic_hunger$expLevelAnimation.update(animationBarType, shouldDrawExperience);
+
+        // Replaces default DrawContext object with the custom DrawHudContext object
+        var drawHudContext = melancholic_hunger$getDrawHudContext(drawContext, currentBarType);
+        original.call(drawHudContext, tickCounter);
     }
 
     /**
@@ -300,21 +329,15 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
 
     @Unique
     private static void melancholic_hunger$drawGuiTextureInversed(
-            DrawContext drawContext, Identifier texture, int x, int y, int width, int height
+            DrawContext drawContext, Identifier texture, int x1, int y1, int width, int height
     ) {
         Sprite sprite = MinecraftClient.getInstance().getGuiAtlasManager().getSprite(texture);
         float u1 = sprite.getMinU(), u2 = sprite.getMaxU();
         float v1 = sprite.getMinV(), v2 = sprite.getMaxV();
-        float x1 = (float) x, x2 = x + width;
-        float y1 = (float) y, y2 = y + height;
-
-        RenderLayer renderLayer = RenderLayer.getGuiTextured(sprite.getAtlasId());
-        Matrix4f matrix4f = drawContext.getMatrices().peek().getPositionMatrix();
-        VertexConsumer vertexConsumer = drawContext.vertexConsumers.getBuffer(renderLayer);
-        vertexConsumer.vertex(matrix4f, x1, y2, 0.0F).texture(u2, v2).color(-1);
-        vertexConsumer.vertex(matrix4f, x2, y2, 0.0F).texture(u1, v2).color(-1);
-        vertexConsumer.vertex(matrix4f, x2, y1, 0.0F).texture(u1, v1).color(-1);
-        vertexConsumer.vertex(matrix4f, x1, y1, 0.0F).texture(u2, v1).color(-1);
+        int x2 = x1 + width;
+        int y2 = y1 + height;
+        // swapping u1 and u2 to rotate the texture along the vertical axis
+        drawContext.drawTexturedQuad(sprite.getAtlasId(), x1, y1, x2, y2, u2, u1, v1, v2);
     }
 
     @Unique
@@ -335,11 +358,12 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
         method="renderArmor",
         at=@At(
             value="INVOKE",
-            target="Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Ljava/util/function/Function;Lnet/minecraft/util/Identifier;IIII)V"
+            target="Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/util/Identifier;IIII)V"
         )
     )
     private static void melancholic_hunger$moveArmorBar(
-            DrawContext drawContext, Function<Identifier, RenderLayer> renderLayers, Identifier texture, int x, int y, int width, int height, Operation<Void> original
+            DrawContext drawContext, RenderPipeline pipeline, Identifier texture, int x, int y, int width, int height,
+            Operation<Void> original
     ) {
         DrawHudContext drawHudContext = (DrawHudContext) drawContext;
         y = drawHudContext.getArmorBarY();
@@ -355,7 +379,7 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
         else if (DrawHudContext.isDefaultArmorHudTexture) {
             texture = melancholic_hunger$fixVanillaArmorTexture(texture, false);
         }
-        original.call(drawContext, renderLayers, texture, x, y, width, height);
+        original.call(drawContext, pipeline, texture, x, y, width, height);
     }
 
     /**
@@ -386,7 +410,7 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
             boolean half, int colorRed, int colorGreen, int colorBlue
     ) {
         context.drawGuiTexture(
-                RenderLayer::getGuiTextured, type.getTexture(hardcore, half, blinking), x, y, 9, 9,
+                RenderPipelines.GUI_TEXTURED, type.getTexture(hardcore, half, blinking), x, y, 9, 9,
                 ColorHelper.getArgb(colorRed, colorGreen, colorBlue)
         );
     }
@@ -445,18 +469,18 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
             method="renderAirBubbles",
             at=@At(
                     value="INVOKE",
-                    target="Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Ljava/util/function/Function;Lnet/minecraft/util/Identifier;IIII)V"
+                    target="Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/util/Identifier;IIII)V"
             )
     )
     private void melancholic_hunger$moveBubblesBar(
-            DrawContext drawContext, Function<Identifier, RenderLayer> renderLayers, Identifier texture, int x, int y,
-            int width, int height, Operation<Void> original
+            DrawContext drawContext, RenderPipeline pipeline, Identifier texture, int x, int y, int width, int height,
+            Operation<Void> original
     ) {
         DrawHudContext drawHudContext = (DrawHudContext) drawContext;
         if (YACLConfig.hideHungerBar() && !drawHudContext.getHasMountHealth()) {
             // move bar to the left and reverse render order from left to right
             x = drawHudContext.getMirroredX(x);
         }
-        original.call(drawContext, renderLayers, texture, x, drawHudContext.getBubblesBarY(), width, height);
+        original.call(drawContext, pipeline, texture, x, drawHudContext.getBubblesBarY(), width, height);
     }
 }

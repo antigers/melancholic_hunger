@@ -3,7 +3,7 @@ package antigers.melancholic_hunger.hud;
 import antigers.melancholic_hunger.config.YACLConfig;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.gui.render.state.GuiRenderState;
 
 public class DrawHudContext extends DrawContext {
     private final int offsetX;
@@ -15,13 +15,14 @@ public class DrawHudContext extends DrawContext {
     public static boolean isDefaultArmorHudTexture;
     private final boolean hasMountHealth;
     private final int mountHealthRows;
+    private final BarAnimation barAnimation;
+    public boolean locatorBarWasRendered = false;
 
     public DrawHudContext(
-            MinecraftClient client, VertexConsumerProvider.Immediate vertexConsumers,
-            RestoredHeartsDrawHelper restoredHeartsDrawHelper, int hudExperienceOffset, boolean hasMountHealth,
-            int mountHealthRows
+            MinecraftClient client, GuiRenderState state, RestoredHeartsDrawHelper restoredHeartsDrawHelper,
+            int hudExperienceOffset, BarAnimation barAnimation, boolean hasMountHealth, int mountHealthRows
     ) {
-        super(client, vertexConsumers);
+        super(client, state);
         this.restoredHeartsDrawHelper = restoredHeartsDrawHelper;
         var windowWidth = this.getScaledWindowWidth();
         // fixing offset for odd window width value because vanilla code does integer division by 2 when
@@ -31,6 +32,7 @@ public class DrawHudContext extends DrawContext {
         this.hudExperienceOffset = hudExperienceOffset;
         this.hasMountHealth = hasMountHealth;
         this.mountHealthRows = mountHealthRows;
+        this.barAnimation = barAnimation;
     }
 
     public RestoredHeartsDrawHelper getHelper() {
@@ -77,5 +79,9 @@ public class DrawHudContext extends DrawContext {
 
     public boolean getHasMountHealth() {
         return hasMountHealth;
+    }
+
+    public BarAnimation getBarAnimation() {
+        return barAnimation;
     }
 }

@@ -47,19 +47,4 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
         }
         return (float)this.getHungerManager().getFoodLevel() > 6.0F;
     }
-
-    /**
-     * Draw experience bar on experience gain
-     */
-    @Inject(
-            method="setExperience",
-            at=@At("HEAD")
-    )
-    private void melancholic_hunger$drawExpBarOnExpGain(float progress, int total, int level, CallbackInfo callback) {
-        // checking age to see if player is fully initialized
-        if (this.age > 0 && total > this.totalExperience) {
-            ExperienceHudRenderer inGameHud = (ExperienceHudRenderer) this.client.inGameHud;
-            inGameHud.melancholic_hunger$onAddExperience();
-        }
-    }
 }

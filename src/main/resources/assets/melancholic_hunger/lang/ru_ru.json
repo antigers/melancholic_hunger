@@ -7,8 +7,8 @@
     "screen.melancholic_hunger.config.food_category_tooltip": "Настройки предметов еды",
     "screen.melancholic_hunger.config.sprinting_category_name": "Спринт",
     "screen.melancholic_hunger.config.sprinting_category_tooltip": "Настройки системы спринта",
-    "screen.melancholic_hunger.config.experience_category_name": "Опыт",
-    "screen.melancholic_hunger.config.experience_category_tooltip": "Настройки отображения полоски опыта",
+    "screen.melancholic_hunger.config.experience_category_name": "Опыт и локатор",
+    "screen.melancholic_hunger.config.experience_category_tooltip": "Настройки отображения полоски опыта и локатора игроков",
     "screen.melancholic_hunger.config.nostalgic_tweaks_controlled_option": "Эта опция также управляется модом Nostalgic Tweaks",
     "screen.melancholic_hunger.config.op_privileges_required_option": "Эта опция не может быть изменена, т. к. у вас отсутствуют привилегии оператора на текущем сервере",
     "screen.melancholic_hunger.config.dependency_required_option": "Эта опция не может быть изменена, пока опция \"%s\" %s",
@@ -60,5 +60,7 @@
     "screen.melancholic_hunger.config.option.enableExperienceAnimation.name": "Включить анимацию полоски опыта",
     "screen.melancholic_hunger.config.option.enableExperienceAnimation.description": "Активирует анимацию при появлении и пропадании полоски опыта",
     "screen.melancholic_hunger.config.option.renderExperienceOverBackground.name": "Отображать полоску опыта поверх фона",
-    "screen.melancholic_hunger.config.option.renderExperienceOverBackground.description": "Включает отображение полоски опыта поверх фона при открытии определённых экранов (чтобы её было лучше видно)"
+    "screen.melancholic_hunger.config.option.renderExperienceOverBackground.description": "Включает отображение полоски опыта поверх фона при открытии определённых экранов (чтобы её было лучше видно)",
+    "screen.melancholic_hunger.config.option.hideLocatorBar.name": "Спрятать полоску локатора игроков",
+    "screen.melancholic_hunger.config.option.hideLocatorBar.description": "Позволяет убрать полоску локатора игроков с экрана игрока"
 }

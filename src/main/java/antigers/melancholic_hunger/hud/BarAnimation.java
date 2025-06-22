@@ -1,9 +1,12 @@
 package antigers.melancholic_hunger.hud;
 
 import antigers.melancholic_hunger.config.YACLConfig;
+import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.util.Util;
 
-public class ExperienceBarAnimation {
+import java.util.function.Predicate;
+
+public class BarAnimation {
     private static final int ANIMATION_TIME = 150;
 
     private long startTime;
@@ -11,7 +14,13 @@ public class ExperienceBarAnimation {
     private boolean reverse = true;
     private int currentPos = 0;
     private float currentOpacity = 0;
-    private long drawUntil = 0;
+    private InGameHud.BarType currentBarType;
+    // this predicate checks if the current bar is always rendered, in which case the animation is in the fixed position
+    Predicate<InGameHud.BarType> alwaysOnPredicate;
+
+    public BarAnimation(Predicate<InGameHud.BarType> alwaysOnPredicate) {
+        this.alwaysOnPredicate = alwaysOnPredicate;
+    }
 
     private void beginIfNotAlready(long now) {
         if (currentPos > 0 || isRunning) {
@@ -31,31 +40,18 @@ public class ExperienceBarAnimation {
         isRunning = true;
     }
 
-    public void onGainExperience() {
-        var now = Util.getMeasuringTimeMs();
-        drawUntil = now + 3000;
-        beginIfNotAlready(now);
-    }
-
-    public void update(boolean isExpBarDrawnConstantly) {
+    public void update(InGameHud.BarType currentBarType, boolean shouldDraw) {
         // this method is called on every frame
-        if (!YACLConfig.hideExperienceBar()) {
-            currentPos = 7;
-            currentOpacity = 1.0F;
-            return;
-        }
         var now = Util.getMeasuringTimeMs();
-        if (isExpBarDrawnConstantly) {
-            drawUntil = 0;
+        if (this.alwaysOnPredicate.test(currentBarType) || shouldDraw) {
             beginIfNotAlready(now);
         }
-        else if (now > drawUntil) {
+        else {
             // starting to go backwards
-            drawUntil = 0;
             beginReverseIfNotAlready(now);
         }
         if (!isRunning) {
-            return;
+            this.currentBarType = currentBarType;
         }
         if (YACLConfig.enableExperienceAnimation()) {
             var animationTime = now - startTime;
@@ -88,7 +84,11 @@ public class ExperienceBarAnimation {
         return currentOpacity;
     }
 
-    public boolean shouldDraw() {
-        return drawUntil > 0 || currentPos > 0;
+    /**
+     * Checks if the experience bar animation is still running, which is important to keep rendering the exp bar until
+     * the animation is fully finished
+     */
+    public boolean shouldStillDrawExperience() { //InGameHud.BarType barType) {
+        return currentBarType == InGameHud.BarType.EXPERIENCE && isRunning;
     }
 }

@@ -1,22 +1,24 @@
 {
-	"required": true,
-	"package": "antigers.melancholic_hunger.mixin",
-	"compatibilityLevel": "JAVA_21",
-	"mixins": [
-		"HungerManagerMixin",
-		"PlayerEntityMixin",
-		"LivingEntityMixin",
-		"ItemStackMixin",
-		"FoodComponentMixin"
-	],
-	"injectors": {
-		"defaultRequire": 1
-	},
-	"client": [
-		"ClientMixin",
-		"ClientPlayerEntityMixin",
-      	"InGameHudMixin",
-		"ScreenMixin",
-		"YACLListOptionMixin"
-	]
+    "required": true,
+    "package": "antigers.melancholic_hunger.mixin",
+    "compatibilityLevel": "JAVA_21",
+    "mixins": [
+        "FoodComponentMixin",
+        "HungerManagerMixin",
+        "ItemStackMixin",
+        "LivingEntityMixin",
+        "PlayerEntityMixin"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    },
+    "client": [
+        "ClientMixin",
+        "ClientPlayerEntityMixin",
+        "EnchantmentAnvilScreenMixin",
+        "InGameHudMixin",
+        "LocatorBarMixin",
+        "ScreenMixin",
+        "YACLListOptionMixin"
+    ]
 }

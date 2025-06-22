@@ -21,6 +21,6 @@ public abstract class ScreenMixin extends AbstractParentElement {
     )
     public void melancholic_hunger$renderExperienceOnTopOfBackground(DrawContext drawContext, CallbackInfo callback) {
         ExperienceHudRenderer inGameHud = (ExperienceHudRenderer) this.client.inGameHud;
-        inGameHud.melancholic_hunger$renderExperienceHud(drawContext);
+        inGameHud.melancholic_hunger$renderExperienceHudOverBackground(drawContext);
     }
 }

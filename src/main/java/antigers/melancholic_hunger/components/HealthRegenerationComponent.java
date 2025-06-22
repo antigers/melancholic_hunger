@@ -8,9 +8,9 @@ import com.google.gson.reflect.TypeToken;
 import net.minecraft.component.type.FoodComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
@@ -62,18 +62,18 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
     }
 
     @Override
-    public void readFromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
-        this.consumedNutrition = Math.max(tag.getInt("consumedNutrition").orElse(0), 0);
-        var consumedFoodsStr = tag.getString("consumedFoods").orElse("");
+    public void readData(ReadView readView) {
+        this.consumedNutrition = Math.max(readView.getInt("consumedNutrition", 0), 0);
+        var consumedFoodsStr = readView.getString("consumedFoods", "");
         if (!consumedFoodsStr.isEmpty()) {
             this.consumedFoods = gson.fromJson(consumedFoodsStr, consumedFoodSetTypeToken);
         }
     }
 
     @Override
-    public void writeToNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
-        tag.putInt("consumedNutrition", this.consumedNutrition);
-        tag.putString("consumedFoods", gson.toJson(this.consumedFoods));
+    public void writeData(WriteView writeView) {
+        writeView.putInt("consumedNutrition", this.consumedNutrition);
+        writeView.putString("consumedFoods", gson.toJson(this.consumedFoods));
     }
 
     @Override

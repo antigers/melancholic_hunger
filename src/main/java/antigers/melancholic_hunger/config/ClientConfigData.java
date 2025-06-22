@@ -10,6 +10,7 @@ public class ClientConfigData {
     public Boolean showExperienceOnGain;
     public Boolean enableExperienceAnimation;
     public Boolean renderExperienceOverBackground;
+    public Boolean hideLocatorBar;
 
     public record ImmutableClientConfigData (
             Boolean hideHungerBar,
@@ -20,14 +21,15 @@ public class ClientConfigData {
             Boolean showExperienceOnScreens,
             Boolean showExperienceOnGain,
             Boolean enableExperienceAnimation,
-            Boolean renderExperienceOverBackground
+            Boolean renderExperienceOverBackground,
+            Boolean hideLocatorBar
     ) {}
 
     public ImmutableClientConfigData getImmutable() {
         return new ImmutableClientConfigData(
                 hideHungerBar, highlightRegeneratedHearts, highlightRestoredHearts, hideExperienceBar,
                 showExperienceInInventory, showExperienceOnScreens, showExperienceOnGain, enableExperienceAnimation,
-                renderExperienceOverBackground
+                renderExperienceOverBackground, hideLocatorBar
         );
     }
 }

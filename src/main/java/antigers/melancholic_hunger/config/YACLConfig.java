@@ -215,6 +215,11 @@ public class YACLConfig {
             () -> clientData.renderExperienceOverBackground, val -> clientData.renderExperienceOverBackground = val
     ).addValueDependency(HIDE_EXPERIENCE_BAR, true, true, false);
 
+    private static final ConfigOption<Boolean, NullType> HIDE_LOCATOR_BAR = new ConfigOption<>(
+            "hideLocatorBar", false, false, false,
+            () -> clientData.hideLocatorBar, val -> clientData.hideLocatorBar = val
+    );
+
     private static BooleanControllerBuilder createBooleanController(Option<Boolean> option) {
         return BooleanControllerBuilder.create(option).yesNoFormatter().coloured(true);
     }
@@ -347,6 +352,7 @@ public class YACLConfig {
                 .option(SHOW_EXPERIENCE_ON_GAIN.buildYACLOption(YACLConfig::createBooleanController))
                 .option(ENABLE_EXPERIENCE_ANIMATION.buildYACLOption(YACLConfig::createBooleanController))
                 .option(RENDER_EXPERIENCE_OVER_BACKGROUND.buildYACLOption(YACLConfig::createBooleanController))
+                .option(HIDE_LOCATOR_BAR.buildYACLOption(YACLConfig::createBooleanController))
                 .build();
     }
 
@@ -384,7 +390,7 @@ public class YACLConfig {
                 HUNGER_EFFECT, HIGHLIGHT_REGENERATED_HEARTS, INSTANT_EATING, USE_CUSTOM_FOOD_STACK_SIZES,
                 CUSTOM_FOOD_STACK_SIZES, SPRINTING, SPRINTING_HEALTH_LIMIT, HIGHLIGHT_RESTORED_HEARTS,
                 HIDE_EXPERIENCE_BAR, SHOW_EXPERIENCE_IN_INVENTORY, SHOW_EXPERIENCE_ON_SCREENS, SHOW_EXPERIENCE_ON_GAIN,
-                ENABLE_EXPERIENCE_ANIMATION, RENDER_EXPERIENCE_OVER_BACKGROUND
+                ENABLE_EXPERIENCE_ANIMATION, RENDER_EXPERIENCE_OVER_BACKGROUND, HIDE_LOCATOR_BAR
         )) {
             option.validateValue();
         }
@@ -408,6 +414,7 @@ public class YACLConfig {
         SHOW_EXPERIENCE_ON_GAIN.setValue(newClientData.showExperienceOnScreens());
         ENABLE_EXPERIENCE_ANIMATION.setValue(newClientData.enableExperienceAnimation());
         RENDER_EXPERIENCE_OVER_BACKGROUND.setValue(newClientData.renderExperienceOverBackground());
+        HIDE_LOCATOR_BAR.setValue(newClientData.hideLocatorBar());
     }
 
     public static ServerConfigData.ImmutableServerConfigData getServerData() {
@@ -484,4 +491,5 @@ public class YACLConfig {
     }
     public static boolean enableExperienceAnimation() {return clientData.enableExperienceAnimation;}
     public static boolean renderExperienceOverBackground() {return clientData.renderExperienceOverBackground;}
+    public static boolean hideLocatorBar() {return clientData.hideLocatorBar;}
 }

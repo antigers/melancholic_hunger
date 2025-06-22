@@ -6,10 +6,10 @@ import com.google.gson.Gson;
 import net.fabricmc.api.EnvType;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import org.ladysnake.cca.api.v3.entity.C2SSelfMessagingComponent;
 import org.ladysnake.cca.api.v3.util.CheckEnvironment;
@@ -23,10 +23,10 @@ public class ServerConfigComponent implements AutoSyncedComponent, C2SSelfMessag
     }
 
     @Override
-    public void readFromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {}
+    public void readData(ReadView readView) {}
 
     @Override
-    public void writeToNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {}
+    public void writeData(WriteView writeView) {}
 
     @Override
     public boolean shouldSyncWith(ServerPlayerEntity player) {
@@ -36,7 +36,7 @@ public class ServerConfigComponent implements AutoSyncedComponent, C2SSelfMessag
     @Override
     @CheckEnvironment(EnvType.SERVER)
     public void writeSyncPacket(RegistryByteBuf buf, ServerPlayerEntity recipient) {
-        if (!recipient.server.isSingleplayer()) {
+        if (!recipient.getServer().isSingleplayer()) {
             buf.writeString(gson.toJson(YACLConfig.getServerData()));
         }
     }

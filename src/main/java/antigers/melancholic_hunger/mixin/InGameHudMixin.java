@@ -48,6 +48,7 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
     @Shadow @Final private static Identifier ARMOR_EMPTY_TEXTURE;
     @Shadow @Final private static Identifier ARMOR_HALF_TEXTURE;
     @Shadow private boolean shouldShowExperienceBar() {return false;}
+    @Shadow private boolean shouldShowJumpBar() {return false;}
     @Shadow private InGameHud.BarType getCurrentBarType() {return InGameHud.BarType.EMPTY;}
 
     @Unique private static final Identifier EXPERIENCE_BAR_BACKGROUND_TEXTURE = Identifier.ofVanilla(
@@ -73,6 +74,17 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
     );
 
     /**
+     * Makes so that the exp bar is not drawn on the world start
+     */
+    @WrapMethod(method="shouldShowExperienceBar")
+    private boolean melancholic_hungerShouldShowExperienceBar(Operation<Boolean> original) {
+        if (this.client.player.experienceBarDisplayStartTime <= 0) {
+            return false;
+        }
+        return original.call();
+    }
+
+    /**
      * Checks for special cases in which the exp bar should be rendered when it's set to be hidden in the config
      */
     @Unique
@@ -82,8 +94,6 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
                  this.shouldShowExperienceBar() ||
                 // exp should be rendered while the current screen is open
                 (!YACLConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen())
-                // exp bar disappearance animation is not finished yet
-                || melancholic_hunger$expLevelAnimation.shouldStillDrawExperience()
         );
     }
 
@@ -119,7 +129,11 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
     private void melancholic_hunger$wrapDrawExperienceLevel(
             DrawContext context, TextRenderer textRenderer, int level, Operation<Void> original
     ) {
-        if (!YACLConfig.hideExperienceBar() || melancholic_hunger$shouldRenderExperience()) {
+        if (
+                !YACLConfig.hideExperienceBar() || melancholic_hunger$shouldRenderExperience()
+                        // exp lvl disappearance animation is not finished yet
+                        || melancholic_hunger$expLevelAnimation.shouldStillDrawExperience()
+        ) {
             melancholic_hunger$renderExperienceLevel(context, textRenderer, level);
         }
     }
@@ -192,10 +206,17 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
     @WrapMethod(method="getCurrentBarType")
     private InGameHud.BarType melancholic_hunger$getCurrentBarType(Operation<InGameHud.BarType> original) {
         InGameHud.BarType barType = original.call();
-        if (barType == InGameHud.BarType.JUMPABLE_VEHICLE || !this.client.interactionManager.hasExperienceBar()) {
+        if (
+                (barType == InGameHud.BarType.JUMPABLE_VEHICLE && this.shouldShowJumpBar())
+                        || !this.client.interactionManager.hasExperienceBar()
+        ) {
             return barType;
         }
-        if (melancholic_hunger$shouldRenderExperience()) {
+        if (
+                melancholic_hunger$shouldRenderExperience()
+                        // exp bar disappearance animation is not finished yet
+                        || melancholic_hunger$barAnimation.shouldStillDrawExperience()
+        ) {
             // making the exp bar to render in our special cases
             return InGameHud.BarType.EXPERIENCE;
         } else if (barType == InGameHud.BarType.EXPERIENCE && YACLConfig.hideExperienceBar()) {

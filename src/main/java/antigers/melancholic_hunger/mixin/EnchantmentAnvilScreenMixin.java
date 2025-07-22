@@ -29,7 +29,7 @@ public abstract class EnchantmentAnvilScreenMixin extends HandledScreen<Enchantm
     private int melancholic_hunger$removeExpBarDisplay(int original) {
         if (YACLConfig.hideExperienceBar()) {
             // making so that the vanilla method of drawing exp bar on Enchantment and Anvil screens doesn't work
-            // when the exp bar is hidden, because in that case we use our own show on screens feature
+            // when the exp bar is hidden, because in that case we use our own "show on screens" feature
             return this.client.player.experienceBarDisplayStartTime;
         }
         return original;

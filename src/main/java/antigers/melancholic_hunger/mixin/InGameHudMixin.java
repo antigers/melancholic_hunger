@@ -91,7 +91,7 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
     private boolean melancholic_hunger$shouldRenderExperience() {
         return (
                 // exp has been gained recently
-                 this.shouldShowExperienceBar() ||
+                (YACLConfig.showExperienceOnGain() && this.shouldShowExperienceBar()) ||
                 // exp should be rendered while the current screen is open
                 (!YACLConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen())
         );
@@ -299,7 +299,8 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
         InGameHud.BarType currentBarType = this.getCurrentBarType();
 
         // updating the bar animations in the begging of every frame
-        boolean shouldDrawExperience = this.shouldShowExperienceBar() || melancholic_hunger$needToRenderExperienceHudOnCurrentScreen();
+        boolean shouldDrawExperience = (YACLConfig.showExperienceOnGain() && this.shouldShowExperienceBar()) ||
+                melancholic_hunger$needToRenderExperienceHudOnCurrentScreen();
         InGameHud.BarType animationBarType = shouldDrawExperience ? InGameHud.BarType.EXPERIENCE : currentBarType;
         melancholic_hunger$barAnimation.update(animationBarType, shouldDrawExperience);
         melancholic_hunger$expLevelAnimation.update(animationBarType, shouldDrawExperience);

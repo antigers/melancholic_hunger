@@ -19,7 +19,7 @@ class ConfigOption<T, U> {
     private static final String CONFIG_PREFIX = "screen.melancholic_hunger.config.";
     protected static final String OPTION_CONFIG_PREFIX = CONFIG_PREFIX + "option.";
 
-    private record ConfigOptionDependency<U>(ConfigOption<U, ?> configOption, U requiredValue) {
+    public record ConfigOptionDependency<U>(ConfigOption<U, ?> configOption, U requiredValue) {
         boolean isCurrentValueEqualsRequired() {
             U value = configOption.getter.get();
             if (value == null) {

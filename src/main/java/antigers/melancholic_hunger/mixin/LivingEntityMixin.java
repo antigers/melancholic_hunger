@@ -2,11 +2,15 @@ package antigers.melancholic_hunger.mixin;
 
 import antigers.melancholic_hunger.config.HungerEffectOption;
 import antigers.melancholic_hunger.config.YACLConfig;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -44,5 +48,24 @@ public abstract class LivingEntityMixin {
                 callback.setReturnValue(this.addStatusEffect(poisonEffect, source));
             }
         }
+    }
+
+    /**
+     * Enables instant eating
+     */
+    @WrapOperation(
+            method="setCurrentHand",
+            at=@At(
+                    value="INVOKE",
+                    target="Lnet/minecraft/item/ItemStack;getMaxUseTime(Lnet/minecraft/entity/LivingEntity;)I"
+            )
+    )
+    private int melancholic_hunger$setCurrentHandMaxUseTime(
+            ItemStack stack, LivingEntity user, Operation<Integer> original
+    ) {
+        if (YACLConfig.instantEating() && stack.get(DataComponentTypes.FOOD) != null) {
+            return 1;
+        }
+        return original.call(stack, user);
     }
 }

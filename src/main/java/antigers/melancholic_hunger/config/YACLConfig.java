@@ -7,6 +7,7 @@ import dev.isxander.yacl3.api.controller.*;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
+import dev.isxander.yacl3.gui.YACLScreen;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.component.type.FoodComponent;
@@ -20,6 +21,7 @@ import net.minecraft.util.Identifier;
 
 import javax.lang.model.type.NullType;
 import java.util.*;
+import java.util.function.BiConsumer;
 
 public class YACLConfig {
     private static final String CONFIG_PREFIX = "screen.melancholic_hunger.config.";
@@ -99,6 +101,11 @@ public class YACLConfig {
                     "highlightRegeneratedHearts",true, false, false,
                     () -> clientData.highlightRegeneratedHearts, val -> clientData.highlightRegeneratedHearts = val
             ).addValueDependency(GRADUAL_HEALTH_REGENERATION, true, true, false)
+    );
+
+    private static final ConfigOption<Boolean, Boolean> INSTANT_EATING = new ConfigOption<>(
+            "instantEating", false, true, true,
+            () -> serverData.instantEating, val -> serverData.instantEating = val
     );
 
     private static final ConfigOption<SprintingOption, NullType> SPRINTING = new ConfigOption<>(
@@ -245,9 +252,43 @@ public class YACLConfig {
                 .option(GRADUAL_HEALTH_REGENERATION_SPEED.buildYACLOption(
                         option -> FloatSliderControllerBuilder.create(option).range(0.1F, 10.0F).step(0.1F)
                 ))
-                .option(HIGHLIGHT_REGENERATED_HEARTS.buildYACLOption(YACLConfig::createBooleanController));
+                .option(HIGHLIGHT_REGENERATED_HEARTS.buildYACLOption(YACLConfig::createBooleanController))
+                .option(INSTANT_EATING.buildYACLOption(YACLConfig::createBooleanController));
 
         return builder.build();
+    }
+
+    private static void setAllFoodStacksTo1(YACLScreen screen, ButtonOption button) {
+        LinkedHashMap<String, Integer> stacks = getDefaultItemStackSizes();
+        stacks.replaceAll((k, v) -> 1);
+        CUSTOM_FOOD_STACK_SIZES.updatePendingValue(stacks);
+    }
+
+    private static void setAllFoodStacksTo64(YACLScreen screen, ButtonOption button) {
+        LinkedHashMap<String, Integer> stacks = getDefaultItemStackSizes();
+        stacks.replaceAll((k, v) -> 64);
+        CUSTOM_FOOD_STACK_SIZES.updatePendingValue(stacks);
+    }
+
+    private static ButtonOption createButtonOption(
+            String buttonName, BiConsumer<YACLScreen, ButtonOption> action,
+            ConfigOption.ConfigOptionDependency<?> dependency
+    ) {
+        ButtonOption buttonOption = ButtonOption.createBuilder()
+                .name(Text.translatable(CONFIG_PREFIX + "button." + buttonName + ".name"))
+                .description(OptionDescription.of(Text.translatable(
+                        CONFIG_PREFIX + "button." + buttonName + ".description"
+                ))).text(Text.empty()).action(action).build();
+
+        dependency.configOption().YACLOption.addEventListener(
+                (option, event) -> {
+                    if (event != OptionEventListener.Event.STATE_CHANGE) {
+                        return;
+                    }
+                    buttonOption.setAvailable(dependency.isPendingValueEqualsRequired());
+                }
+        );
+        return buttonOption;
     }
 
     private static ConfigCategory buildFoodItemsCategory() {
@@ -256,6 +297,14 @@ public class YACLConfig {
                 .tooltip(Text.translatable(CONFIG_PREFIX + "food_category_tooltip"))
                 .option(USE_CUSTOM_FOOD_STACK_SIZES.buildYACLOption(YACLConfig::createBooleanController))
                 .option(CUSTOM_FOOD_STACK_SIZES.buildYACLOption())
+                .option(createButtonOption(
+                        "set_all_food_stack_sizes_to_1", YACLConfig::setAllFoodStacksTo1,
+                        new ConfigOption.ConfigOptionDependency<>(USE_CUSTOM_FOOD_STACK_SIZES, true)
+                ))
+                .option(createButtonOption(
+                        "set_all_food_stack_sizes_to_64", YACLConfig::setAllFoodStacksTo64,
+                        new ConfigOption.ConfigOptionDependency<>(USE_CUSTOM_FOOD_STACK_SIZES, true)
+                ))
                 .build();
     }
 
@@ -332,9 +381,10 @@ public class YACLConfig {
         HANDLER.load();
         for (var option : List.of(
                 DISABLE_HUNGER, GRADUAL_HEALTH_REGENERATION, GRADUAL_HEALTH_REGENERATION_SPEED, HIDE_HUNGER_BAR,
-                HUNGER_EFFECT, HIGHLIGHT_REGENERATED_HEARTS, USE_CUSTOM_FOOD_STACK_SIZES, CUSTOM_FOOD_STACK_SIZES, SPRINTING,
-                SPRINTING_HEALTH_LIMIT, HIGHLIGHT_RESTORED_HEARTS, HIDE_EXPERIENCE_BAR, SHOW_EXPERIENCE_IN_INVENTORY,
-                SHOW_EXPERIENCE_ON_SCREENS, SHOW_EXPERIENCE_ON_GAIN, ENABLE_EXPERIENCE_ANIMATION, RENDER_EXPERIENCE_OVER_BACKGROUND
+                HUNGER_EFFECT, HIGHLIGHT_REGENERATED_HEARTS, INSTANT_EATING, USE_CUSTOM_FOOD_STACK_SIZES,
+                CUSTOM_FOOD_STACK_SIZES, SPRINTING, SPRINTING_HEALTH_LIMIT, HIGHLIGHT_RESTORED_HEARTS,
+                HIDE_EXPERIENCE_BAR, SHOW_EXPERIENCE_IN_INVENTORY, SHOW_EXPERIENCE_ON_SCREENS, SHOW_EXPERIENCE_ON_GAIN,
+                ENABLE_EXPERIENCE_ANIMATION, RENDER_EXPERIENCE_OVER_BACKGROUND
         )) {
             option.validateValue();
         }
@@ -372,6 +422,7 @@ public class YACLConfig {
         HUNGER_EFFECT.setValue(newServerData.hungerEffect());
         GRADUAL_HEALTH_REGENERATION.setValue(newServerData.gradualHealthRegeneration());
         GRADUAL_HEALTH_REGENERATION_SPEED.setValue(newServerData.gradualHealthRegenerationSpeed());
+        INSTANT_EATING.setValue(newServerData.instantEating());
         USE_CUSTOM_FOOD_STACK_SIZES.setValue(newServerData.useCustomFoodStackSizes());
         CUSTOM_FOOD_STACK_SIZES.setValue(newServerData.customFoodStackSizes());
         SPRINTING.setValue(newServerData.sprinting());
@@ -399,6 +450,9 @@ public class YACLConfig {
     }
     public static float gradualHealthRegenerationSpeed() {
         return serverData.gradualHealthRegenerationSpeed;
+    }
+    public static boolean instantEating() {
+        return serverData.instantEating;
     }
     public static Integer getItemStackSize(ItemStack itemStack) {
         var itemId = Registries.ITEM.getId(itemStack.getItem()).toString();

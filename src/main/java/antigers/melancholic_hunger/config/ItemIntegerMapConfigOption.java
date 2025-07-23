@@ -165,4 +165,8 @@ public class ItemIntegerMapConfigOption extends ConfigOption<List<String>, Boole
         YACLOption = option;
         return option;
     }
+
+    public void updatePendingValue(LinkedHashMap<String, Integer> value) {
+        YACLOption.requestSet(convertMapToListOfStrings(value));
+    }
 }

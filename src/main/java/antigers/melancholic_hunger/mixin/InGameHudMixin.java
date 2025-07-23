@@ -419,8 +419,8 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
     ) {
         DrawHudContext drawHudContext = (DrawHudContext) drawContext;
         if (
-                YACLConfig.hideHungerBar() &&
-                        !drawHudContext.getShouldRenderStaminaInPlaceOfHunger() && !drawHudContext.getHasMountHealth()
+                !(drawHudContext.getShouldRenderStamina() && drawHudContext.getShouldRenderStaminaInPlaceOfHunger())
+                        && YACLConfig.hideHungerBar() && !drawHudContext.getHasMountHealth()
         ) {
             // move bar to the left and reverse render order from left to right
             x = drawHudContext.getMirroredX(x);

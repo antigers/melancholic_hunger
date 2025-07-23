@@ -81,11 +81,11 @@ public class DrawHudContext extends DrawContext {
         }
         else {
             // drawing armor in place of hunger bar (same height as health)
-            armorBarY = hasMountHealth ? aboveHealthY : healthBarY;
+            armorBarY = healthBarY;
             // drawing staminaBarY above the armor bar (if player has armor)
             staminaBarY = playerHasArmor ? healthBarY - 10 : healthBarY;
             // drawing bubbles above all health rows
-            bubblesBarY = hasMountHealth ? aboveHealthY - 10 : aboveHealthY;
+            bubblesBarY = aboveHealthY;
         }
     }
 
@@ -107,6 +107,10 @@ public class DrawHudContext extends DrawContext {
 
     public boolean getHasMountHealth() {
         return hasMountHealth;
+    }
+
+    public boolean getShouldRenderStamina() {
+        return shouldRenderStamina;
     }
 
     public boolean getShouldRenderStaminaInPlaceOfHunger() {

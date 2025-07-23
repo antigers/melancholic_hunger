@@ -19,7 +19,7 @@ public abstract class TweakMixin<T> {
     @Unique
     Set<String> overwrittenOptions = Set.of(
             "hideHungerBar", "hideExperienceBar", "disableHunger", "preventHungerEffect", "disableSprint",
-            "oldFoodStacking"
+            "oldFoodStacking", "instantEat"
     );
 
     @Inject(

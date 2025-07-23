@@ -13,6 +13,7 @@ import net.minecraft.client.gui.LayeredDrawer;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.gui.screen.ingame.*;
 import net.minecraft.client.texture.Sprite;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.random.Random;
@@ -36,6 +37,9 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
     @Shadow @Nullable protected abstract PlayerEntity getCameraPlayer();
     @Shadow private void renderExperienceBar(DrawContext context, int x) {};
     @Shadow protected abstract boolean shouldRenderExperience();
+    @Shadow protected abstract int getHeartCount(@Nullable LivingEntity entity);
+    @Shadow protected abstract int getHeartRows(int heartCount);
+    @Shadow @Nullable protected abstract LivingEntity getRiddenEntity();
     @Shadow @Final private Random random;
     @Shadow @Final private static Identifier ARMOR_EMPTY_TEXTURE;
     @Shadow @Final private static Identifier ARMOR_HALF_TEXTURE;
@@ -203,10 +207,13 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
             return;
         }
         var drawRestoredHeartsHelper = new RestoredHeartsDrawHelper(playerEntity, this.random);
+        int mountHealthHeartCount = this.getHeartCount(this.getRiddenEntity());
+        boolean hasMountHealth = mountHealthHeartCount > 0;
+        int mountHealthRows = this.getHeartRows(mountHealthHeartCount);
         var drawHudContext = new DrawHudContext(
                 this.client, drawContext.vertexConsumers, drawRestoredHeartsHelper,
                 this.client.player.getJumpingMount() != null
-                        ? 7 : melancholic_hunger$experienceBarAnimation.getCurrentPos()
+                        ? 7 : melancholic_hunger$experienceBarAnimation.getCurrentPos(), hasMountHealth, mountHealthRows
         );
         original.call(inGameHud, drawHudContext);
     }
@@ -299,7 +306,7 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
     ) {
         DrawHudContext drawHudContext = (DrawHudContext) drawContext;
         y = drawHudContext.getArmorBarY();
-        if (YACLConfig.hideHungerBar() && !drawHudContext.getIsRiding()) {
+        if (YACLConfig.hideHungerBar() && !drawHudContext.getHasMountHealth()) {
             // move bar to the right and reverse render order from right to left
             x = drawHudContext.getMirroredX(x);
             if (!DrawHudContext.isDefaultArmorHudTexture) {
@@ -407,7 +414,7 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
             DrawContext drawContext, Identifier texture, int x, int y, int width, int height, Operation<Void> original
     ) {
         DrawHudContext drawHudContext = (DrawHudContext) drawContext;
-        if (YACLConfig.hideHungerBar()) {
+        if (YACLConfig.hideHungerBar() && !drawHudContext.getHasMountHealth()) {
             // move bar to the left and reverse render order from left to right
             x = drawHudContext.getMirroredX(x);
         }

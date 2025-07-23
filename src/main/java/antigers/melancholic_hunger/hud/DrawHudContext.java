@@ -13,11 +13,13 @@ public class DrawHudContext extends DrawContext {
     private int armorBarY;
     private final RestoredHeartsDrawHelper restoredHeartsDrawHelper;
     public static boolean isDefaultArmorHudTexture;
-    private final boolean isRiding;
+    private final boolean hasMountHealth;
+    private final int mountHealthRows;
 
     public DrawHudContext(
             MinecraftClient client, VertexConsumerProvider.Immediate vertexConsumers,
-            RestoredHeartsDrawHelper restoredHeartsDrawHelper, int hudExperienceOffset
+            RestoredHeartsDrawHelper restoredHeartsDrawHelper, int hudExperienceOffset, boolean hasMountHealth,
+            int mountHealthRows
     ) {
         super(client, vertexConsumers);
         this.restoredHeartsDrawHelper = restoredHeartsDrawHelper;
@@ -27,7 +29,8 @@ public class DrawHudContext extends DrawContext {
         offsetX = windowWidth - ((windowWidth % 2 == 0) ? 9 : 10);
         healthBarY = this.getScaledWindowHeight() - 32 - hudExperienceOffset;
         this.hudExperienceOffset = hudExperienceOffset;
-        isRiding = client.player.getVehicle() != null;
+        this.hasMountHealth = hasMountHealth;
+        this.mountHealthRows = mountHealthRows;
     }
 
     public RestoredHeartsDrawHelper getHelper() {
@@ -36,9 +39,15 @@ public class DrawHudContext extends DrawContext {
 
     public void prepareArmorAndBubblesBarsDrawing(int healthBarHighestRowY) {
         var aboveHealthY = healthBarHighestRowY - 3 - hudExperienceOffset;
-        if (YACLConfig.hideHungerBar()) {
+        if (hasMountHealth) {
+            // drawing armor above all health rows
+            armorBarY = aboveHealthY;
+            // drawing bubbles above all mount health rows
+            bubblesBarY = aboveHealthY - 10 * (mountHealthRows - 1);
+        }
+        else if (YACLConfig.hideHungerBar()) {
             // drawing armor in place of hunger bar (same height as health)
-            armorBarY = isRiding ? aboveHealthY : healthBarY;
+            armorBarY = healthBarY;
             // drawing bubbles above all health rows
             bubblesBarY = aboveHealthY;
         }
@@ -66,7 +75,7 @@ public class DrawHudContext extends DrawContext {
         return bubblesBarY;
     }
 
-    public boolean getIsRiding() {
-        return isRiding;
+    public boolean getHasMountHealth() {
+        return hasMountHealth;
     }
 }

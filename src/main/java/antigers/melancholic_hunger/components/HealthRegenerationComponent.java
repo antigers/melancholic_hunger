@@ -23,9 +23,9 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
         private int ticksCounter = 0;
         private final int ticksToHeal;
 
-        ConsumedFood (FoodComponent foodComponent) {
+        ConsumedFood (FoodComponent foodComponent, int foodNutrition) {
             this.foodComponentId = foodComponent.hashCode();
-            this.foodNutrition = foodComponent.nutrition();
+            this.foodNutrition = foodNutrition;
             this.ticksToHeal = Math.max(
                     1, (int)(foodComponent.saturation() * 2 / YACLConfig.gradualHealthRegenerationSpeed())
             );
@@ -142,7 +142,7 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
         var foodHealth = YACLConfig.getFoodHealth(itemStack, foodComponent);
         if (YACLConfig.gradualHealthRegeneration()) {
             consumedNutrition += foodHealth;
-            consumedFoods.add(new ConsumedFood(foodComponent));
+            consumedFoods.add(new ConsumedFood(foodComponent, foodHealth));
             sync();
         }
         else {

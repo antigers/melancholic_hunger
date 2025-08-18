@@ -4,6 +4,7 @@ import antigers.melancholic_hunger.config.YACLConfig;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
 
 public class DrawHudContext extends DrawContext {
     private final int offsetX;
@@ -17,11 +18,11 @@ public class DrawHudContext extends DrawContext {
     private final int mountHealthRows;
 
     public DrawHudContext(
-            MinecraftClient client, VertexConsumerProvider.Immediate vertexConsumers,
+            MinecraftClient client, MatrixStack matrices, VertexConsumerProvider.Immediate vertexConsumers,
             RestoredHeartsDrawHelper restoredHeartsDrawHelper, int hudExperienceOffset, boolean hasMountHealth,
             int mountHealthRows
     ) {
-        super(client, vertexConsumers);
+        super(client, matrices, vertexConsumers);
         this.restoredHeartsDrawHelper = restoredHeartsDrawHelper;
         var windowWidth = this.getScaledWindowWidth();
         // fixing offset for odd window width value because vanilla code does integer division by 2 when

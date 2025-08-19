@@ -13,6 +13,7 @@ public class MelancholicHunger implements ModInitializer {
 	// That way, it's clear which mod wrote info, warnings, and errors.
     public static final Logger LOGGER = LoggerFactory.getLogger("melancholic_hunger");
 	public static boolean nostalgicTweaksInstalled = false;
+    public static boolean raisedInstalled = false;
 
 	@Override
 	public void onInitialize() {
@@ -20,5 +21,6 @@ public class MelancholicHunger implements ModInitializer {
 		// However, some things (like resources) may still be uninitialized.
 		YACLConfig.loadFromDisk();
 		nostalgicTweaksInstalled = FabricLoader.getInstance().getModContainer("nostalgic_tweaks").isPresent();
+        raisedInstalled = FabricLoader.getInstance().getModContainer("raised").isPresent();
 	}
 }

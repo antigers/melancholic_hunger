@@ -5,3 +5,4 @@ accessible method net/minecraft/client/gui/hud/InGameHud$HeartType fromPlayerSta
 accessible class net/minecraft/client/gui/hud/InGameHud$BarType
 
 accessible class net/minecraft/client/MinecraftClient$LoadingContext
+accessible method net/minecraft/client/gui/DrawContext <init> (Lnet/minecraft/client/MinecraftClient;Lorg/joml/Matrix3x2fStack;Lnet/minecraft/client/gui/render/state/GuiRenderState;)V

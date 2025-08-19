@@ -4,6 +4,7 @@ import antigers.melancholic_hunger.config.YACLConfig;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.render.state.GuiRenderState;
+import org.joml.Matrix3x2fStack;
 
 public class DrawHudContext extends DrawContext {
     private final int offsetX;
@@ -19,10 +20,10 @@ public class DrawHudContext extends DrawContext {
     public boolean locatorBarWasRendered = false;
 
     public DrawHudContext(
-            MinecraftClient client, GuiRenderState state, RestoredHeartsDrawHelper restoredHeartsDrawHelper,
+            MinecraftClient client, Matrix3x2fStack matrices, GuiRenderState state, RestoredHeartsDrawHelper restoredHeartsDrawHelper,
             int hudExperienceOffset, BarAnimation barAnimation, boolean hasMountHealth, int mountHealthRows
     ) {
-        super(client, state);
+        super(client, matrices, state);
         this.restoredHeartsDrawHelper = restoredHeartsDrawHelper;
         var windowWidth = this.getScaledWindowWidth();
         // fixing offset for odd window width value because vanilla code does integer division by 2 when

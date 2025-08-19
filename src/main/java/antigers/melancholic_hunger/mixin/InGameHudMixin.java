@@ -1,5 +1,7 @@
 package antigers.melancholic_hunger.mixin;
 
+import antigers.melancholic_hunger.MelancholicHunger;
+import antigers.melancholic_hunger.compat.RaisedCompat;
 import antigers.melancholic_hunger.config.YACLConfig;
 import antigers.melancholic_hunger.hud.ExperienceBarAnimation;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -106,12 +108,17 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
     private LayeredDrawer melancholic_hunger$disableExperienceLevelRender(
             LayeredDrawer instance, LayeredDrawer.Layer layer, Operation<LayeredDrawer> original
     ) {
-        LayeredDrawer.Layer wrappedLayer = (context, tickCounter) -> {
+        return original.call(instance, (LayeredDrawer.Layer) (context, tickCounter) -> {
             if (melancholic_hunger$shouldRenderExperience()) {
-                this.renderExperienceLevel(context, tickCounter);
+                if (MelancholicHunger.raisedInstalled) {
+                    RaisedCompat.startHotbarTranslate(context);
+                }
+                layer.render(context, tickCounter);
+                if (MelancholicHunger.raisedInstalled) {
+                    RaisedCompat.endTranslate(context);
+                }
             }
-        };
-        return original.call(instance, wrappedLayer);
+        });
     }
 
     /**
@@ -214,8 +221,14 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
 
     public void melancholic_hunger$renderExperienceHud(DrawContext drawContext) {
         if (YACLConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen()) {
+            if (MelancholicHunger.raisedInstalled) {
+                RaisedCompat.startHotbarTranslate(drawContext);
+            }
             this.renderExperienceBar(drawContext, drawContext.getScaledWindowWidth() / 2 - 91);
             this.renderExperienceLevel(drawContext, null);
+            if (MelancholicHunger.raisedInstalled) {
+                RaisedCompat.endTranslate(drawContext);
+            }
         }
     }
 
@@ -252,7 +265,7 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
         boolean hasMountHealth = mountHealthHeartCount > 0;
         int mountHealthRows = this.getHeartRows(mountHealthHeartCount);
         var drawHudContext = new DrawHudContext(
-                this.client, drawContext.vertexConsumers, drawRestoredHeartsHelper,
+                this.client, drawContext.getMatrices(), drawContext.vertexConsumers, drawRestoredHeartsHelper,
                 this.client.player.getJumpingMount() != null
                         ? 7 : melancholic_hunger$experienceBarAnimation.getCurrentPos(), hasMountHealth, mountHealthRows
         );

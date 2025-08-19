@@ -32,17 +32,17 @@ repositories {
 	//		name = "Architectury"
 	//		url = "https://maven.architectury.dev/"
 	//	}
-	//	exclusiveContent {
-	//		forRepository {
-	//			maven {
-	//				name = "Modrinth"
-	//				url = "https://api.modrinth.com/maven"
-	//			}
-	//		}
-	//		filter {
-	//			includeGroup "maven.modrinth"
-	//		}
-	//	}
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
 }
 
 dependencies {
@@ -69,6 +69,9 @@ dependencies {
 
 	// Nostalgic Tweaks compatibility
 	//	modImplementation "maven.modrinth:nostalgic-tweaks:${project.nostalgic_tweaks_version}"
+
+    //Raised compatibility
+    modImplementation "maven.modrinth:raised:${project.raised_version}"
 }
 
 processResources {

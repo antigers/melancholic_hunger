@@ -5,6 +5,7 @@ accessible method net/minecraft/client/gui/hud/InGameHud$HeartType fromPlayerSta
 # making image accessible
 accessible field net/minecraft/client/texture/SpriteContents image Lnet/minecraft/client/texture/NativeImage;
 
+accessible method net/minecraft/client/gui/DrawContext <init> (Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;)V
 accessible field net/minecraft/client/gui/DrawContext vertexConsumers Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;
 
 accessible class net/minecraft/client/MinecraftClient$LoadingContext

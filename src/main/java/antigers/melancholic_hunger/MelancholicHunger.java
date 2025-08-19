@@ -14,6 +14,7 @@ public class MelancholicHunger implements ModInitializer {
 	// That way, it's clear which mod wrote info, warnings, and errors.
     public static final Logger LOGGER = LoggerFactory.getLogger("melancholic_hunger");
 	public static boolean nostalgicTweaksInstalled = false;
+    public static boolean raisedInstalled = false;
 
 	@Override
 	public void onInitialize() {
@@ -27,5 +28,6 @@ public class MelancholicHunger implements ModInitializer {
 			ImmediatelyFast.config.hud_batching = false;
 			ImmediatelyFast.runtimeConfig.hud_batching = false;
 		}
+        raisedInstalled = FabricLoader.getInstance().getModContainer("raised").isPresent();
 	}
 }

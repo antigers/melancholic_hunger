@@ -72,6 +72,9 @@ dependencies {
 
 	// Immediately Fast compatibility
 	modImplementation "maven.modrinth:immediatelyfast:${project.immediately_fast_version}"
+
+    //Raised compatibility
+    modImplementation "maven.modrinth:raised:${project.raised_version}"
 }
 
 processResources {

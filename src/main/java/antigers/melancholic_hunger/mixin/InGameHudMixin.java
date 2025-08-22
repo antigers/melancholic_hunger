@@ -11,7 +11,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.render.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.LayeredDrawer;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.gui.screen.ingame.*;
 import net.minecraft.client.texture.Sprite;
@@ -55,53 +54,6 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
             "melancholic_hunger", "hud/armor_half_inversed"
     );
     @Unique private final ExperienceBarAnimation melancholic_hunger$experienceBarAnimation = new ExperienceBarAnimation();
-
-    private boolean melancholic_hunger$shouldRenderExperienceWithVanillaMethods() {
-        if (!YACLConfig.hideExperienceBar()) {
-            return true;
-        }
-        return (!YACLConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen()) ||
-                melancholic_hunger$experienceBarAnimation.shouldDraw();
-    }
-
-    /**
-     * Disables rendering of experience bar
-     */
-    @WrapOperation(
-        method = "renderMainHud",
-        at = @At(
-            value="INVOKE",
-            target="Lnet/minecraft/client/gui/hud/InGameHud;shouldRenderExperience()Z"
-        )
-    )
-    private boolean melancholic_hunger$disableExperienceBarRender(InGameHud instance, Operation<Boolean> original) {
-        if (melancholic_hunger$shouldRenderExperienceWithVanillaMethods()) {
-            return original.call(instance);
-        }
-        return false;
-    }
-
-    /**
-     * Disables rendering of experience level.
-     * Using ordinal = 3 because renderExperienceLevel is the forth layer added to the layeredDrawer
-     */
-    @WrapOperation(
-        method = "<init>",
-        at = @At(
-            value="INVOKE",
-            target="Lnet/minecraft/client/gui/LayeredDrawer;addLayer(Lnet/minecraft/client/gui/LayeredDrawer$Layer;)Lnet/minecraft/client/gui/LayeredDrawer;",
-            ordinal=3
-        )
-    )
-    private LayeredDrawer melancholic_hunger$disableExperienceLevelRender(
-            LayeredDrawer instance, LayeredDrawer.Layer layer, Operation<LayeredDrawer> original
-    ) {
-        return original.call(instance, (LayeredDrawer.Layer) (context, tickCounter) -> {
-            if (melancholic_hunger$shouldRenderExperienceWithVanillaMethods()) {
-                layer.render(context, tickCounter);
-            }
-        });
-    }
 
     /**
      * Changes height of the experience bar according to the animation position

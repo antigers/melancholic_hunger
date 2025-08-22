@@ -87,8 +87,4 @@ public class ExperienceBarAnimation {
     public float getCurrentOpacity() {
         return currentOpacity;
     }
-
-    public boolean shouldDraw() {
-        return drawUntil > 0 || currentPos > 0;
-    }
 }

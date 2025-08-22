@@ -2,8 +2,6 @@ accessWidener v2 named
 # making inner enum HeartType accessible for food nutrition rendering
 accessible class net/minecraft/client/gui/hud/InGameHud$HeartType
 accessible method net/minecraft/client/gui/hud/InGameHud$HeartType fromPlayerState (Lnet/minecraft/entity/player/PlayerEntity;)Lnet/minecraft/client/gui/hud/InGameHud$HeartType;
-# making image accessible
-accessible field net/minecraft/client/texture/SpriteContents image Lnet/minecraft/client/texture/NativeImage;
 
 accessible method net/minecraft/client/gui/DrawContext <init> (Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;)V
 accessible field net/minecraft/client/gui/DrawContext vertexConsumers Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;

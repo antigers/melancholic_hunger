@@ -1,8 +1,8 @@
 package antigers.melancholic_hunger.hud;
 
-import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.GuiGraphics;
 
 public interface ExperienceHudRenderer {
-    void melancholic_hunger$renderExperienceHud(DrawContext drawContext);
+    void melancholic_hunger$renderExperienceHud(GuiGraphics drawContext);
     void melancholic_hunger$onAddExperience();
 }

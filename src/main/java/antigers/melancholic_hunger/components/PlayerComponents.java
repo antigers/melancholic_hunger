@@ -1,6 +1,6 @@
 package antigers.melancholic_hunger.components;
 
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.entity.EntityComponentFactoryRegistry;
@@ -10,13 +10,13 @@ import org.ladysnake.cca.api.v3.entity.RespawnCopyStrategy;
 public class PlayerComponents implements EntityComponentInitializer {
     public static final ComponentKey<HealthRegenerationComponent> HEALTH_REGENERATION = ComponentRegistry
             .getOrCreate(
-                    Identifier.of("melancholic_hunger", "health_regeneration"),
+                    ResourceLocation.fromNamespaceAndPath("melancholic_hunger", "health_regeneration"),
                     HealthRegenerationComponent.class
             );
 
     public static final ComponentKey<ServerConfigComponent> SERVER_CONFIG = ComponentRegistry
             .getOrCreate(
-                    Identifier.of("melancholic_hunger", "server_config"),
+                    ResourceLocation.fromNamespaceAndPath("melancholic_hunger", "server_config"),
                     ServerConfigComponent.class
             );
 

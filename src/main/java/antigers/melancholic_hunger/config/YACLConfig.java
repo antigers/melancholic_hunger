@@ -11,15 +11,15 @@ import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
 import dev.isxander.yacl3.gui.YACLScreen;
 import mod.adrenix.nostalgic.config.factory.ConfigBuilder;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.component.type.FoodComponent;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import javax.lang.model.type.NullType;
 import java.util.*;
@@ -44,8 +44,8 @@ public class YACLConfig {
         customItemStackSizes = itemStackSizesMap;
     }
 
-    public static int getFoodHealth(ItemStack itemStack, FoodComponent foodComponent) {
-        var itemId = Registries.ITEM.getId(itemStack.getItem()).toString();
+    public static int getFoodHealth(ItemStack itemStack, FoodProperties foodComponent) {
+        var itemId = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).toString();
         if (customFoodHealth.containsKey(itemId)) {
             return customFoodHealth.get(itemId);
         }
@@ -53,7 +53,7 @@ public class YACLConfig {
     }
 
     private static final ConfigClassHandler<YACLConfig> HANDLER = ConfigClassHandler.createBuilder(YACLConfig.class)
-            .id(Identifier.of("melancholic_hunger", "config"))
+            .id(ResourceLocation.fromNamespaceAndPath("melancholic_hunger", "config"))
             .serializer(config -> GsonConfigSerializerBuilder.create(config)
                     .setPath(FabricLoader.getInstance().getConfigDir().resolve("melancholic_hunger.json5"))
                     .setJson5(true)
@@ -175,7 +175,7 @@ public class YACLConfig {
 
         var result = new LinkedHashMap<String, Integer>();
         for (var entry : sizes.entrySet()) {
-            result.put(Registries.ITEM.getId(entry.getKey()).toString(), entry.getValue());
+            result.put(BuiltInRegistries.ITEM.getKey(entry.getKey()).toString(), entry.getValue());
         }
         return result;
     }
@@ -223,8 +223,8 @@ public class YACLConfig {
 
     private static ConfigCategory buildHungerCategory() {
         var builder = ConfigCategory.createBuilder()
-                .name(Text.translatable(CONFIG_PREFIX + "hunger_category_name"))
-                .tooltip(Text.translatable(CONFIG_PREFIX + "hunger_category_tooltip"))
+                .name(Component.translatable(CONFIG_PREFIX + "hunger_category_name"))
+                .tooltip(Component.translatable(CONFIG_PREFIX + "hunger_category_tooltip"))
                 .option(DISABLE_HUNGER.buildYACLOption(YACLConfig::createBooleanController));
         if (MelancholicHunger.nostalgicTweaksInstalled) {
             builder.option(HIDE_HUNGER_BAR.buildYACLOption(YACLConfig::createBooleanController));
@@ -235,15 +235,15 @@ public class YACLConfig {
                                 .formatValue(
                                         value -> switch (value) {
                                             case VANILLA ->
-                                                    Text.translatable(CONFIG_PREFIX + "hunger_effect_vanilla_option")
+                                                    Component.translatable(CONFIG_PREFIX + "hunger_effect_vanilla_option")
                                                             // green
                                                             .setStyle(Style.EMPTY.withColor(5635925));
                                             case DISABLED ->
-                                                    Text.translatable(CONFIG_PREFIX + "hunger_effect_disabled_option")
+                                                    Component.translatable(CONFIG_PREFIX + "hunger_effect_disabled_option")
                                                             // red
                                                             .setStyle(Style.EMPTY.withColor(16733525));
                                             case REPLACED_WITH_POISON ->
-                                                    Text.translatable(CONFIG_PREFIX + "hunger_effect_replaced_with_poison_option")
+                                                    Component.translatable(CONFIG_PREFIX + "hunger_effect_replaced_with_poison_option")
                                                             // yellow
                                                             .setStyle(Style.EMPTY.withColor(16777045));
                                         }
@@ -277,10 +277,10 @@ public class YACLConfig {
             ConfigOption.ConfigOptionDependency<?> dependency
     ) {
         ButtonOption buttonOption = ButtonOption.createBuilder()
-                .name(Text.translatable(CONFIG_PREFIX + "button." + buttonName + ".name"))
-                .description(OptionDescription.of(Text.translatable(
+                .name(Component.translatable(CONFIG_PREFIX + "button." + buttonName + ".name"))
+                .description(OptionDescription.of(Component.translatable(
                         CONFIG_PREFIX + "button." + buttonName + ".description"
-                ))).text(Text.empty()).action(action).build();
+                ))).text(Component.empty()).action(action).build();
 
         dependency.configOption().YACLOption.addEventListener(
                 (option, event) -> {
@@ -295,8 +295,8 @@ public class YACLConfig {
 
     private static ConfigCategory buildFoodItemsCategory() {
         return ConfigCategory.createBuilder()
-                .name(Text.translatable(CONFIG_PREFIX + "food_category_name"))
-                .tooltip(Text.translatable(CONFIG_PREFIX + "food_category_tooltip"))
+                .name(Component.translatable(CONFIG_PREFIX + "food_category_name"))
+                .tooltip(Component.translatable(CONFIG_PREFIX + "food_category_tooltip"))
                 .option(USE_CUSTOM_FOOD_STACK_SIZES.buildYACLOption(YACLConfig::createBooleanController))
                 .option(CUSTOM_FOOD_STACK_SIZES.buildYACLOption())
                 .option(createButtonOption(
@@ -312,22 +312,22 @@ public class YACLConfig {
 
     private static ConfigCategory buildSprintingCategory() {
         return ConfigCategory.createBuilder()
-                .name(Text.translatable(CONFIG_PREFIX + "sprinting_category_name"))
-                .tooltip(Text.translatable(CONFIG_PREFIX + "sprinting_category_tooltip"))
+                .name(Component.translatable(CONFIG_PREFIX + "sprinting_category_name"))
+                .tooltip(Component.translatable(CONFIG_PREFIX + "sprinting_category_tooltip"))
                 .option(SPRINTING.buildYACLOption(
                         option -> EnumControllerBuilder.create(option).enumClass(SprintingOption.class)
                                 .formatValue(
                                         value -> switch (value) {
                                             case VANILLA ->
-                                                    Text.translatable(CONFIG_PREFIX + "sprinting_vanilla_option")
+                                                    Component.translatable(CONFIG_PREFIX + "sprinting_vanilla_option")
                                                             // green
                                                             .setStyle(Style.EMPTY.withColor(5635925));
                                             case DISABLED ->
-                                                    Text.translatable(CONFIG_PREFIX + "sprinting_disabled_option")
+                                                    Component.translatable(CONFIG_PREFIX + "sprinting_disabled_option")
                                                             // red
                                                             .setStyle(Style.EMPTY.withColor(16733525));
                                             case LIMITED_BY_HEALTH ->
-                                                    Text.translatable(CONFIG_PREFIX + "sprinting_limited_by_health_option")
+                                                    Component.translatable(CONFIG_PREFIX + "sprinting_limited_by_health_option")
                                                             // yellow
                                                             .setStyle(Style.EMPTY.withColor(16777045));
                                         }
@@ -341,8 +341,8 @@ public class YACLConfig {
 
     private static ConfigCategory buildExperienceCategory() {
         return ConfigCategory.createBuilder()
-                .name(Text.translatable(CONFIG_PREFIX + "experience_category_name"))
-                .tooltip(Text.translatable(CONFIG_PREFIX + "experience_category_tooltip"))
+                .name(Component.translatable(CONFIG_PREFIX + "experience_category_name"))
+                .tooltip(Component.translatable(CONFIG_PREFIX + "experience_category_tooltip"))
                 .option(HIDE_EXPERIENCE_BAR.buildYACLOption(YACLConfig::createBooleanController))
                 .option(SHOW_EXPERIENCE_IN_INVENTORY.buildYACLOption(YACLConfig::createBooleanController))
                 .option(SHOW_EXPERIENCE_ON_SCREENS.buildYACLOption(YACLConfig::createBooleanController))
@@ -354,14 +354,14 @@ public class YACLConfig {
 
     public static YetAnotherConfigLib getYACLInstance() {
         return YetAnotherConfigLib.create(HANDLER, (defaults, config, builder) -> builder
-                .title(Text.translatable(CONFIG_PREFIX + "title"))
+                .title(Component.translatable(CONFIG_PREFIX + "title"))
                 .category(buildHungerCategory())
                 .category(buildFoodItemsCategory())
                 .category(buildSprintingCategory())
                 .category(buildExperienceCategory())
                 .save(() -> {
-                    var client = MinecraftClient.getInstance();
-                    boolean isSinglePlayer = client.isInSingleplayer();
+                    var client = Minecraft.getInstance();
+                    boolean isSinglePlayer = client.isSingleplayer();
                     var player = client.player;
                     if (!MelancholicHunger.nostalgicTweaksInstalled) {
                         // hideHungerBar option is hidden when NT is not installed, so we have to correct its value
@@ -464,7 +464,7 @@ public class YACLConfig {
         return serverData.instantEating;
     }
     public static Integer getItemStackSize(ItemStack itemStack) {
-        var itemId = Registries.ITEM.getId(itemStack.getItem()).toString();
+        var itemId = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).toString();
         if (serverData.useCustomFoodStackSizes && serverData.customFoodStackSizes.containsKey(itemId)) {
             return serverData.customFoodStackSizes.get(itemId);
         }

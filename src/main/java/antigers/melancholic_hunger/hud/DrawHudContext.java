@@ -3,15 +3,15 @@ package antigers.melancholic_hunger.hud;
 import antigers.melancholic_hunger.MelancholicHunger;
 import antigers.melancholic_hunger.config.SprintingOption;
 import antigers.melancholic_hunger.config.YACLConfig;
+import com.mojang.blaze3d.vertex.PoseStack;
 import mod.adrenix.nostalgic.helper.gameplay.stamina.StaminaRenderer;
 import mod.adrenix.nostalgic.tweak.config.CandyTweak;
 import mod.adrenix.nostalgic.tweak.config.GameplayTweak;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.MultiBufferSource;
 
-public class DrawHudContext extends DrawContext {
+public class DrawHudContext extends GuiGraphics {
     private final int offsetX;
     private final int healthBarY;
     private final int hudExperienceOffset;
@@ -27,21 +27,21 @@ public class DrawHudContext extends DrawContext {
     private int staminaBarY;
 
     public DrawHudContext(
-            MinecraftClient client, MatrixStack matrices, VertexConsumerProvider.Immediate vertexConsumers,
+            Minecraft client, PoseStack matrices, MultiBufferSource.BufferSource vertexConsumers,
             RestoredHeartsDrawHelper restoredHeartsDrawHelper, int hudExperienceOffset, boolean hasMountHealth,
             int mountHealthRows
     ) {
         super(client, matrices, vertexConsumers);
         this.restoredHeartsDrawHelper = restoredHeartsDrawHelper;
-        var windowWidth = this.getScaledWindowWidth();
+        var windowWidth = this.guiWidth();
         // fixing offset for odd window width value because vanilla code does integer division by 2 when
         // calculating the x coordinate
         offsetX = windowWidth - ((windowWidth % 2 == 0) ? 9 : 10);
-        healthBarY = this.getScaledWindowHeight() - 32 - hudExperienceOffset;
+        healthBarY = this.guiHeight() - 32 - hudExperienceOffset;
         this.hudExperienceOffset = hudExperienceOffset;
         this.hasMountHealth = hasMountHealth;
         this.mountHealthRows = mountHealthRows;
-        playerHasArmor = client.player.getArmor() > 0;
+        playerHasArmor = client.player.getArmorValue() > 0;
         boolean staminaIsEnabled = MelancholicHunger.nostalgicTweaksInstalled && YACLConfig.sprinting() != SprintingOption.DISABLED && GameplayTweak.STAMINA_SPRINT.get();
         shouldRenderStamina = staminaIsEnabled && StaminaRenderer.isVisible();
         shouldRenderStaminaInPlaceOfHunger = staminaIsEnabled && !CandyTweak.HIDE_STAMINA_BAR.get() && !CandyTweak.HIDE_STAMINA_BAR_INACTIVE.get();
@@ -120,7 +120,7 @@ public class DrawHudContext extends DrawContext {
 
     public void renderStamina() {
         if (shouldRenderStamina) {
-            StaminaRenderer.render(this, getScaledWindowHeight() - staminaBarY);
+            StaminaRenderer.render(this, guiHeight() - staminaBarY);
         }
     }
 }

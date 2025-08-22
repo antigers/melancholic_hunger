@@ -3,7 +3,7 @@ package antigers.melancholic_hunger.nostalgic_tweaks.mixin;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import mod.adrenix.nostalgic.helper.candy.hud.HudHelper;
-import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.GuiGraphics;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -25,10 +25,10 @@ public class HudHelperMixin {
             method = "apply",
             at = @At(
                     value = "INVOKE",
-                    target = "Lmod/adrenix/nostalgic/helper/gameplay/stamina/StaminaRenderer;render(Lnet/minecraft/client/gui/DrawContext;I)V"
+                    target = "Lmod/adrenix/nostalgic/helper/gameplay/stamina/StaminaRenderer;render(Lnet/minecraft/client/gui/GuiGraphics;I)V"
             ),
             remap = true
     )
-    private static void melancholic_hunger$disableStaminaRendering(DrawContext sprite, int x, Operation<Void> original) {
+    private static void melancholic_hunger$disableStaminaRendering(GuiGraphics sprite, int x, Operation<Void> original) {
     }
 }

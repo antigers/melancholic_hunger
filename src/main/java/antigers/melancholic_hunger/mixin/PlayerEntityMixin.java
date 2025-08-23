@@ -36,7 +36,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     private void melancholic_hunger$playerEatFood(
             Level world, ItemStack itemStack, FoodProperties foodComponent, CallbackInfoReturnable<ItemStack> callback
     ) {
-        PlayerComponents.HEALTH_REGENERATION.get(this).eat(itemStack, foodComponent);
+        this.getData(PlayerComponents.HEALTH_REGENERATION).eat(itemStack, foodComponent);
     }
 
     /**
@@ -47,6 +47,6 @@ public abstract class PlayerEntityMixin extends LivingEntity {
         if (this.abilities.invulnerable || ignoreHunger) {
             return true;
         }
-        return PlayerComponents.HEALTH_REGENERATION.get(this).canEat();
+        return this.getData(PlayerComponents.HEALTH_REGENERATION).canEat();
     }
 }

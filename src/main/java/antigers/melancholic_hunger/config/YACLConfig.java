@@ -1,7 +1,7 @@
 package antigers.melancholic_hunger.config;
 
+import antigers.melancholic_hunger.components.ServerConfigComponent;
 import antigers.melancholic_hunger.nostalgic_tweaks.NostalgicTweaksConfigHandlerWriter;
-import antigers.melancholic_hunger.components.PlayerComponents;
 import antigers.melancholic_hunger.MelancholicHunger;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
@@ -10,7 +10,6 @@ import dev.isxander.yacl3.config.v2.api.SerialEntry;
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
 import dev.isxander.yacl3.gui.YACLScreen;
 import mod.adrenix.nostalgic.config.factory.ConfigBuilder;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -20,6 +19,7 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.neoforged.fml.loading.FMLPaths;
 
 import javax.lang.model.type.NullType;
 import java.util.*;
@@ -55,7 +55,7 @@ public class YACLConfig {
     private static final ConfigClassHandler<YACLConfig> HANDLER = ConfigClassHandler.createBuilder(YACLConfig.class)
             .id(ResourceLocation.fromNamespaceAndPath("melancholic_hunger", "config"))
             .serializer(config -> GsonConfigSerializerBuilder.create(config)
-                    .setPath(FabricLoader.getInstance().getConfigDir().resolve("melancholic_hunger.json5"))
+                    .setPath(FMLPaths.CONFIGDIR.get().resolve("melancholic_hunger.json5"))
                     .setJson5(true)
                     .build())
             .build();
@@ -373,7 +373,7 @@ public class YACLConfig {
                     }
                     else {
                         // sending config to the server if in multiplayer
-                        PlayerComponents.SERVER_CONFIG.get(player).sendToServer(serverData.getImmutable());
+                        ServerConfigComponent.sendToServer(serverData.getImmutable());
                     }
                     // writing new settings to nostalgic tweaks config
                     if (MelancholicHunger.nostalgicTweaksInstalled) {

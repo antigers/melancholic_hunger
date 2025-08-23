@@ -7,14 +7,15 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
-import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
-import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import org.jetbrains.annotations.Nullable;
 
-public class HealthRegenerationComponent implements AutoSyncedComponent, ServerTickingComponent {
+public class HealthRegenerationComponent implements INBTSerializable<CompoundTag> {
 
     private static class ConsumedFood {
         private final int foodComponentId;
@@ -62,7 +63,7 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
     }
 
     @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void deserializeNBT(@Nullable HolderLookup.Provider provider, CompoundTag tag) {
         this.consumedNutrition = Math.max(tag.getInt("consumedNutrition"), 0);
         var consumedFoodsStr = tag.getString("consumedFoods");
         if (!consumedFoodsStr.isEmpty()) {
@@ -71,18 +72,22 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
     }
 
     @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public CompoundTag serializeNBT(@Nullable HolderLookup.Provider provider) {
+        var tag = new CompoundTag();
         tag.putInt("consumedNutrition", this.consumedNutrition);
         tag.putString("consumedFoods", gson.toJson(this.consumedFoods));
+        return tag;
     }
 
-    @Override
-    public boolean shouldSyncWith(ServerPlayer player) {
-        return player == this.player; // only sync with the provider itself
+    @SubscribeEvent
+    public static void onPlayerTick(PlayerTickEvent.Post event) {
+        Player player = event.getEntity();
+        if (!player.level().isClientSide()) {
+            player.getData(PlayerComponents.HEALTH_REGENERATION).serverTick();
+        }
     }
 
-    @Override
-    public void serverTick() {
+    private void serverTick() {
         if (!YACLConfig.gradualHealthRegeneration()) {
             return;
         }
@@ -122,7 +127,7 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
     }
 
     private void sync() {
-        PlayerComponents.HEALTH_REGENERATION.sync(player);
+        player.syncData(PlayerComponents.HEALTH_REGENERATION);
     }
 
     public boolean canEat() {

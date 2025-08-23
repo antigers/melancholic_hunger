@@ -2,83 +2,60 @@ package antigers.melancholic_hunger.components;
 
 import antigers.melancholic_hunger.config.ServerConfigData;
 import antigers.melancholic_hunger.config.YACLConfig;
-import com.google.gson.Gson;
-import net.fabricmc.api.EnvType;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
-import org.ladysnake.cca.api.v3.entity.C2SSelfMessagingComponent;
-import org.ladysnake.cca.api.v3.util.CheckEnvironment;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
+import net.neoforged.neoforge.network.registration.HandlerThread;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
-public class ServerConfigComponent implements AutoSyncedComponent, C2SSelfMessagingComponent {
-    private final Player player;
-    private final Gson gson = new Gson();
+public class ServerConfigComponent {
+    public static final StreamCodec<ByteBuf, ServerConfigData.ImmutableServerConfigData> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8,
+            ServerConfigData.ImmutableServerConfigData::toJson,
+            ServerConfigData.ImmutableServerConfigData::fromJson
+    );
 
-    public ServerConfigComponent(Player player) {
-        this.player = player;
-    }
-
-    @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {}
-
-    @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {}
-
-    @Override
-    public boolean shouldSyncWith(ServerPlayer player) {
-        return player == this.player; // only sync with the provider itself
-    }
-
-    @Override
-    @CheckEnvironment(EnvType.SERVER)
-    public void writeSyncPacket(RegistryFriendlyByteBuf buf, ServerPlayer recipient) {
-        if (!recipient.server.isSingleplayer()) {
-            buf.writeUtf(gson.toJson(YACLConfig.getServerData()));
-        }
-    }
-
-    @Override
-    @CheckEnvironment(EnvType.CLIENT)
-    public void applySyncPacket(RegistryFriendlyByteBuf buf) {
-        if (!Minecraft.getInstance().isSingleplayer()) {
-            YACLConfig.setServerData(
-                    gson.fromJson(buf.readUtf(), ServerConfigData.ImmutableServerConfigData.class)
-            );
-        }
-    }
-
-    /**
-     * Handles config update from a player on the server side
-     */
-    @Override
-    @CheckEnvironment(EnvType.SERVER)
-    public void handleC2SMessage(RegistryFriendlyByteBuf buf) {
-        if (!player.hasPermissions(2)) {
-            // only for operators
-            return;
-        }
-        boolean dataUpdated = YACLConfig.setServerData(
-                gson.fromJson(buf.readUtf(), ServerConfigData.ImmutableServerConfigData.class)
+    @SubscribeEvent // on the mod event bus
+    public static void register(RegisterPayloadHandlersEvent event) {
+        PayloadRegistrar registrar = event.registrar("1");
+        registrar = registrar.executesOn(HandlerThread.NETWORK);
+        registrar.commonBidirectional(
+                ServerConfigData.TYPE,
+                STREAM_CODEC,
+                new DirectionalPayloadHandler<>(
+                        (data, context) -> {
+                            // this handler is client side
+                            if (!Minecraft.getInstance().isSingleplayer()) {
+                                YACLConfig.setServerData(data);
+                            }
+                        },
+                        (data, context) -> {
+                            // this handler is server side
+                            if (!context.player().hasPermissions(2)) {
+                                // only for operators
+                                return;
+                            }
+                            boolean dataUpdated = YACLConfig.setServerData(data);
+                            if (!dataUpdated) {
+                                return;
+                            }
+                            // sending update to every player
+                            PacketDistributor.sendToAllPlayers(data);
+                            YACLConfig.saveToDisk();
+                        }
+                )
         );
-        if (!dataUpdated) {
-            return;
-        }
-        for (var player : player.getServer().getPlayerList().getPlayers()) {
-            // sending update to every player
-            PlayerComponents.SERVER_CONFIG.sync(player);
-        }
-        YACLConfig.saveToDisk();
     }
 
     /**
      * Sends config update to the server
      */
-    @CheckEnvironment(EnvType.CLIENT)
-    public void sendToServer(ServerConfigData.ImmutableServerConfigData serverConfigData) {
-        sendC2SMessage(buf -> buf.writeUtf(gson.toJson(serverConfigData)));
+    public static void sendToServer(ServerConfigData.ImmutableServerConfigData serverConfigData) {
+        PacketDistributor.sendToServer(serverConfigData);
     }
 }

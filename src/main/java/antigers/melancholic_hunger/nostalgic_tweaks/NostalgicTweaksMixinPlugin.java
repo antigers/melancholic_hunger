@@ -1,6 +1,5 @@
 package antigers.melancholic_hunger.nostalgic_tweaks;
 
-import net.fabricmc.loader.api.FabricLoader;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -20,7 +19,8 @@ public class NostalgicTweaksMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        return FabricLoader.getInstance().getModContainer("nostalgic_tweaks").isPresent();
+        // seems to not be important to check if mod exists on Neo
+        return true;
     }
 
     @Override

@@ -39,7 +39,7 @@ public class RestoredHeartsDrawHelper {
         sprintingHealthLimit = YACLConfig.sprintingHealthLimit();
         highlightRegeneratedHearts = YACLConfig.highlightRegeneratedHearts();
         highlightRestoredHearts = YACLConfig.highlightRestoredHearts();
-        consumedNutrition = PlayerComponents.HEALTH_REGENERATION.get(player).getConsumedNutrition();
+        consumedNutrition = player.getData(PlayerComponents.HEALTH_REGENERATION).getConsumedNutrition();
         heldFoodNutrition = foodComponent != null ? YACLConfig.getFoodHealth(heldItemStack, foodComponent) : 0;
         totalNutritionToDraw = highlightRegeneratedHearts ? consumedNutrition + heldFoodNutrition : heldFoodNutrition;
     }

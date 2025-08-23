@@ -1,32 +1,37 @@
 package antigers.melancholic_hunger.components;
 
-import net.minecraft.resources.ResourceLocation;
-import org.ladysnake.cca.api.v3.component.ComponentKey;
-import org.ladysnake.cca.api.v3.component.ComponentRegistry;
-import org.ladysnake.cca.api.v3.entity.EntityComponentFactoryRegistry;
-import org.ladysnake.cca.api.v3.entity.EntityComponentInitializer;
-import org.ladysnake.cca.api.v3.entity.RespawnCopyStrategy;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.attachment.AttachmentType;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
-public class PlayerComponents implements EntityComponentInitializer {
-    public static final ComponentKey<HealthRegenerationComponent> HEALTH_REGENERATION = ComponentRegistry
-            .getOrCreate(
-                    ResourceLocation.fromNamespaceAndPath("melancholic_hunger", "health_regeneration"),
-                    HealthRegenerationComponent.class
-            );
+import java.util.function.Supplier;
 
-    public static final ComponentKey<ServerConfigComponent> SERVER_CONFIG = ComponentRegistry
-            .getOrCreate(
-                    ResourceLocation.fromNamespaceAndPath("melancholic_hunger", "server_config"),
-                    ServerConfigComponent.class
-            );
+import static antigers.melancholic_hunger.MelancholicHunger.MOD_ID;
 
-    @Override
-    public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
-        registry.registerForPlayers(
-                HEALTH_REGENERATION, HealthRegenerationComponent::new, RespawnCopyStrategy.LOSSLESS_ONLY
-        );
-        registry.registerForPlayers(
-                SERVER_CONFIG, ServerConfigComponent::new, RespawnCopyStrategy.ALWAYS_COPY
-        );
+public class PlayerComponents {
+    // Create the DeferredRegister for attachment types
+    private static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(
+            NeoForgeRegistries.ATTACHMENT_TYPES, MOD_ID
+    );
+
+    // Serialization via INBTSerializable
+    public static final Supplier<AttachmentType<HealthRegenerationComponent>> HEALTH_REGENERATION = ATTACHMENT_TYPES.register(
+            "handler", () -> AttachmentType
+                    .serializable(
+                            holder -> new HealthRegenerationComponent((Player) holder)
+                    )
+                    .sync(new HealthRegenerationSyncHandler())
+                    .build()
+    );
+
+    public static void register(IEventBus modBus) {
+        ATTACHMENT_TYPES.register(modBus);
+        // registering HealthRegenerationComponent in the bus, because it has ticking event handler
+        NeoForge.EVENT_BUS.register(HealthRegenerationComponent.class);
+        // registering HealthRegenerationComponent in the bus, because it has S2C and C2S payload event handlers
+        modBus.register(ServerConfigComponent.class);
     }
 }

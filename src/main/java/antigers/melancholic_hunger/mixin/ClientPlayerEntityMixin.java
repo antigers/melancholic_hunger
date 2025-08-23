@@ -29,7 +29,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayer {
      */
     @WrapMethod(method = "hasEnoughFoodToStartSprinting")
     private boolean melancholic_hunger$canPlayerSprint(Operation<Boolean> original) {
-        if (this.isPassenger() || this.getAbilities().mayfly) {
+        if (this.isPassenger() || this.mayFly()) {
             return true;
         }
         switch (YACLConfig.sprinting()) {

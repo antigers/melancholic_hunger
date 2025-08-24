@@ -8,13 +8,17 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import org.ladysnake.cca.api.v3.entity.C2SSelfMessagingComponent;
 import org.ladysnake.cca.api.v3.util.CheckEnvironment;
 
 public class ServerConfigComponent implements AutoSyncedComponent, C2SSelfMessagingComponent {
+    private static MinecraftServer serverInstance;
+
     private final Player player;
     private final Gson gson = new Gson();
 
@@ -51,6 +55,14 @@ public class ServerConfigComponent implements AutoSyncedComponent, C2SSelfMessag
         }
     }
 
+    @CheckEnvironment(EnvType.SERVER)
+    public static void syncAllPlayers() {
+        for (var player : ServerConfigComponent.serverInstance.getPlayerList().getPlayers()) {
+            // sending update to every player
+            PlayerComponents.SERVER_CONFIG.sync(player);
+        }
+    }
+
     /**
      * Handles config update from a player on the server side
      */
@@ -67,10 +79,7 @@ public class ServerConfigComponent implements AutoSyncedComponent, C2SSelfMessag
         if (!dataUpdated) {
             return;
         }
-        for (var player : player.getServer().getPlayerList().getPlayers()) {
-            // sending update to every player
-            PlayerComponents.SERVER_CONFIG.sync(player);
-        }
+        syncAllPlayers();
         YACLConfig.saveToDisk();
     }
 
@@ -80,5 +89,12 @@ public class ServerConfigComponent implements AutoSyncedComponent, C2SSelfMessag
     @CheckEnvironment(EnvType.CLIENT)
     public void sendToServer(ServerConfigData.ImmutableServerConfigData serverConfigData) {
         sendC2SMessage(buf -> buf.writeUtf(gson.toJson(serverConfigData)));
+    }
+
+    @CheckEnvironment(EnvType.SERVER)
+    public static void register() {
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+            ServerConfigComponent.serverInstance = server;
+        });
     }
 }

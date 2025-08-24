@@ -1,6 +1,8 @@
 package antigers.melancholic_hunger.components;
 
 import net.minecraft.resources.ResourceLocation;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.entity.EntityComponentFactoryRegistry;
@@ -28,5 +30,8 @@ public class PlayerComponents implements EntityComponentInitializer {
         registry.registerForPlayers(
                 SERVER_CONFIG, ServerConfigComponent::new, RespawnCopyStrategy.ALWAYS_COPY
         );
+        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
+            ServerConfigComponent.register();
+        }
     }
 }

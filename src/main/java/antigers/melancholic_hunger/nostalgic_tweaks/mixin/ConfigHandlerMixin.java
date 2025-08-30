@@ -17,7 +17,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 @Mixin(ConfigHandler.class)
@@ -29,9 +28,8 @@ public abstract class ConfigHandlerMixin<T extends ConfigMeta> implements Nostal
 
     @Unique
     void setGameplayConfigFromNT(
-            boolean disableHunger, boolean preventHungerEffect, boolean disableSprint, ItemMap<Integer> customFoodHealth,
-            boolean oldFoodStacking, ItemMap<Integer> customFoodStacking, ItemMap<Integer> customItemStacking,
-            boolean instantEat
+            boolean disableHunger, boolean preventHungerEffect, boolean disableSprint, boolean oldFoodStacking,
+            ItemMap<Integer> customFoodStacking, boolean instantEat
     ) {
         var currentServerData = YACLConfig.getServerData();
         var serverData = new ServerConfigData();
@@ -72,18 +70,6 @@ public abstract class ConfigHandlerMixin<T extends ConfigMeta> implements Nostal
             serverData.customFoodStackSizes = customFoodStackSizesHashMap;
         }
         YACLConfig.setServerData(serverData.getImmutable());
-
-        var customFoodHealthHashMap = new HashMap<String, Integer>();
-        for (var entry : customFoodHealth.entrySet()) {
-            customFoodHealthHashMap.put(entry.getKey(), entry.getValue());
-        }
-        YACLConfig.setCustomFoodHealthMap(customFoodHealthHashMap);
-
-        var customItemStackSizesHashMap = new HashMap<String, Integer>();
-        for (var entry : customItemStacking.entrySet()) {
-            customItemStackSizesHashMap.put(entry.getKey(), entry.getValue());
-        }
-        YACLConfig.setCustomItemStackSizesMap(customItemStackSizesHashMap);
     }
 
     @Unique
@@ -92,8 +78,7 @@ public abstract class ConfigHandlerMixin<T extends ConfigMeta> implements Nostal
             var gameplayConfig = clientConfig.gameplay;
             setGameplayConfigFromNT(
                     gameplayConfig.disableHunger, gameplayConfig.preventHungerEffect, gameplayConfig.disableSprint,
-                    gameplayConfig.customFoodHealth, gameplayConfig.oldFoodStacking, gameplayConfig.customFoodStacking,
-                    gameplayConfig.customItemStacking, gameplayConfig.instantEat
+                    gameplayConfig.oldFoodStacking, gameplayConfig.customFoodStacking, gameplayConfig.instantEat
             );
             var clientData = new ClientConfigData();
             clientData.hideHungerBar = clientConfig.eyeCandy.hideHungerBar;
@@ -104,8 +89,7 @@ public abstract class ConfigHandlerMixin<T extends ConfigMeta> implements Nostal
             var gameplayConfig = serverConfig.gameplay;
             setGameplayConfigFromNT(
                     gameplayConfig.disableHunger, gameplayConfig.preventHungerEffect, gameplayConfig.disableSprint,
-                    gameplayConfig.customFoodHealth, gameplayConfig.oldFoodStacking, gameplayConfig.customFoodStacking,
-                    gameplayConfig.customItemStacking, gameplayConfig.instantEat
+                    gameplayConfig.oldFoodStacking, gameplayConfig.customFoodStacking, gameplayConfig.instantEat
             );
         }
     }

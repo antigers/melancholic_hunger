@@ -12,6 +12,7 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.registration.HandlerThread;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 public class ServerConfigComponent {
     public static final StreamCodec<ByteBuf, ServerConfigData.ImmutableServerConfigData> STREAM_CODEC = StreamCodec.composite(
@@ -19,6 +20,21 @@ public class ServerConfigComponent {
             ServerConfigData.ImmutableServerConfigData::toJson,
             ServerConfigData.ImmutableServerConfigData::fromJson
     );
+
+    public static void syncAllPlayers() {
+        PacketDistributor.sendToAllPlayers(YACLConfig.getServerData());
+    }
+
+    public static void syncAllPlayersExceptOf(int ignoredPlayerId) {
+        ServerConfigData.ImmutableServerConfigData data = YACLConfig.getServerData();
+        for (var player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers()) {
+            if (player.getId() == ignoredPlayerId) {
+                continue;
+            }
+            // sending update to every player
+            PacketDistributor.sendToPlayer(player, data);
+        }
+    }
 
     @SubscribeEvent // on the mod event bus
     public static void register(RegisterPayloadHandlersEvent event) {
@@ -44,8 +60,7 @@ public class ServerConfigComponent {
                             if (!dataUpdated) {
                                 return;
                             }
-                            // sending update to every player
-                            PacketDistributor.sendToAllPlayers(data);
+                            syncAllPlayersExceptOf(context.player().getId());
                             YACLConfig.saveToDisk();
                         }
                 )

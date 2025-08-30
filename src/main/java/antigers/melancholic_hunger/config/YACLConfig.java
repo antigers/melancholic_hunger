@@ -10,6 +10,7 @@ import dev.isxander.yacl3.config.v2.api.SerialEntry;
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
 import dev.isxander.yacl3.gui.YACLScreen;
 import mod.adrenix.nostalgic.config.factory.ConfigBuilder;
+import mod.adrenix.nostalgic.tweak.config.GameplayTweak;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -19,6 +20,7 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLPaths;
 
 import javax.lang.model.type.NullType;
@@ -33,21 +35,9 @@ public class YACLConfig {
     @SerialEntry(value = "serverOptions")
     private static ServerConfigData serverData = new ServerConfigData();
 
-    private static HashMap<String, Integer> customFoodHealth = new HashMap<>();
-    private static HashMap<String, Integer> customItemStackSizes = new HashMap<>();
-
-    public static void setCustomFoodHealthMap(HashMap<String, Integer> foodHealthMap) {
-        customFoodHealth = foodHealthMap;
-    }
-
-    public static void setCustomItemStackSizesMap(HashMap<String, Integer> itemStackSizesMap) {
-        customItemStackSizes = itemStackSizesMap;
-    }
-
     public static int getFoodHealth(ItemStack itemStack, FoodProperties foodComponent) {
-        var itemId = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).toString();
-        if (customFoodHealth.containsKey(itemId)) {
-            return customFoodHealth.get(itemId);
+        if (GameplayTweak.CUSTOM_FOOD_HEALTH.get().containsItem(itemStack)) {
+            return GameplayTweak.CUSTOM_FOOD_HEALTH.get().valueFrom(itemStack);
         }
         return foodComponent.nutrition();
     }
@@ -217,6 +207,14 @@ public class YACLConfig {
             () -> clientData.renderExperienceOverBackground, val -> clientData.renderExperienceOverBackground = val
     ).addValueDependency(HIDE_EXPERIENCE_BAR, true, true, false);
 
+    private static final List<ConfigOption<?, ?>> ALL_OPTIONS = List.of(
+            DISABLE_HUNGER, GRADUAL_HEALTH_REGENERATION, GRADUAL_HEALTH_REGENERATION_SPEED, HIDE_HUNGER_BAR,
+            HUNGER_EFFECT, HIGHLIGHT_REGENERATED_HEARTS, INSTANT_EATING, USE_CUSTOM_FOOD_STACK_SIZES,
+            CUSTOM_FOOD_STACK_SIZES, SPRINTING, SPRINTING_HEALTH_LIMIT, HIGHLIGHT_RESTORED_HEARTS,
+            HIDE_EXPERIENCE_BAR, SHOW_EXPERIENCE_IN_INVENTORY, SHOW_EXPERIENCE_ON_SCREENS, SHOW_EXPERIENCE_ON_GAIN,
+            ENABLE_EXPERIENCE_ANIMATION, RENDER_EXPERIENCE_OVER_BACKGROUND
+    );
+
     private static BooleanControllerBuilder createBooleanController(Option<Boolean> option) {
         return BooleanControllerBuilder.create(option).yesNoFormatter().coloured(true);
     }
@@ -362,14 +360,18 @@ public class YACLConfig {
                 .save(() -> {
                     var client = Minecraft.getInstance();
                     boolean isSinglePlayer = client.isSingleplayer();
+                    boolean hasSingleplayerServer = client.hasSingleplayerServer();
                     var player = client.player;
                     if (!MelancholicHunger.nostalgicTweaksInstalled) {
                         // hideHungerBar option is hidden when NT is not installed, so we have to correct its value
                         clientData.hideHungerBar = serverData.disableHunger;
                     }
-                    if (isSinglePlayer || player == null) {
+                    if (isSinglePlayer || player == null || hasSingleplayerServer) {
                         // writing config file if in singleplayer or if on title screen
                         HANDLER.save();
+                        if (hasSingleplayerServer) {
+                            ServerConfigComponent.syncAllPlayersExceptOf(player.getId());
+                        }
                     }
                     else {
                         // sending config to the server if in multiplayer
@@ -386,15 +388,18 @@ public class YACLConfig {
         );
     }
 
+    private static void updateCurrentScreen() {
+        if (!FMLEnvironment.dist.isClient()) {
+            return;
+        }
+        if (Minecraft.getInstance().screen instanceof YACLScreen) {
+            ALL_OPTIONS.forEach(ConfigOption::forgetPendingValueIfServerOption);
+        }
+    }
+
     public static void loadFromDisk() {
         HANDLER.load();
-        for (var option : List.of(
-                DISABLE_HUNGER, GRADUAL_HEALTH_REGENERATION, GRADUAL_HEALTH_REGENERATION_SPEED, HIDE_HUNGER_BAR,
-                HUNGER_EFFECT, HIGHLIGHT_REGENERATED_HEARTS, INSTANT_EATING, USE_CUSTOM_FOOD_STACK_SIZES,
-                CUSTOM_FOOD_STACK_SIZES, SPRINTING, SPRINTING_HEALTH_LIMIT, HIGHLIGHT_RESTORED_HEARTS,
-                HIDE_EXPERIENCE_BAR, SHOW_EXPERIENCE_IN_INVENTORY, SHOW_EXPERIENCE_ON_SCREENS, SHOW_EXPERIENCE_ON_GAIN,
-                ENABLE_EXPERIENCE_ANIMATION, RENDER_EXPERIENCE_OVER_BACKGROUND
-        )) {
+        for (var option : ALL_OPTIONS) {
             option.validateValue();
         }
         if (!MelancholicHunger.nostalgicTweaksInstalled) {
@@ -405,6 +410,10 @@ public class YACLConfig {
 
     public static void saveToDisk() {
         HANDLER.save();
+    }
+
+    public static ClientConfigData.ImmutableClientConfigData getClientData() {
+        return clientData.getImmutable();
     }
 
     public static void setClientData(ClientConfigData.ImmutableClientConfigData newClientData) {
@@ -428,6 +437,10 @@ public class YACLConfig {
             return false;
         }
         DISABLE_HUNGER.setValue(newServerData.disableHunger());
+        if (!MelancholicHunger.nostalgicTweaksInstalled) {
+            // hideHungerBar option is hidden when NT is not installed, so we have to correct its value
+            HIDE_HUNGER_BAR.setValue(false);
+        }
         HUNGER_EFFECT.setValue(newServerData.hungerEffect());
         GRADUAL_HEALTH_REGENERATION.setValue(newServerData.gradualHealthRegeneration());
         GRADUAL_HEALTH_REGENERATION_SPEED.setValue(newServerData.gradualHealthRegenerationSpeed());
@@ -436,6 +449,7 @@ public class YACLConfig {
         CUSTOM_FOOD_STACK_SIZES.setValue(newServerData.customFoodStackSizes());
         SPRINTING.setValue(newServerData.sprinting());
         SPRINTING_HEALTH_LIMIT.setValue(newServerData.sprintingHealthLimit());
+        updateCurrentScreen();
         return true;
     }
 
@@ -467,9 +481,6 @@ public class YACLConfig {
         var itemId = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).toString();
         if (serverData.useCustomFoodStackSizes && serverData.customFoodStackSizes.containsKey(itemId)) {
             return serverData.customFoodStackSizes.get(itemId);
-        }
-        else if (customItemStackSizes.containsKey(itemId)) {
-            return customItemStackSizes.get(itemId);
         }
         return null;
     }

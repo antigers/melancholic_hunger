@@ -218,4 +218,10 @@ class ConfigOption<T, U> {
                 .build();
         return YACLOption;
     }
+
+    public void forgetPendingValueIfServerOption() {
+        if (isServerOption) {
+            YACLOption.forgetPendingValue();
+        }
+    }
 }

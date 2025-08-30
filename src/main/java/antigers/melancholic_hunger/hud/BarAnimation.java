@@ -1,8 +1,8 @@
 package antigers.melancholic_hunger.hud;
 
 import antigers.melancholic_hunger.config.YACLConfig;
-import net.minecraft.client.gui.hud.InGameHud;
-import net.minecraft.util.Util;
+import net.minecraft.Util;
+import net.minecraft.client.gui.Gui;
 
 import java.util.function.Predicate;
 
@@ -14,11 +14,11 @@ public class BarAnimation {
     private boolean reverse = true;
     private int currentPos = 0;
     private float currentOpacity = 0;
-    private InGameHud.BarType currentBarType;
+    private Gui.ContextualInfo currentBarType;
     // this predicate checks if the current bar is always rendered, in which case the animation is in the fixed position
-    Predicate<InGameHud.BarType> alwaysOnPredicate;
+    Predicate<Gui.ContextualInfo> alwaysOnPredicate;
 
-    public BarAnimation(Predicate<InGameHud.BarType> alwaysOnPredicate) {
+    public BarAnimation(Predicate<Gui.ContextualInfo> alwaysOnPredicate) {
         this.alwaysOnPredicate = alwaysOnPredicate;
     }
 
@@ -40,9 +40,9 @@ public class BarAnimation {
         isRunning = true;
     }
 
-    public void update(InGameHud.BarType currentBarType, boolean shouldDraw) {
+    public void update(Gui.ContextualInfo currentBarType, boolean shouldDraw) {
         // this method is called on every frame
-        var now = Util.getMeasuringTimeMs();
+        var now = Util.getMillis();
         if (this.alwaysOnPredicate.test(currentBarType) || shouldDraw) {
             beginIfNotAlready(now);
         }
@@ -88,7 +88,7 @@ public class BarAnimation {
      * Checks if the experience bar animation is still running, which is important to keep rendering the exp bar until
      * the animation is fully finished
      */
-    public boolean shouldStillDrawExperience() { //InGameHud.BarType barType) {
-        return currentBarType == InGameHud.BarType.EXPERIENCE && isRunning;
+    public boolean shouldStillDrawExperience() { //Gui.ContextualInfo barType) {
+        return currentBarType == Gui.ContextualInfo.EXPERIENCE && isRunning;
     }
 }

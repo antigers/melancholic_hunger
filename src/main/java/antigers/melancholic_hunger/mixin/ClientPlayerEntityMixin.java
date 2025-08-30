@@ -5,30 +5,29 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.authlib.GameProfile;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Mixin(ClientPlayerEntity.class)
-public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity {
-    @Shadow @Final protected MinecraftClient client;
-    @Shadow public int experienceBarDisplayStartTime;
+@Mixin(LocalPlayer.class)
+public abstract class ClientPlayerEntityMixin extends AbstractClientPlayer {
+    @Shadow public int experienceDisplayStartTick;
 
-    public ClientPlayerEntityMixin(ClientWorld world, GameProfile profile) {
+    public ClientPlayerEntityMixin(ClientLevel world, GameProfile profile) {
         super(world, profile);
     }
 
     /**
      * Allowing player to sprint only if they have more than 3 hearts (or custom amount)
      */
-    @WrapMethod(method = "canSprint")
+    @WrapMethod(method = "hasEnoughFoodToSprint")
     private boolean melancholic_hunger$canPlayerSprint(Operation<Boolean> original) {
-        if (this.hasVehicle() || this.getAbilities().allowFlying) {
+        if (this.isPassenger() || this.getAbilities().mayfly) {
             return true;
         }
         switch (YACLConfig.sprinting()) {
@@ -44,32 +43,32 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
         if (YACLConfig.disableHunger()) {
             return true;
         }
-        return (float)this.getHungerManager().getFoodLevel() > 6.0F;
+        return (float)this.getFoodData().getFoodLevel() > 6.0F;
     }
 
     /**
      * Makes so that the experience bar is drawn only if the experience value has actually been changed
      */
-    @WrapMethod(method = "setExperience")
+    @WrapMethod(method = "setExperienceValues")
     private void melancholic_hunger$setExperience(float progress, int total, int level, Operation<Void> original) {
         // checking age to see if player is fully initialized
-        if (this.age > 0 && total > this.totalExperience) {
-            this.experienceBarDisplayStartTime = this.age;
+        if (this.tickCount > 0 && total > this.totalExperience) {
+            this.experienceDisplayStartTick = this.tickCount;
         }
         original.call(progress, total, level);
     }
 
     /**
-     * Makes that vanilla way of setting experienceBarDisplayStartTime to the player age isn't used
+     * Makes that vanilla way of setting experienceDisplayStartTick to the player age isn't used
      */
     @ModifyExpressionValue(
-            method="setExperience",
+            method="setExperienceValues",
             at=@At(
                     value="FIELD",
-                    target="Lnet/minecraft/client/network/ClientPlayerEntity;age:I"
+                    target="Lnet/minecraft/client/player/LocalPlayer;tickCount:I"
             )
     )
     private int melancholic_hunger$setExperience(int original) {
-        return this.experienceBarDisplayStartTime;
+        return this.experienceDisplayStartTick;
     }
 }

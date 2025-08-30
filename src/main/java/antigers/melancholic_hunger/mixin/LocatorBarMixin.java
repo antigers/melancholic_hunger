@@ -6,15 +6,15 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.hud.bar.LocatorBar;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.contextualbar.LocatorBarRenderer;
+import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Mixin(LocatorBar.class)
+@Mixin(LocatorBarRenderer.class)
 public class LocatorBarMixin {
     @Unique DrawHudContext drawHudContext;
 
@@ -22,14 +22,14 @@ public class LocatorBarMixin {
      * Makes the locator bar to follow the animation
      */
     @WrapOperation(
-            method="renderBar",
+            method="renderBackground",
             at= @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/util/Identifier;IIII)V"
+                    target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/ResourceLocation;IIII)V"
             )
     )
     private void melancholic_hunger$renderBar(
-            DrawContext drawContext, RenderPipeline pipeline, Identifier sprite, int x, int y, int width, int height,
+            GuiGraphics drawContext, RenderPipeline pipeline, ResourceLocation sprite, int x, int y, int width, int height,
             Operation<Void> original
     ) {
         var drawHudContext = (DrawHudContext) drawContext;
@@ -41,9 +41,9 @@ public class LocatorBarMixin {
     /**
      * Makes so that addons only render when the locator bar itself was actually rendered in this frame
      */
-    @WrapMethod(method="renderAddons")
+    @WrapMethod(method="render")
     private void melancholic_hunger$renderAddons(
-            DrawContext drawContext, RenderTickCounter tickCounter, Operation<Void> original
+            GuiGraphics drawContext, DeltaTracker tickCounter, Operation<Void> original
     ) {
         drawHudContext = (DrawHudContext) drawContext;
         if (drawHudContext.locatorBarWasRendered) {
@@ -55,10 +55,10 @@ public class LocatorBarMixin {
      * Makes the addons of the locator bar to follow the animation
      */
     @ModifyExpressionValue(
-            method="renderAddons",
+            method="render",
             at= @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/hud/bar/LocatorBar;getCenterY(Lnet/minecraft/client/util/Window;)I"
+                    target = "Lnet/minecraft/client/gui/contextualbar/LocatorBarRenderer;top(Lcom/mojang/blaze3d/platform/Window;)I"
             )
     )
     private int melancholic_hunger$renderAddonsModifyValueOfY(int original) {

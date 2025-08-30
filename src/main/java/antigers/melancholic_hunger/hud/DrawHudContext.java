@@ -1,12 +1,12 @@
 package antigers.melancholic_hunger.hud;
 
 import antigers.melancholic_hunger.config.YACLConfig;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.render.state.GuiRenderState;
 import org.joml.Matrix3x2fStack;
 
-public class DrawHudContext extends DrawContext {
+public class DrawHudContext extends GuiGraphics {
     private final int offsetX;
     private final int healthBarY;
     private final int hudExperienceOffset;
@@ -20,16 +20,16 @@ public class DrawHudContext extends DrawContext {
     public boolean locatorBarWasRendered = false;
 
     public DrawHudContext(
-            MinecraftClient client, Matrix3x2fStack matrices, GuiRenderState state, RestoredHeartsDrawHelper restoredHeartsDrawHelper,
+            Minecraft client, Matrix3x2fStack matrices, GuiRenderState state, RestoredHeartsDrawHelper restoredHeartsDrawHelper,
             int hudExperienceOffset, BarAnimation barAnimation, boolean hasMountHealth, int mountHealthRows
     ) {
         super(client, matrices, state);
         this.restoredHeartsDrawHelper = restoredHeartsDrawHelper;
-        var windowWidth = this.getScaledWindowWidth();
+        var windowWidth = this.guiWidth();
         // fixing offset for odd window width value because vanilla code does integer division by 2 when
         // calculating the x coordinate
         offsetX = windowWidth - ((windowWidth % 2 == 0) ? 9 : 10);
-        healthBarY = this.getScaledWindowHeight() - 32 - hudExperienceOffset;
+        healthBarY = this.guiHeight() - 32 - hudExperienceOffset;
         this.hudExperienceOffset = hudExperienceOffset;
         this.hasMountHealth = hasMountHealth;
         this.mountHealthRows = mountHealthRows;

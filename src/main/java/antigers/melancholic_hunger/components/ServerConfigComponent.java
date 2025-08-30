@@ -40,24 +40,28 @@ public class ServerConfigComponent implements AutoSyncedComponent, C2SSelfMessag
     @Override
     @CheckEnvironment(EnvType.SERVER)
     public void writeSyncPacket(RegistryFriendlyByteBuf buf, ServerPlayer recipient) {
-        if (!recipient.server.isSingleplayer()) {
-            buf.writeUtf(gson.toJson(YACLConfig.getServerData()));
-        }
+        buf.writeUtf(gson.toJson(YACLConfig.getServerData()));
     }
 
     @Override
     @CheckEnvironment(EnvType.CLIENT)
     public void applySyncPacket(RegistryFriendlyByteBuf buf) {
-        if (!Minecraft.getInstance().isSingleplayer()) {
+        if (!Minecraft.getInstance().isSingleplayer() && buf.isReadable()) {
             YACLConfig.setServerData(
                     gson.fromJson(buf.readUtf(), ServerConfigData.ImmutableServerConfigData.class)
             );
         }
     }
 
-    @CheckEnvironment(EnvType.SERVER)
     public static void syncAllPlayers() {
-        for (var player : ServerConfigComponent.serverInstance.getPlayerList().getPlayers()) {
+        syncAllPlayersExceptOf(null);
+    }
+
+    public static void syncAllPlayersExceptOf(Integer ignoredPlayerId) {
+        for (var player : serverInstance.getPlayerList().getPlayers()) {
+            if (ignoredPlayerId != null && player.getId() == ignoredPlayerId) {
+                continue;
+            }
             // sending update to every player
             PlayerComponents.SERVER_CONFIG.sync(player);
         }
@@ -79,7 +83,7 @@ public class ServerConfigComponent implements AutoSyncedComponent, C2SSelfMessag
         if (!dataUpdated) {
             return;
         }
-        syncAllPlayers();
+        syncAllPlayersExceptOf(player.getId());
         YACLConfig.saveToDisk();
     }
 
@@ -91,10 +95,9 @@ public class ServerConfigComponent implements AutoSyncedComponent, C2SSelfMessag
         sendC2SMessage(buf -> buf.writeUtf(gson.toJson(serverConfigData)));
     }
 
-    @CheckEnvironment(EnvType.SERVER)
     public static void register() {
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
-            ServerConfigComponent.serverInstance = server;
+            serverInstance = server;
         });
     }
 }

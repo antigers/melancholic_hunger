@@ -1,9 +1,9 @@
 package antigers.melancholic_hunger.config;
 
+import antigers.melancholic_hunger.components.ServerConfigComponent;
 import antigers.melancholic_hunger.nostalgic_tweaks.NostalgicTweaksConfigHandlerWriter;
 import antigers.melancholic_hunger.components.PlayerComponents;
 import antigers.melancholic_hunger.MelancholicHunger;
-import antigers.melancholic_hunger.components.ServerConfigComponent;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
@@ -378,12 +378,16 @@ public class YACLConfig {
                         // sending config to the server if in multiplayer
                         PlayerComponents.SERVER_CONFIG.get(player).sendToServer(serverData.getImmutable());
                     }
-                    // writing new settings to nostalgic tweaks config
+                    // Syncing new settings to the nostalgic tweaks config.
+                    // If in multiplayer, only the client config will be synced
                     if (MelancholicHunger.nostalgicTweaksInstalled) {
                         var handler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
                         handler.melancholic_hunger$writeConfigToNT(
                                 YACLConfig.serverData.getImmutable(), YACLConfig.clientData.getImmutable()
                         );
+                        if (hasSingleplayerServer) {
+                            ServerConfigComponent.syncNostalgicTweaksToAllPlayers();
+                        }
                     }
                 })
         );

@@ -13,7 +13,6 @@ import java.util.Set;
 
 @Mixin(Tweak.class)
 public abstract class TweakMixin<T> {
-    @Unique private static final ItemMap<Integer> emptyItemMap = new ItemMap<>(0);
     @Shadow(remap=false) private String jsonId;
 
     @Unique
@@ -34,9 +33,6 @@ public abstract class TweakMixin<T> {
         }
         if (callback.getReturnValue() instanceof Boolean && overwrittenOptions.contains(this.jsonId)) {
             callback.setReturnValue((T) Boolean.FALSE);
-        }
-        else if (this.jsonId.equals("customItemStacking")) {
-            callback.setReturnValue((T) emptyItemMap);
         }
     }
 }

@@ -10,7 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.jetbrains.annotations.Nullable;
@@ -79,7 +79,6 @@ public class HealthRegenerationComponent implements INBTSerializable<CompoundTag
         return tag;
     }
 
-    @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
         Player player = event.getEntity();
         if (!player.level().isClientSide()) {
@@ -160,5 +159,9 @@ public class HealthRegenerationComponent implements INBTSerializable<CompoundTag
             return 0;
         }
         return consumedNutrition;
+    }
+
+    public static void register() {
+        NeoForge.EVENT_BUS.addListener(HealthRegenerationComponent::onPlayerTick);
     }
 }

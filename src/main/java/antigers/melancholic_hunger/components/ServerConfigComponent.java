@@ -6,7 +6,10 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.neoforged.bus.api.SubscribeEvent;
+import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
@@ -36,8 +39,7 @@ public class ServerConfigComponent {
         }
     }
 
-    @SubscribeEvent // on the mod event bus
-    public static void register(RegisterPayloadHandlersEvent event) {
+    public static void registerPayloadHandlersEventHandler(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar("1");
         registrar = registrar.executesOn(HandlerThread.NETWORK);
         registrar.commonBidirectional(
@@ -67,10 +69,22 @@ public class ServerConfigComponent {
         );
     }
 
+    public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            // syncing config for the player at the moment when the player has connected
+            PacketDistributor.sendToPlayer(player, YACLConfig.getServerData());
+        }
+    }
+
     /**
      * Sends config update to the server
      */
     public static void sendToServer(ServerConfigData.ImmutableServerConfigData serverConfigData) {
         PacketDistributor.sendToServer(serverConfigData);
+    }
+
+    public static void register(IEventBus modBus) {
+        modBus.addListener(ServerConfigComponent::registerPayloadHandlersEventHandler);
+        NeoForge.EVENT_BUS.addListener(ServerConfigComponent::onPlayerLogin);
     }
 }

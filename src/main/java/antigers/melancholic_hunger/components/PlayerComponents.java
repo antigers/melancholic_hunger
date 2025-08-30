@@ -3,7 +3,6 @@ package antigers.melancholic_hunger.components;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
-import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
@@ -29,9 +28,9 @@ public class PlayerComponents {
 
     public static void register(IEventBus modBus) {
         ATTACHMENT_TYPES.register(modBus);
-        // registering HealthRegenerationComponent in the bus, because it has ticking event handler
-        NeoForge.EVENT_BUS.register(HealthRegenerationComponent.class);
-        // registering HealthRegenerationComponent in the bus, because it has S2C and C2S payload event handlers
-        modBus.register(ServerConfigComponent.class);
+        // registering HealthRegenerationComponent
+        HealthRegenerationComponent.register();
+        // registering ServerConfigComponent
+        ServerConfigComponent.register(modBus);
     }
 }

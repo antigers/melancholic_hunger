@@ -262,6 +262,17 @@ public class YACLConfig {
     private static void setAllFoodStacksTo1(YACLScreen screen, ButtonOption button) {
         LinkedHashMap<String, Integer> stacks = getDefaultItemStackSizes();
         stacks.replaceAll((k, v) -> 1);
+        stacks.replace(Items.COOKIE.toString(), 8);
+        stacks.replace(Items.BEETROOT.toString(), 8);
+        stacks.replace(Items.CARROT.toString(), 8);
+        stacks.replace(Items.CHORUS_FRUIT.toString(), 8);
+        stacks.replace(Items.MELON_SLICE.toString(), 8);
+        stacks.replace(Items.POTATO.toString(), 8);
+        stacks.replace(Items.POISONOUS_POTATO.toString(), 8);
+        stacks.replace(Items.SWEET_BERRIES.toString(), 8);
+        stacks.replace(Items.GLOW_BERRIES.toString(), 8);
+        stacks.replace(Items.DRIED_KELP.toString(), 9);
+        stacks.replace(Items.HONEY_BOTTLE.toString(), 4);
         CUSTOM_FOOD_STACK_SIZES.updatePendingValue(stacks);
     }
 

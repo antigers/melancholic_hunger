@@ -1,8 +1,13 @@
 package antigers.melancholic_hunger.components;
 
+import antigers.melancholic_hunger.MelancholicHunger;
 import antigers.melancholic_hunger.config.ServerConfigData;
 import antigers.melancholic_hunger.config.YACLConfig;
 import io.netty.buffer.ByteBuf;
+import antigers.melancholic_hunger.nostalgic_tweaks.NostalgicTweaksConfigHandlerWriter;
+import mod.adrenix.nostalgic.config.factory.ConfigBuilder;
+import mod.adrenix.nostalgic.tweak.factory.Tweak;
+import mod.adrenix.nostalgic.tweak.factory.TweakPool;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -39,6 +44,10 @@ public class ServerConfigComponent {
         }
     }
 
+    public static void syncNostalgicTweaksToAllPlayers() {
+        TweakPool.filter(Tweak::isMultiplayerLike).forEach(Tweak::sendToAll);
+    }
+
     public static void registerPayloadHandlersEventHandler(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar("1");
         registrar = registrar.executesOn(HandlerThread.NETWORK);
@@ -50,6 +59,11 @@ public class ServerConfigComponent {
                             // this handler is client side
                             if (!Minecraft.getInstance().isSingleplayer()) {
                                 YACLConfig.setServerData(data);
+                                var handler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
+                                // updating client config in NT (ONLY client config), so it's in sync with melancholic
+                                handler.melancholic_hunger$writeConfigToNT(
+                                        YACLConfig.getServerData(), YACLConfig.getClientData()
+                                );
                             }
                         },
                         (data, context) -> {
@@ -61,6 +75,11 @@ public class ServerConfigComponent {
                             boolean dataUpdated = YACLConfig.setServerData(data);
                             if (!dataUpdated) {
                                 return;
+                            }
+                            if (MelancholicHunger.nostalgicTweaksInstalled) {
+                                var handler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
+                                handler.melancholic_hunger$writeConfigToNT(YACLConfig.getServerData(), null);
+                                syncNostalgicTweaksToAllPlayers();
                             }
                             syncAllPlayersExceptOf(context.player().getId());
                             YACLConfig.saveToDisk();

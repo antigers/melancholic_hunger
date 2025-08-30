@@ -1,16 +1,17 @@
 {
-  "package": "antigers.melancholic_hunger.nostalgic_tweaks.mixin",
-  "plugin": "antigers.melancholic_hunger.nostalgic_tweaks.NostalgicTweaksMixinPlugin",
-  "compatibilityLevel": "JAVA_21",
-  "mixins": [
-    "ConfigHandlerMixin",
-    "TweakListingMixin",
-    "TweakMixin"
-  ],
-  "injectors": {
-    "defaultRequire": 1
-  },
-  "client": [
-    "HudHelperMixin"
-  ]
+    "package": "antigers.melancholic_hunger.nostalgic_tweaks.mixin",
+    "plugin": "antigers.melancholic_hunger.nostalgic_tweaks.NostalgicTweaksMixinPlugin",
+    "compatibilityLevel": "JAVA_21",
+    "mixins": [
+        "ConfigHandlerMixin",
+        "TweakListingMixin",
+        "TweakMixin",
+        "TweakPacketMixin"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    },
+    "client": [
+        "HudHelperMixin"
+    ]
 }

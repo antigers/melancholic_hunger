@@ -388,12 +388,16 @@ public class YACLConfig {
                         // sending config to the server if in multiplayer
                         ServerConfigComponent.sendToServer(serverData.getImmutable());
                     }
-                    // writing new settings to nostalgic tweaks config
+                    // Syncing new settings to the nostalgic tweaks config.
+                    // If in multiplayer, only the client config will be synced
                     if (MelancholicHunger.nostalgicTweaksInstalled) {
                         var handler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
                         handler.melancholic_hunger$writeConfigToNT(
                                 YACLConfig.serverData.getImmutable(), YACLConfig.clientData.getImmutable()
                         );
+                        if (hasSingleplayerServer) {
+                            ServerConfigComponent.syncNostalgicTweaksToAllPlayers();
+                        }
                     }
                 })
         );

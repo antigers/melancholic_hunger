@@ -36,7 +36,7 @@ public class YACLConfig {
     private static ServerConfigData serverData = new ServerConfigData();
 
     public static int getFoodHealth(ItemStack itemStack, FoodProperties foodComponent) {
-        if (GameplayTweak.CUSTOM_FOOD_HEALTH.get().containsItem(itemStack)) {
+        if (MelancholicHunger.nostalgicTweaksInstalled && GameplayTweak.CUSTOM_FOOD_HEALTH.get().containsItem(itemStack)) {
             return GameplayTweak.CUSTOM_FOOD_HEALTH.get().valueFrom(itemStack);
         }
         return foodComponent.nutrition();
@@ -498,8 +498,14 @@ public class YACLConfig {
     public static float gradualHealthRegenerationSpeed() {
         return serverData.gradualHealthRegenerationSpeed;
     }
-    public static boolean instantEating() {
-        return serverData.instantEating;
+    public static boolean shouldInstantlyEat(Item item) {
+        if (!serverData.instantEating) {
+            return false;
+        }
+        if (MelancholicHunger.nostalgicTweaksInstalled) {
+            return !GameplayTweak.IGNORED_EDIBLES.get().containsItem(item);
+        }
+        return true;
     }
     public static Integer getItemStackSize(ItemStack itemStack) {
         var itemId = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).toString();

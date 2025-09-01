@@ -63,7 +63,7 @@ public abstract class LivingEntityMixin {
     private int melancholic_hunger$setCurrentHandMaxUseTime(
             ItemStack stack, LivingEntity user, Operation<Integer> original
     ) {
-        if (YACLConfig.instantEating() && stack.get(DataComponents.FOOD) != null) {
+        if (YACLConfig.shouldInstantlyEat(stack.getItem()) && stack.get(DataComponents.FOOD) != null) {
             return 1;
         }
         return original.call(stack, user);

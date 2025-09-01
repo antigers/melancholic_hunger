@@ -76,6 +76,12 @@ class ConfigOption<T, U> {
         playerHasPermission = true;
     }
 
+    public static boolean getPlayerHasPermission() {
+        var client = Minecraft.getInstance();
+        var player = client.player;
+        return client.isSingleplayer() || player == null || player.hasPermissions(2);
+    }
+
     protected void setValueToDefault() {
         setter.accept(defaultValue);
     }
@@ -194,9 +200,7 @@ class ConfigOption<T, U> {
 
     protected boolean getOptionAvailability() {
         if (isServerOption) {
-            var client = Minecraft.getInstance();
-            var player = client.player;
-            playerHasPermission = client.isSingleplayer() || player == null || player.hasPermissions(2);
+            playerHasPermission = getPlayerHasPermission();
         }
         if (playerHasPermission) {
             if (dependency == null) {

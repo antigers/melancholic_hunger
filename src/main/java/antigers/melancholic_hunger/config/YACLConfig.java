@@ -285,11 +285,20 @@ public class YACLConfig {
             String buttonName, BiConsumer<YACLScreen, ButtonOption> action,
             ConfigOption.ConfigOptionDependency<?> dependency
     ) {
+        boolean playerHasPermission = ConfigOption.getPlayerHasPermission();
+        var descriptionBuilder = OptionDescription.createBuilder();
+        descriptionBuilder.text(Component.translatable(CONFIG_PREFIX + "button." + buttonName + ".description"));
+        if (!playerHasPermission) {
+            descriptionBuilder.text(
+                    Component.literal("\n"),
+                    Component.translatable(CONFIG_PREFIX + "op_privileges_required_option")
+                            .setStyle(Style.EMPTY.withColor(16733525).withItalic(true))
+            );
+        }
         ButtonOption buttonOption = ButtonOption.createBuilder()
                 .name(Component.translatable(CONFIG_PREFIX + "button." + buttonName + ".name"))
-                .description(OptionDescription.of(Component.translatable(
-                        CONFIG_PREFIX + "button." + buttonName + ".description"
-                ))).text(Component.empty()).action(action).build();
+                .available(ConfigOption.getPlayerHasPermission())
+                .description(descriptionBuilder.build()).text(Component.empty()).action(action).build();
 
         dependency.configOption().YACLOption.addEventListener(
                 (option, event) -> {

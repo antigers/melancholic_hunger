@@ -70,6 +70,7 @@ public abstract class ConfigHandlerMixin<T extends ConfigMeta> implements Nostal
             serverData.customFoodStackSizes = customFoodStackSizesHashMap;
         }
         YACLConfig.setServerData(serverData.getImmutable());
+        YACLConfig.saveToDisk();
     }
 
     @Unique

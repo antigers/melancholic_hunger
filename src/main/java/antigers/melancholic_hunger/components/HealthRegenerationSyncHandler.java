@@ -15,7 +15,7 @@ public class HealthRegenerationSyncHandler implements AttachmentSyncHandler<Heal
 
     @Override
     public void write(RegistryFriendlyByteBuf buf, HealthRegenerationComponent attachment, boolean initialSync) {
-        buf.writeNbt(attachment.serializeNBT(null));
+        buf.writeNbt(attachment.serializeSyncData());
     }
 
     @Override
@@ -25,7 +25,7 @@ public class HealthRegenerationSyncHandler implements AttachmentSyncHandler<Heal
         HealthRegenerationComponent attachment = holder.getData(PlayerComponents.HEALTH_REGENERATION);
         CompoundTag tag = buf.readNbt();
         if (tag != null) {
-            attachment.deserializeNBT(null, tag);
+            attachment.deserializeSyncData(tag);
         }
         return attachment;
     }

@@ -64,7 +64,7 @@ public class HealthRegenerationComponent implements INBTSerializable<CompoundTag
 
     @Override
     public void deserializeNBT(@Nullable HolderLookup.Provider provider, CompoundTag tag) {
-        this.consumedNutrition = Math.max(tag.getInt("consumedNutrition"), 0);
+        deserializeSyncData(tag);
         var consumedFoodsStr = tag.getString("consumedFoods");
         if (!consumedFoodsStr.isEmpty()) {
             this.consumedFoods = gson.fromJson(consumedFoodsStr, consumedFoodSetTypeToken);
@@ -73,9 +73,18 @@ public class HealthRegenerationComponent implements INBTSerializable<CompoundTag
 
     @Override
     public CompoundTag serializeNBT(@Nullable HolderLookup.Provider provider) {
+        var tag = serializeSyncData();
+        tag.putString("consumedFoods", gson.toJson(this.consumedFoods));
+        return tag;
+    }
+
+    public void deserializeSyncData(CompoundTag tag) {
+        consumedNutrition = Math.max(tag.getInt("consumedNutrition"), 0);
+    }
+
+    public CompoundTag serializeSyncData() {
         var tag = new CompoundTag();
         tag.putInt("consumedNutrition", this.consumedNutrition);
-        tag.putString("consumedFoods", gson.toJson(this.consumedFoods));
         return tag;
     }
 

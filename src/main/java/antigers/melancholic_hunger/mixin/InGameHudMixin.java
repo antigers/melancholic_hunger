@@ -20,6 +20,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.waypoints.ClientWaypointManager;
+import net.minecraft.data.AtlasIds;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ARGB;
@@ -360,7 +361,7 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
     private static void melancholic_hunger$drawGuiTextureInversed(
             GuiGraphics drawContext, ResourceLocation texture, int x1, int y1, int width, int height
     ) {
-        TextureAtlasSprite sprite = Minecraft.getInstance().getGuiSprites().getSprite(texture);
+        TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.GUI).getSprite(texture);
         float u1 = sprite.getU0(), u2 = sprite.getU1();
         float v1 = sprite.getV0(), v2 = sprite.getV1();
         int x2 = x1 + width;

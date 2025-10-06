@@ -10,6 +10,6 @@ public class RaisedCompat {
     }
 
     public static void endTranslate(GuiGraphics drawContext) {
-        Translate.end(drawContext.pose());
+        Translate.end(drawContext.pose(), LayerRegistry.HOTBAR);
     }
 }

@@ -10,6 +10,6 @@ public class RaisedCompat {
     }
 
     public static void endTranslate(DrawContext drawContext) {
-        Translate.end(drawContext.getMatrices());
+        Translate.end(drawContext.getMatrices(), LayerRegistry.HOTBAR);
     }
 }

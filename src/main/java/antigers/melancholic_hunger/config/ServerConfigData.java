@@ -17,6 +17,7 @@ public class ServerConfigData {
     public SprintingOption sprinting;
     public Integer sprintingHealthLimit;
     public Boolean instantEating;
+    public Boolean showFoodItemTooltips;
 
     public static final CustomPacketPayload.Type<ImmutableServerConfigData> TYPE = new CustomPacketPayload.Type<>(
             ResourceLocation.fromNamespaceAndPath(MelancholicHunger.MOD_ID, "server_config_component")
@@ -32,7 +33,8 @@ public class ServerConfigData {
             LinkedHashMap<String, Integer> customFoodStackSizes,
             SprintingOption sprinting,
             Integer sprintingHealthLimit,
-            Boolean instantEating
+            Boolean instantEating,
+            Boolean showFoodItemTooltips
     ) implements CustomPacketPayload {
 
         @Override
@@ -52,7 +54,8 @@ public class ServerConfigData {
     public ImmutableServerConfigData getImmutable() {
         return new ImmutableServerConfigData(
                 disableHunger, hungerEffect, gradualHealthRegeneration, gradualHealthRegenerationSpeed,
-                useCustomFoodStackSizes, customFoodStackSizes, sprinting, sprintingHealthLimit, instantEating
+                useCustomFoodStackSizes, customFoodStackSizes, sprinting, sprintingHealthLimit, instantEating,
+                showFoodItemTooltips
         );
     }
 }

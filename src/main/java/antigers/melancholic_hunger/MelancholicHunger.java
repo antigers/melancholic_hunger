@@ -29,6 +29,8 @@ public class MelancholicHunger {
 
         // Registering custom player data components
         PlayerComponents.register(modEventBus);
+
+		FoodItemTooltips.register();
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {

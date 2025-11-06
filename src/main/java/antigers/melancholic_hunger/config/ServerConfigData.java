@@ -12,6 +12,7 @@ public class ServerConfigData {
     public SprintingOption sprinting;
     public Integer sprintingHealthLimit;
     public Boolean instantEating;
+    public Boolean showFoodItemTooltips;
 
     public record ImmutableServerConfigData (
             Boolean disableHunger,
@@ -22,13 +23,15 @@ public class ServerConfigData {
             LinkedHashMap<String, Integer> customFoodStackSizes,
             SprintingOption sprinting,
             Integer sprintingHealthLimit,
-            Boolean instantEating
+            Boolean instantEating,
+            Boolean showFoodItemTooltips
     ) {}
 
     public ImmutableServerConfigData getImmutable() {
         return new ImmutableServerConfigData(
                 disableHunger, hungerEffect, gradualHealthRegeneration, gradualHealthRegenerationSpeed,
-                useCustomFoodStackSizes, customFoodStackSizes, sprinting, sprintingHealthLimit, instantEating
+                useCustomFoodStackSizes, customFoodStackSizes, sprinting, sprintingHealthLimit, instantEating,
+                showFoodItemTooltips
         );
     }
 }

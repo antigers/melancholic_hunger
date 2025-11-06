@@ -22,5 +22,6 @@ public class MelancholicHunger implements ModInitializer {
 		YACLConfig.loadFromDisk();
 		nostalgicTweaksInstalled = FabricLoader.getInstance().getModContainer("nostalgic_tweaks").isPresent();
         raisedInstalled = FabricLoader.getInstance().getModContainer("raised").isPresent();
+		FoodItemTooltips.register();
 	}
 }

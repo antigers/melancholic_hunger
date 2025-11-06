@@ -16,6 +16,7 @@
 		"ClientPlayerEntityMixin",
       	"InGameHudMixin",
 		"ScreenMixin",
-		"YACLListOptionMixin"
+		"YACLListOptionMixin",
+        "TooltipComponentMixin"
 	]
 }

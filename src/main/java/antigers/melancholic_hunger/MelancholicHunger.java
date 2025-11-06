@@ -29,5 +29,6 @@ public class MelancholicHunger implements ModInitializer {
 			ImmediatelyFast.runtimeConfig.hud_batching = false;
 		}
         raisedInstalled = FabricLoader.getInstance().getModContainer("raised").isPresent();
+		FoodItemTooltips.register();
 	}
 }

@@ -95,6 +95,13 @@ public class YACLConfig {
             () -> serverData.instantEating, val -> serverData.instantEating = val
     );
 
+    private static final ConfigOption<Boolean, Boolean> SHOW_FOOD_ITEM_TOOLTIPS = (
+            new ConfigOption<Boolean, Boolean>(
+                    "showFoodItemTooltips", true, false, true,
+                    () -> serverData.showFoodItemTooltips, val -> serverData.showFoodItemTooltips = val
+            ).addValueDependency(DISABLE_HUNGER, true, true, false)
+    );
+
     private static final ConfigOption<SprintingOption, NullType> SPRINTING = new ConfigOption<>(
             "sprinting", SprintingOption.LIMITED_BY_HEALTH, true, true,
             () -> serverData.sprinting, val -> serverData.sprinting = val
@@ -204,7 +211,7 @@ public class YACLConfig {
 
     private static final List<ConfigOption<?, ?>> ALL_OPTIONS = List.of(
             DISABLE_HUNGER, GRADUAL_HEALTH_REGENERATION, GRADUAL_HEALTH_REGENERATION_SPEED, HIDE_HUNGER_BAR,
-            HUNGER_EFFECT, HIGHLIGHT_REGENERATED_HEARTS, INSTANT_EATING, USE_CUSTOM_FOOD_STACK_SIZES,
+            HUNGER_EFFECT, HIGHLIGHT_REGENERATED_HEARTS, INSTANT_EATING, SHOW_FOOD_ITEM_TOOLTIPS, USE_CUSTOM_FOOD_STACK_SIZES,
             CUSTOM_FOOD_STACK_SIZES, SPRINTING, SPRINTING_HEALTH_LIMIT, HIGHLIGHT_RESTORED_HEARTS,
             HIDE_EXPERIENCE_BAR, SHOW_EXPERIENCE_IN_INVENTORY, SHOW_EXPERIENCE_ON_SCREENS, SHOW_EXPERIENCE_ON_GAIN,
             ENABLE_EXPERIENCE_ANIMATION, RENDER_EXPERIENCE_OVER_BACKGROUND
@@ -248,7 +255,8 @@ public class YACLConfig {
                         option -> FloatSliderControllerBuilder.create(option).range(0.1F, 10.0F).step(0.1F)
                 ))
                 .option(HIGHLIGHT_REGENERATED_HEARTS.buildYACLOption(YACLConfig::createBooleanController))
-                .option(INSTANT_EATING.buildYACLOption(YACLConfig::createBooleanController));
+                .option(INSTANT_EATING.buildYACLOption(YACLConfig::createBooleanController))
+                .option(SHOW_FOOD_ITEM_TOOLTIPS.buildYACLOption(YACLConfig::createBooleanController));
 
         return builder.build();
     }
@@ -453,6 +461,7 @@ public class YACLConfig {
         GRADUAL_HEALTH_REGENERATION.setValue(newServerData.gradualHealthRegeneration());
         GRADUAL_HEALTH_REGENERATION_SPEED.setValue(newServerData.gradualHealthRegenerationSpeed());
         INSTANT_EATING.setValue(newServerData.instantEating());
+        SHOW_FOOD_ITEM_TOOLTIPS.setValue(newServerData.showFoodItemTooltips());
         USE_CUSTOM_FOOD_STACK_SIZES.setValue(newServerData.useCustomFoodStackSizes());
         CUSTOM_FOOD_STACK_SIZES.setValue(newServerData.customFoodStackSizes());
         SPRINTING.setValue(newServerData.sprinting());
@@ -484,6 +493,9 @@ public class YACLConfig {
     }
     public static boolean instantEating() {
         return serverData.instantEating;
+    }
+    public static boolean showFoodItemTooltips() {
+        return serverData.showFoodItemTooltips;
     }
     public static Integer getItemStackSize(ItemStack itemStack) {
         var itemId = Registries.ITEM.getId(itemStack.getItem()).toString();

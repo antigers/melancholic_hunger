@@ -7,7 +7,8 @@
 		"PlayerEntityMixin",
 		"LivingEntityMixin",
 		"ItemStackMixin",
-		"FoodComponentMixin"
+		"FoodComponentMixin",
+		"CakeBlockMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
@@ -17,6 +18,7 @@
 		"ClientPlayerEntityMixin",
       	"InGameHudMixin",
 		"ScreenMixin",
-		"YACLListOptionMixin"
+		"YACLListOptionMixin",
+        "TooltipComponentMixin"
 	]
 }

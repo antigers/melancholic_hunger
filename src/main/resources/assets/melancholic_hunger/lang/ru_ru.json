@@ -3,8 +3,8 @@
     "screen.melancholic_hunger.config.title": "Конфигурация мода Melancholic Hunger",
     "screen.melancholic_hunger.config.hunger_category_name": "Голод и здоровье",
     "screen.melancholic_hunger.config.hunger_category_tooltip": "Настройки системы голода и регенерации здоровья",
-    "screen.melancholic_hunger.config.food_category_name": "Еда",
-    "screen.melancholic_hunger.config.food_category_tooltip": "Настройки предметов еды",
+    "screen.melancholic_hunger.config.food_category_name": "Стопки предметов еды",
+    "screen.melancholic_hunger.config.food_category_tooltip": "Настройки стопок предметов еды",
     "screen.melancholic_hunger.config.sprinting_category_name": "Спринт",
     "screen.melancholic_hunger.config.sprinting_category_tooltip": "Настройки системы спринта",
     "screen.melancholic_hunger.config.experience_category_name": "Опыт и локатор",
@@ -34,6 +34,8 @@
     "screen.melancholic_hunger.config.option.highlightRegeneratedHearts.description": "\nВключает отображение на полоске здоровья кол-ва сердец, которое будет восстановлено уже съеденными предметами еды",
     "screen.melancholic_hunger.config.option.instantEating.name": "Отключить анимацию употребления еды",
     "screen.melancholic_hunger.config.option.instantEating.description": "\nДелает так, что еда употребляется мгновенно, без анимации",
+    "screen.melancholic_hunger.config.option.showFoodItemTooltips.name": "Показывать дополнительные данные в подсказках предметов еды",
+    "screen.melancholic_hunger.config.option.showFoodItemTooltips.description": "Включает отображение в подсказках предметов еды количества здоровья, которое может быть восстановлено, а также скорость регенерации здоровья этим предметом",
     "screen.melancholic_hunger.config.option.sprinting.name": "Спринт",
     "screen.melancholic_hunger.config.option.sprinting.description": "\nБез изменений: спринт работает как обычно\n\nОтключён: спринт всегда отключён\n\nОграничен уровнем здоровья: спринт доступен только тогда, когда уровень здоровья игрока выше значения, установленного настройкой \"Ограничение уровня здоровья для спринта\"",
     "screen.melancholic_hunger.config.sprinting_vanilla_option": "Без изменений",
@@ -62,5 +64,11 @@
     "screen.melancholic_hunger.config.option.renderExperienceOverBackground.name": "Отображать полоску опыта поверх фона",
     "screen.melancholic_hunger.config.option.renderExperienceOverBackground.description": "Включает отображение полоски опыта поверх фона при открытии определённых экранов (чтобы её было лучше видно)",
     "screen.melancholic_hunger.config.option.hideLocatorBar.name": "Спрятать полоску локатора игроков",
-    "screen.melancholic_hunger.config.option.hideLocatorBar.description": "Позволяет убрать полоску локатора игроков с экрана игрока"
+    "screen.melancholic_hunger.config.option.hideLocatorBar.description": "Позволяет убрать полоску локатора игроков с экрана игрока",
+    "gui.melancholic_hunger.regeneration_tooltip.template": "%s регенерация",
+    "gui.melancholic_hunger.regeneration_tooltip.super_fast": "Крайне быстрая",
+    "gui.melancholic_hunger.regeneration_tooltip.very_fast": "Очень быстрая",
+    "gui.melancholic_hunger.regeneration_tooltip.fast": "Быстрая",
+    "gui.melancholic_hunger.regeneration_tooltip.slow": "Медленная",
+    "gui.melancholic_hunger.regeneration_tooltip.very_slow": "Очень медленная"
 }

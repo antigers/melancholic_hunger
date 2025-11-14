@@ -31,6 +31,7 @@ public class MelancholicHungerClient {
 
     @SubscribeEvent
     static void onClientSetup(FMLClientSetupEvent event) {
+        FoodItemTooltips.register();
         // Disables hud_batching in Immediately Fast, because it breaks hearts rendering
         if (ModList.get().isLoaded("immediatelyfast")) {
             ImmediatelyFast.config.hud_batching = false;

@@ -35,6 +35,9 @@ public class RestoredHeartsDrawHelper {
         absorption = MathHelper.ceil(player.getAbsorptionAmount());
         var heldItemStack = player.getMainHandStack();
         var foodComponent = heldItemStack.get(DataComponentTypes.FOOD);
+        if (foodComponent == null) {
+            foodComponent = player.getOffHandStack().get(DataComponentTypes.FOOD);
+        }
         currentHeart = MathHelper.ceil(player.getMaxHealth());
         this.random = random;
         sprintingHealthLimit = YACLConfig.sprintingHealthLimit();

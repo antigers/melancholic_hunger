@@ -34,6 +34,5 @@ public class MelancholicHunger {
     private void commonSetup(FMLCommonSetupEvent event) {
         YACLConfig.loadFromDisk();
         nostalgicTweaksInstalled = ModList.get().isLoaded("nostalgic_tweaks");
-
     }
 }

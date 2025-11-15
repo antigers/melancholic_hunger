@@ -20,6 +20,7 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLPaths;
 
@@ -29,6 +30,7 @@ import java.util.function.BiConsumer;
 
 public class YACLConfig {
     private static final String CONFIG_PREFIX = "screen.melancholic_hunger.config.";
+    private static boolean isLoadedFromDisk = false;
 
     @SerialEntry(value = "clientOptions")
     private static ClientConfigData clientData = new ClientConfigData();
@@ -430,14 +432,19 @@ public class YACLConfig {
     }
 
     public static void loadFromDisk() {
+        if (isLoadedFromDisk) {
+            return;
+        }
         HANDLER.load();
         for (var option : ALL_OPTIONS) {
             option.validateValue();
         }
-        if (!MelancholicHunger.nostalgicTweaksInstalled) {
+        // Here MelancholicHunger.nostalgicTweaksInstalled may not be initialized yet, so we need to check directly
+        if (!ModList.get().isLoaded("nostalgic_tweaks")) {
             // hideHungerBar option is hidden when NT is not installed, so we have to correct its value
             HIDE_HUNGER_BAR.setValue(false);
         }
+        isLoadedFromDisk = true;
     }
 
     public static void saveToDisk() {
@@ -445,6 +452,7 @@ public class YACLConfig {
     }
 
     public static ClientConfigData.ImmutableClientConfigData getClientData() {
+        loadFromDisk();
         return clientData.getImmutable();
     }
 
@@ -461,6 +469,7 @@ public class YACLConfig {
     }
 
     public static ServerConfigData.ImmutableServerConfigData getServerData() {
+        loadFromDisk();
         return serverData.getImmutable();
     }
 

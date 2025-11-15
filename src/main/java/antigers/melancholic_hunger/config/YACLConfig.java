@@ -30,6 +30,7 @@ import java.util.function.BiConsumer;
 
 public class YACLConfig {
     private static final String CONFIG_PREFIX = "screen.melancholic_hunger.config.";
+    private static boolean isLoadedFromDisk = false;
 
     @SerialEntry(value = "clientOptions")
     private static ClientConfigData clientData = new ClientConfigData();
@@ -427,14 +428,19 @@ public class YACLConfig {
     }
 
     public static void loadFromDisk() {
+        if (isLoadedFromDisk) {
+            return;
+        }
         HANDLER.load();
         for (var option : ALL_OPTIONS) {
             option.validateValue();
         }
-        if (!MelancholicHunger.nostalgicTweaksInstalled) {
+        // Here MelancholicHunger.nostalgicTweaksInstalled may not be initialized yet, so we need to check directly
+        if (FabricLoader.getInstance().getModContainer("nostalgic_tweaks").isEmpty()) {
             // hideHungerBar option is hidden when NT is not installed, so we have to correct its value
             HIDE_HUNGER_BAR.setValue(false);
         }
+        isLoadedFromDisk = true;
     }
 
     public static void saveToDisk() {
@@ -442,6 +448,7 @@ public class YACLConfig {
     }
 
     public static ClientConfigData.ImmutableClientConfigData getClientData() {
+        loadFromDisk();
         return clientData.getImmutable();
     }
 
@@ -458,6 +465,7 @@ public class YACLConfig {
     }
 
     public static ServerConfigData.ImmutableServerConfigData getServerData() {
+        loadFromDisk();
         return serverData.getImmutable();
     }
 

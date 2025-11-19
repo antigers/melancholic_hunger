@@ -3,7 +3,7 @@ package antigers.melancholic_hunger.hud;
 import antigers.melancholic_hunger.components.PlayerComponents;
 import antigers.melancholic_hunger.config.YACLConfig;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.Mth;

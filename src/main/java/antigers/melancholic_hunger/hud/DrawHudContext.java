@@ -20,10 +20,10 @@ public class DrawHudContext extends GuiGraphics {
     public boolean locatorBarWasRendered = false;
 
     public DrawHudContext(
-            Minecraft client, Matrix3x2fStack matrices, GuiRenderState state, RestoredHeartsDrawHelper restoredHeartsDrawHelper,
+            Minecraft client, Matrix3x2fStack matrices, GuiRenderState state, int i, int j, RestoredHeartsDrawHelper restoredHeartsDrawHelper,
             int hudExperienceOffset, BarAnimation barAnimation, boolean hasMountHealth, int mountHealthRows
     ) {
-        super(client, matrices, state);
+        super(client, matrices, state, i, j);
         this.restoredHeartsDrawHelper = restoredHeartsDrawHelper;
         var windowWidth = this.guiWidth();
         // fixing offset for odd window width value because vanilla code does integer division by 2 when

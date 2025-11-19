@@ -9,6 +9,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.PermissionLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -73,7 +75,7 @@ public class ServerConfigComponent implements AutoSyncedComponent, C2SSelfMessag
     @Override
     @CheckEnvironment(EnvType.SERVER)
     public void handleC2SMessage(RegistryFriendlyByteBuf buf) {
-        if (!player.hasPermissions(2)) {
+        if (!player.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.GAMEMASTERS))) {
             // only for operators
             return;
         }

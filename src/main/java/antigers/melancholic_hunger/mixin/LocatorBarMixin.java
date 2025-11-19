@@ -9,7 +9,7 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.contextualbar.LocatorBarRenderer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,16 +25,16 @@ public class LocatorBarMixin {
             method="renderBackground",
             at= @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/ResourceLocation;IIII)V"
+                    target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIII)V"
             )
     )
     private void melancholic_hunger$renderBar(
-            GuiGraphics drawContext, RenderPipeline pipeline, ResourceLocation sprite, int x, int y, int width, int height,
+            GuiGraphics guiGraphics, RenderPipeline pipeline, Identifier sprite, int x, int y, int width, int height,
             Operation<Void> original
     ) {
-        var drawHudContext = (DrawHudContext) drawContext;
+        var drawHudContext = (DrawHudContext) guiGraphics;
         y += 7 - drawHudContext.getBarAnimation().getCurrentPos();
-        original.call(drawContext, pipeline, sprite, x, y, width, height);
+        original.call(guiGraphics, pipeline, sprite, x, y, width, height);
         drawHudContext.locatorBarWasRendered = true;
     }
 
@@ -43,11 +43,11 @@ public class LocatorBarMixin {
      */
     @WrapMethod(method="render")
     private void melancholic_hunger$renderAddons(
-            GuiGraphics drawContext, DeltaTracker tickCounter, Operation<Void> original
+            GuiGraphics guiGraphics, DeltaTracker tickCounter, Operation<Void> original
     ) {
-        drawHudContext = (DrawHudContext) drawContext;
+        drawHudContext = (DrawHudContext) guiGraphics;
         if (drawHudContext.locatorBarWasRendered) {
-            original.call(drawContext, tickCounter);
+            original.call(guiGraphics, tickCounter);
         }
     }
 

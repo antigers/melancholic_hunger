@@ -2,7 +2,7 @@ package antigers.melancholic_hunger.mixin;
 
 import antigers.melancholic_hunger.hud.DrawHudContext;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.VanillaPackResources;
 import net.minecraft.server.packs.resources.FallbackResourceManager;
@@ -21,7 +21,7 @@ import java.util.NoSuchElementException;
 @Mixin(Minecraft.class)
 public abstract class ClientMixin {
     @Unique
-    private static final ResourceLocation ARMOR_FULL_TEXTURE_PATH = ResourceLocation.withDefaultNamespace(
+    private static final Identifier ARMOR_FULL_TEXTURE_PATH = Identifier.withDefaultNamespace(
             "textures/gui/sprites/hud/armor_full.png"
     );
 

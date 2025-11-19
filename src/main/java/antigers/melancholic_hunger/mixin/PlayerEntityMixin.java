@@ -1,12 +1,14 @@
 package antigers.melancholic_hunger.mixin;
 
 import antigers.melancholic_hunger.components.PlayerComponents;
+import antigers.melancholic_hunger.config.YACLConfig;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.food.FoodData;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,9 +18,39 @@ import org.spongepowered.asm.mixin.Shadow;
 public abstract class PlayerEntityMixin extends LivingEntity {
     @Final @Shadow private Abilities abilities;
 
+    @Shadow
+    public abstract FoodData getFoodData();
+
+    @Shadow
+    public abstract Abilities getAbilities();
+
     private PlayerEntityMixin(EntityType<? extends LivingEntity> entityType, Level world)
     {
         super(entityType, world);
+    }
+
+    /**
+     * Allowing player to sprint only if they have more than 3 hearts (or custom amount)
+     */
+    @WrapMethod(method = "hasEnoughFoodToDoExhaustiveManoeuvres")
+    private boolean melancholic_hunger$canPlayerSprint(Operation<Boolean> original) {
+        if (this.getAbilities().mayfly) {
+            return true;
+        }
+        switch (YACLConfig.sprinting()) {
+            case DISABLED -> {
+                return false;
+            }
+            case LIMITED_BY_HEALTH -> {
+                if (this.getHealth() <= YACLConfig.sprintingHealthLimit()) {
+                    return false;
+                }
+            }
+        }
+        if (YACLConfig.disableHunger()) {
+            return true;
+        }
+        return this.getFoodData().hasEnoughFood();
     }
 
     /**

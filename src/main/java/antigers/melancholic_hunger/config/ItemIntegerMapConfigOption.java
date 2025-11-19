@@ -5,7 +5,7 @@ import dev.isxander.yacl3.impl.controller.StringControllerBuilderImpl;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -78,7 +78,7 @@ public class ItemIntegerMapConfigOption extends ConfigOption<List<String>, Boole
         updateTranslations();
         var result = new ArrayList<String>();
         for (var entry : map.entrySet()) {
-            ResourceLocation itemId = ResourceLocation.parse(entry.getKey());
+            Identifier itemId = Identifier.parse(entry.getKey());
             String translation = Component.translatable(BuiltInRegistries.ITEM.getValue(itemId).getDescriptionId()).getString();
             if (translationsToIdsLists.containsKey(translation)) {
                 // adding id in parentheses if the translated name duplicates for multiple items

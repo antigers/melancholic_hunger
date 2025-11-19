@@ -1,7 +1,7 @@
 package antigers.melancholic_hunger.hud;
 
 import antigers.melancholic_hunger.config.YACLConfig;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.gui.Gui;
 
 import java.util.function.Predicate;

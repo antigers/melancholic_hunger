@@ -80,7 +80,7 @@ dependencies {
 	//	modImplementation "maven.modrinth:nostalgic-tweaks:${project.nostalgic_tweaks_version}"
 
     //Raised compatibility
-//    modImplementation "maven.modrinth:raised:${project.raised_version}"
+    modImplementation "maven.modrinth:raised:${project.raised_version}"
 }
 
 processResources {

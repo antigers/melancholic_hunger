@@ -21,9 +21,6 @@
 		],
 		"modmenu": [
 			"antigers.melancholic_hunger.ModMenuScreen"
-		],
-		"cardinal-components-entity": [
-			"antigers.melancholic_hunger.components.PlayerComponents"
 		]
 	},
 	"mixins": [
@@ -39,11 +36,5 @@
 	"suggests": {
 		"another-mod": "*"
 	},
-	"accessWidener" : "melancholic_hunger.accesswidener",
-	"custom": {
-		"cardinal-components": [
-			"melancholic_hunger:health_regeneration",
-			"melancholic_hunger:server_config"
-		]
-	}
+	"accessWidener" : "melancholic_hunger.accesswidener"
 }

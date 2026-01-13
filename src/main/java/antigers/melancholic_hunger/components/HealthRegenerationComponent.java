@@ -2,19 +2,23 @@ package antigers.melancholic_hunger.components;
 
 import java.util.HashSet;
 
+import antigers.melancholic_hunger.MelancholicHunger;
 import antigers.melancholic_hunger.config.YACLConfig;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import net.minecraft.server.level.ServerPlayer;
+import com.mojang.serialization.Codec;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
-import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
-import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
-public class HealthRegenerationComponent implements AutoSyncedComponent, ServerTickingComponent {
+public class HealthRegenerationComponent {
 
     private static class ConsumedFood {
         private final int foodComponentId;
@@ -50,38 +54,45 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
         }
     }
 
-    private final TypeToken<HashSet<ConsumedFood>> consumedFoodSetTypeToken = new TypeToken<>() {};
+    private static final TypeToken<HashSet<ConsumedFood>> consumedFoodSetTypeToken = new TypeToken<>() {};
+    private static final Gson gson = new Gson();
+
+    private static final AttachmentType<Integer> CONSUMED_NUTRITION_ATTACHMENT = AttachmentRegistry.create(
+            Identifier.fromNamespaceAndPath(MelancholicHunger.MOD_ID, "consumed_nutrition"),
+            builder -> builder
+                    .initializer(() -> 0)
+                    .persistent(Codec.INT)
+                    .syncWith(ByteBufCodecs.INT, AttachmentSyncPredicate.targetOnly())
+    );
+
+    private static final AttachmentType<HashSet<ConsumedFood>> CONSUMED_FOODS_ATTACHMENT = AttachmentRegistry.create(
+            Identifier.fromNamespaceAndPath(MelancholicHunger.MOD_ID, "consumed_foods"),
+            builder -> builder
+                    .initializer(HashSet::new)
+                    .persistent(Codec.STRING.xmap(string -> gson.fromJson(string, consumedFoodSetTypeToken), gson::toJson))
+//                    .syncWith(ByteBufCodecs.STRING_UTF8, AttachmentSyncPredicate.targetOnly())
+    );
 
     private final Player player;
-    private HashSet<ConsumedFood> consumedFoods = new HashSet<>();
-    private int consumedNutrition = 0;
-    private final Gson gson = new Gson();
+    private final HashSet<ConsumedFood> consumedFoods;
+    private int consumedNutrition;
 
-    public HealthRegenerationComponent(Player player) {
+    private HealthRegenerationComponent(Player player) {
         this.player = player;
+        this.consumedNutrition = getConsumedNutrition(player);
+        this.consumedFoods = player.getAttachedOrCreate(CONSUMED_FOODS_ATTACHMENT);
     }
 
-    @Override
-    public void readData(ValueInput readView) {
-        this.consumedNutrition = Math.max(readView.getIntOr("consumedNutrition", 0), 0);
-        var consumedFoodsStr = readView.getStringOr("consumedFoods", "");
-        if (!consumedFoodsStr.isEmpty()) {
-            this.consumedFoods = gson.fromJson(consumedFoodsStr, consumedFoodSetTypeToken);
+    public static HealthRegenerationComponent get(Player player) {
+        return new HealthRegenerationComponent(player);
+    }
+
+    public static void onServerTick(MinecraftServer server) {
+        for (var player : server.getPlayerList().getPlayers()) {
+            HealthRegenerationComponent.get(player).serverTick();
         }
     }
 
-    @Override
-    public void writeData(ValueOutput writeView) {
-        writeView.putInt("consumedNutrition", this.consumedNutrition);
-        writeView.putString("consumedFoods", gson.toJson(this.consumedFoods));
-    }
-
-    @Override
-    public boolean shouldSyncWith(ServerPlayer player) {
-        return player == this.player; // only sync with the provider itself
-    }
-
-    @Override
     public void serverTick() {
         if (!YACLConfig.gradualHealthRegeneration()) {
             return;
@@ -105,24 +116,20 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
             if (!consumedFood.tick()) {
                 continue;
             }
-            boolean needSync = false;
             if (consumedNutrition > 0) {
                 player.heal(1.0F);
                 consumedNutrition--;
-                needSync = true;
             }
             if (consumedFood.isFullyDigested()) {
                 iterator.remove();
-                needSync = true;
-            }
-            if (needSync) {
-                sync();
             }
         }
+        sync();
     }
 
     private void sync() {
-        PlayerComponents.HEALTH_REGENERATION.sync(player);
+        player.setAttached(CONSUMED_NUTRITION_ATTACHMENT, consumedNutrition);
+        player.setAttached(CONSUMED_FOODS_ATTACHMENT, consumedFoods);
     }
 
     public boolean canEat() {
@@ -150,10 +157,14 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
         }
     }
 
-    public int getConsumedNutrition() {
+    public static int getConsumedNutrition(Player player) {
         if (!YACLConfig.gradualHealthRegeneration()) {
             return 0;
         }
-        return consumedNutrition;
+        return player.getAttachedOrCreate(CONSUMED_NUTRITION_ATTACHMENT);
+    }
+
+    public static void register() {
+        ServerTickEvents.END_SERVER_TICK.register(HealthRegenerationComponent::onServerTick);
     }
 }

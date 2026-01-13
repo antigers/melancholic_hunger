@@ -404,7 +404,7 @@ public class YACLConfig {
                     }
                     else {
                         // sending config to the server if in multiplayer
-                        PlayerComponents.SERVER_CONFIG.get(player).sendToServer(serverData.getImmutable());
+                        ServerConfigComponent.sendToServer(serverData.getImmutable());
                     }
                 })
         );

@@ -1,5 +1,6 @@
 package antigers.melancholic_hunger.hud;
 
+import antigers.melancholic_hunger.components.HealthRegenerationComponent;
 import antigers.melancholic_hunger.components.PlayerComponents;
 import antigers.melancholic_hunger.config.YACLConfig;
 import com.mojang.datafixers.util.Pair;
@@ -9,6 +10,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.food.FoodProperties;
 
 public class RestoredHeartsDrawHelper {
     public record RestoredHeart(Gui.HeartType heartType, boolean isHalf, int colorRed, int colorGreen, int colorBlue) {}
@@ -42,7 +44,7 @@ public class RestoredHeartsDrawHelper {
         sprintingHealthLimit = YACLConfig.sprintingHealthLimit();
         highlightRegeneratedHearts = YACLConfig.highlightRegeneratedHearts();
         highlightRestoredHearts = YACLConfig.highlightRestoredHearts();
-        consumedNutrition = PlayerComponents.HEALTH_REGENERATION.get(player).getConsumedNutrition();
+        consumedNutrition = HealthRegenerationComponent.getConsumedNutrition(player);
         heldFoodNutrition = foodComponent != null ? YACLConfig.getFoodHealth(heldItemStack, foodComponent) : 0;
         totalNutritionToDraw = highlightRegeneratedHearts ? consumedNutrition + heldFoodNutrition : heldFoodNutrition;
     }

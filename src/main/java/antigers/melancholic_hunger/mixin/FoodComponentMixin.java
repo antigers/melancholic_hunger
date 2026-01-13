@@ -1,5 +1,6 @@
 package antigers.melancholic_hunger.mixin;
 
+import antigers.melancholic_hunger.components.HealthRegenerationComponent;
 import antigers.melancholic_hunger.components.PlayerComponents;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -28,8 +29,8 @@ public class FoodComponentMixin {
     private void melancholic_hunger$playerEatFood(
             Level world, LivingEntity user, ItemStack itemStack, Consumable consumable, CallbackInfo callback
     ) {
-        if (user instanceof Player) {
-            PlayerComponents.HEALTH_REGENERATION.get(user).eat(itemStack, (FoodProperties) (Object) this);
+        if (user instanceof Player player) {
+            HealthRegenerationComponent.get(player).eat(itemStack, (FoodProperties) (Object) this);
         }
     }
 }

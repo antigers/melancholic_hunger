@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(FoodData.class)
-public abstract class HungerManagerMixin {
+public abstract class FoodDataMixin {
     /**
      * Disables hunger manager from doing its logic
      */

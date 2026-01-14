@@ -1,7 +1,6 @@
 package antigers.melancholic_hunger.hud;
 
 import antigers.melancholic_hunger.components.HealthRegenerationComponent;
-import antigers.melancholic_hunger.components.PlayerComponents;
 import antigers.melancholic_hunger.config.YACLConfig;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.util.Util;
@@ -10,7 +9,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.food.FoodProperties;
 
 public class RestoredHeartsDrawHelper {
     public record RestoredHeart(Gui.HeartType heartType, boolean isHalf, int colorRed, int colorGreen, int colorBlue) {}

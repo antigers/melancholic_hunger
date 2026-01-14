@@ -13,7 +13,7 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
@@ -70,7 +70,6 @@ public class HealthRegenerationComponent {
             builder -> builder
                     .initializer(HashSet::new)
                     .persistent(Codec.STRING.xmap(string -> gson.fromJson(string, consumedFoodSetTypeToken), gson::toJson))
-//                    .syncWith(ByteBufCodecs.STRING_UTF8, AttachmentSyncPredicate.targetOnly())
     );
 
     private final Player player;
@@ -87,16 +86,16 @@ public class HealthRegenerationComponent {
         return new HealthRegenerationComponent(player);
     }
 
-    public static void onServerTick(MinecraftServer server) {
-        for (var player : server.getPlayerList().getPlayers()) {
+    private static void onServerTick(ServerLevel level) {
+        if (!YACLConfig.gradualHealthRegeneration()) {
+            return;
+        }
+        for (var player : level.players()) {
             HealthRegenerationComponent.get(player).serverTick();
         }
     }
 
-    public void serverTick() {
-        if (!YACLConfig.gradualHealthRegeneration()) {
-            return;
-        }
+    private void serverTick() {
         if (consumedFoods.isEmpty()) {
             if (consumedNutrition != 0) {
                 consumedNutrition = 0;
@@ -129,7 +128,6 @@ public class HealthRegenerationComponent {
 
     private void sync() {
         player.setAttached(CONSUMED_NUTRITION_ATTACHMENT, consumedNutrition);
-        player.setAttached(CONSUMED_FOODS_ATTACHMENT, consumedFoods);
     }
 
     public boolean canEat() {
@@ -142,14 +140,14 @@ public class HealthRegenerationComponent {
         return player.getHealth() + consumedNutrition < player.getMaxHealth();
     }
 
-    public void eat(ItemStack itemStack, FoodProperties foodComponent) {
+    public void eat(ItemStack itemStack, FoodProperties foodProperties) {
         if (!YACLConfig.disableHunger()) {
             return;
         }
-        var foodHealth = YACLConfig.getFoodHealth(itemStack, foodComponent);
+        var foodHealth = YACLConfig.getFoodHealth(itemStack, foodProperties);
         if (YACLConfig.gradualHealthRegeneration()) {
             consumedNutrition += foodHealth;
-            consumedFoods.add(new ConsumedFood(foodComponent));
+            consumedFoods.add(new ConsumedFood(foodProperties));
             sync();
         }
         else {
@@ -165,6 +163,6 @@ public class HealthRegenerationComponent {
     }
 
     public static void register() {
-        ServerTickEvents.END_SERVER_TICK.register(HealthRegenerationComponent::onServerTick);
+        ServerTickEvents.END_LEVEL_TICK.register(HealthRegenerationComponent::onServerTick);
     }
 }

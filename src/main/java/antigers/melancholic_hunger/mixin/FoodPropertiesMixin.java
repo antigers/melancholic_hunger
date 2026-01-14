@@ -1,7 +1,6 @@
 package antigers.melancholic_hunger.mixin;
 
 import antigers.melancholic_hunger.components.HealthRegenerationComponent;
-import antigers.melancholic_hunger.components.PlayerComponents;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
@@ -14,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(FoodProperties.class)
-public class FoodComponentMixin {
+public class FoodPropertiesMixin {
 
     /**
      * Restores player's health after eating food

@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 @Mixin(Minecraft.class)
-public abstract class ClientMixin {
+public abstract class MinecraftMixin {
     @Unique
     private static final Identifier ARMOR_FULL_TEXTURE_PATH = Identifier.withDefaultNamespace(
             "textures/gui/sprites/hud/armor_full.png"

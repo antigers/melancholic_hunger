@@ -39,7 +39,7 @@ import org.spongepowered.asm.mixin.injection.*;
 import java.util.Objects;
 
 @Mixin(Gui.class)
-public abstract class InGameHudMixin implements ExperienceHudRenderer {
+public abstract class GuiMixin implements ExperienceHudRenderer {
     @Shadow private Pair<Gui.ContextualInfo, ContextualBarRenderer> contextualInfoBar;
     @Shadow @Final private Minecraft minecraft;
     @Shadow @Nullable protected abstract Player getCameraPlayer();
@@ -60,13 +60,13 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
             "hud/experience_bar_progress"
     );
     @Unique private static final Identifier VANILLA_ARMOR_EMPTY_TEXTURE = Identifier.fromNamespaceAndPath(
-            "melancholic_hunger", "hud/armor_empty"
+            MelancholicHunger.MOD_ID, "hud/armor_empty"
     );
     @Unique private static final Identifier VANILLA_ARMOR_HALF_TEXTURE = Identifier.fromNamespaceAndPath(
-            "melancholic_hunger", "hud/armor_half"
+            MelancholicHunger.MOD_ID, "hud/armor_half"
     );
     @Unique private static final Identifier VANILLA_ARMOR_HALF_TEXTURE_INVERSED = Identifier.fromNamespaceAndPath(
-            "melancholic_hunger", "hud/armor_half_inversed"
+            MelancholicHunger.MOD_ID, "hud/armor_half_inversed"
     );
     @Unique private final BarAnimation melancholic_hunger$barAnimation = new BarAnimation(
             currentBarType -> (currentBarType != Gui.ContextualInfo.EMPTY)
@@ -79,7 +79,7 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
      * Makes so that the exp bar is not drawn on the world start
      */
     @WrapMethod(method="willPrioritizeExperienceInfo")
-    private boolean melancholic_hungerShouldShowExperienceBar(Operation<Boolean> original) {
+    private boolean melancholic_hunger$shouldShowExperienceBar(Operation<Boolean> original) {
         if (this.minecraft.player.experienceDisplayStartTick <= 0) {
             return false;
         }

@@ -8,7 +8,7 @@ import net.minecraft.util.FormattedCharSequence;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(ClientTooltipComponent.class)
-public interface TooltipComponentMixin {
+public interface ClientTooltipComponentMixin {
 	@WrapMethod(
 			method = "create(Lnet/minecraft/util/FormattedCharSequence;)Lnet/minecraft/client/gui/screens/inventory/tooltip/ClientTooltipComponent;"
 	)

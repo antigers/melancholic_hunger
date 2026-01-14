@@ -1,7 +1,6 @@
 package antigers.melancholic_hunger.mixin;
 
 import antigers.melancholic_hunger.components.HealthRegenerationComponent;
-import antigers.melancholic_hunger.components.PlayerComponents;
 import antigers.melancholic_hunger.config.YACLConfig;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;

@@ -1,6 +1,7 @@
 package antigers.melancholic_hunger;
 
-import antigers.melancholic_hunger.components.PlayerComponents;
+import antigers.melancholic_hunger.components.Components;
+import antigers.melancholic_hunger.config.ConfigNetworkHandler;
 import antigers.melancholic_hunger.config.YACLConfig;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
@@ -28,6 +29,7 @@ public class MelancholicHunger implements ModInitializer {
 		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
 			FoodItemTooltips.register();
 		}
-		PlayerComponents.register();
+		Components.register();
+		ConfigNetworkHandler.register();
 	}
 }

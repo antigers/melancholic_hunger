@@ -2,6 +2,9 @@ package antigers.melancholic_hunger.config;
 
 import antigers.melancholic_hunger.MelancholicHunger;
 import com.google.gson.Gson;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 
@@ -19,9 +22,15 @@ public class ServerConfigData {
     public Boolean instantEating;
     public Boolean showFoodItemTooltips;
 
-    public static final CustomPacketPayload.Type<ImmutableServerConfigData> TYPE = new CustomPacketPayload.Type<>(
+    public static final CustomPacketPayload.Type<ImmutableServerConfigData> PAYLOAD_TYPE = new CustomPacketPayload.Type<>(
             Identifier.fromNamespaceAndPath(MelancholicHunger.MOD_ID, "server_config_component")
     );
+    public static final StreamCodec<ByteBuf, ImmutableServerConfigData> PAYLOAD_STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8,
+            ServerConfigData.ImmutableServerConfigData::toJson,
+            ServerConfigData.ImmutableServerConfigData::fromJson
+    );
+
     public static final Gson gson = new Gson();
 
     public record ImmutableServerConfigData (
@@ -39,7 +48,7 @@ public class ServerConfigData {
 
         @Override
         public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
-            return TYPE;
+            return PAYLOAD_TYPE;
         }
 
         public String toJson() {

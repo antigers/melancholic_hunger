@@ -105,20 +105,15 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
             if (!consumedFood.tick()) {
                 continue;
             }
-            boolean needSync = false;
             if (consumedNutrition > 0) {
                 player.heal(1.0F);
                 consumedNutrition--;
-                needSync = true;
             }
             if (consumedFood.isFullyDigested()) {
                 iterator.remove();
-                needSync = true;
-            }
-            if (needSync) {
-                sync();
             }
         }
+        sync();
     }
 
     private void sync() {

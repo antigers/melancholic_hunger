@@ -1,24 +1,29 @@
 package antigers.melancholic_hunger.components;
 
 import java.util.HashSet;
+import java.util.function.Supplier;
 
-import antigers.melancholic_hunger.MelancholicHunger;
 import antigers.melancholic_hunger.config.YACLConfig;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.mojang.serialization.Codec;
-import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
-import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
-import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.resources.Identifier;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.attachment.AttachmentSyncHandler;
+import net.neoforged.neoforge.attachment.AttachmentType;
+import net.neoforged.neoforge.attachment.IAttachmentHolder;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.util.ValueIOSerializable;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import org.jetbrains.annotations.Nullable;
 
-public class HealthRegenerationComponent {
+public class HealthRegenerationComponent implements ValueIOSerializable {
 
     private static class ConsumedFood {
         private final int foodComponentId;
@@ -54,36 +59,68 @@ public class HealthRegenerationComponent {
         }
     }
 
-    private static final TypeToken<HashSet<ConsumedFood>> consumedFoodSetTypeToken = new TypeToken<>() {};
+    private static class SyncHandler implements AttachmentSyncHandler<HealthRegenerationComponent> {
+        @Override
+        public boolean sendToPlayer(IAttachmentHolder holder, ServerPlayer to) {
+            return holder == to; // only sync with the provider itself
+        }
+
+        @Override
+        public void write(RegistryFriendlyByteBuf buf, HealthRegenerationComponent attachment, boolean initialSync) {
+            buf.writeInt(attachment.consumedNutrition);
+        }
+
+        @Override
+        public @Nullable HealthRegenerationComponent read(
+				IAttachmentHolder holder, RegistryFriendlyByteBuf buf, @Nullable HealthRegenerationComponent previousValue
+        ) {
+            HealthRegenerationComponent attachment = HealthRegenerationComponent.get((Player) holder);
+            attachment.consumedNutrition = buf.readInt();
+            return attachment;
+        }
+    }
+
+    private static final Supplier<AttachmentType<HealthRegenerationComponent>> ATTACHMENT = Components.registerAttachment(
+            "health_regeneration", () -> AttachmentType
+                    .serializable(holder -> new HealthRegenerationComponent((Player) holder))
+                    .sync(new SyncHandler())
+                    .build()
+    );
+
+    private final TypeToken<HashSet<ConsumedFood>> consumedFoodSetTypeToken = new TypeToken<>() {};
     private static final Gson gson = new Gson();
 
-    private static final AttachmentType<Integer> CONSUMED_NUTRITION_ATTACHMENT = AttachmentRegistry.create(
-            Identifier.fromNamespaceAndPath(MelancholicHunger.MOD_ID, "consumed_nutrition"),
-            builder -> builder
-                    .initializer(() -> 0)
-                    .persistent(Codec.INT)
-                    .syncWith(ByteBufCodecs.INT, AttachmentSyncPredicate.targetOnly())
-    );
-
-    private static final AttachmentType<HashSet<ConsumedFood>> CONSUMED_FOODS_ATTACHMENT = AttachmentRegistry.create(
-            Identifier.fromNamespaceAndPath(MelancholicHunger.MOD_ID, "consumed_foods"),
-            builder -> builder
-                    .initializer(HashSet::new)
-                    .persistent(Codec.STRING.xmap(string -> gson.fromJson(string, consumedFoodSetTypeToken), gson::toJson))
-    );
-
     private final Player player;
-    private final HashSet<ConsumedFood> consumedFoods;
-    private int consumedNutrition;
+    private HashSet<ConsumedFood> consumedFoods = new HashSet<>();
+    private int consumedNutrition = 0;
 
     private HealthRegenerationComponent(Player player) {
         this.player = player;
-        this.consumedNutrition = getConsumedNutrition(player);
-        this.consumedFoods = player.getAttachedOrCreate(CONSUMED_FOODS_ATTACHMENT);
     }
 
     public static HealthRegenerationComponent get(Player player) {
-        return new HealthRegenerationComponent(player);
+        return player.getData(ATTACHMENT);
+    }
+
+    @Override
+    public void serialize(ValueOutput output) {
+        output.putInt("consumedNutrition", consumedNutrition);
+        output.putString("consumedFoods", gson.toJson(consumedFoods));
+    }
+
+    @Override
+    public void deserialize(ValueInput input) {
+        consumedNutrition = input.getIntOr("consumedNutrition", 0);
+        input.getString("consumedFoods").ifPresent(
+                consumedFoodsStr -> consumedFoods = gson.fromJson(consumedFoodsStr, consumedFoodSetTypeToken)
+        );
+    }
+
+    private static void onPlayerTick(PlayerTickEvent.Post event) {
+        Level level = event.getEntity().level();
+        if (level instanceof ServerLevel serverLevel) {
+            onServerTick(serverLevel);
+        }
     }
 
     private static void onServerTick(ServerLevel level) {
@@ -127,7 +164,7 @@ public class HealthRegenerationComponent {
     }
 
     private void sync() {
-        player.setAttached(CONSUMED_NUTRITION_ATTACHMENT, consumedNutrition);
+        player.syncData(ATTACHMENT);
     }
 
     public boolean canEat() {
@@ -159,10 +196,10 @@ public class HealthRegenerationComponent {
         if (!YACLConfig.gradualHealthRegeneration()) {
             return 0;
         }
-        return player.getAttachedOrCreate(CONSUMED_NUTRITION_ATTACHMENT);
+        return HealthRegenerationComponent.get(player).consumedNutrition;
     }
 
     public static void register() {
-        ServerTickEvents.END_LEVEL_TICK.register(HealthRegenerationComponent::onServerTick);
+        NeoForge.EVENT_BUS.addListener(HealthRegenerationComponent::onPlayerTick);
     }
 }

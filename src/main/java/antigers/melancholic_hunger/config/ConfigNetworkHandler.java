@@ -1,31 +1,33 @@
 package antigers.melancholic_hunger.config;
 
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.Minecraft;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.Permission;
 import net.minecraft.server.permissions.PermissionLevel;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.HandlerThread;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 public class ConfigNetworkHandler {
-    private static MinecraftServer SERVER_INSTANCE;
 
     public static void syncAllPlayers() {
-        syncAllPlayersExceptOf(null);
+        PacketDistributor.sendToAllPlayers(YACLConfig.getServerData());
     }
 
-    public static void syncAllPlayersExceptOf(Integer ignoredPlayerId) {
+    public static void syncAllPlayersExceptOf(int ignoredPlayerId) {
         ServerConfigData.ImmutableServerConfigData data = YACLConfig.getServerData();
-        for (var player : SERVER_INSTANCE.getPlayerList().getPlayers()) {
-            if (ignoredPlayerId != null && player.getId() == ignoredPlayerId) {
+        for (var player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers()) {
+            if (player.getId() == ignoredPlayerId) {
                 continue;
             }
             // sending update to every player
-            ServerPlayNetworking.send(player, data);
+            PacketDistributor.sendToPlayer(player, data);
         }
     }
 
@@ -52,24 +54,29 @@ public class ConfigNetworkHandler {
      * Sends config update to the server
      */
     public static void sendToServer(ServerConfigData.ImmutableServerConfigData serverConfigData) {
-        ClientPlayNetworking.send(serverConfigData);
+        ClientPacketDistributor.sendToServer(serverConfigData);
     }
 
-    public static void register() {
-        PayloadTypeRegistry.clientboundPlay().register(ServerConfigData.PAYLOAD_TYPE, ServerConfigData.PAYLOAD_STREAM_CODEC);
-        ClientPlayNetworking.registerGlobalReceiver(
-                ServerConfigData.PAYLOAD_TYPE, (data, _) -> handleS2CPacket(data)
+    private static void registerPayloadHandlersEventHandler(RegisterPayloadHandlersEvent event) {
+        PayloadRegistrar registrar = event.registrar("1");
+        registrar = registrar.executesOn(HandlerThread.NETWORK);
+        registrar.playBidirectional(
+                ServerConfigData.PAYLOAD_TYPE,
+                ServerConfigData.PAYLOAD_STREAM_CODEC,
+                (data, _) -> handleS2CPacket(data),
+                (data, context) -> handleC2SPacket(data, (ServerPlayer) context.player())
         );
+    }
 
-        PayloadTypeRegistry.serverboundPlay().register(ServerConfigData.PAYLOAD_TYPE, ServerConfigData.PAYLOAD_STREAM_CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(
-                ServerConfigData.PAYLOAD_TYPE, (data, context) -> handleC2SPacket(data, context.player())
-        );
+    private static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (!ServerLifecycleHooks.getCurrentServer().isSingleplayer() && event.getEntity() instanceof ServerPlayer player) {
+            // syncing config for the player at the moment when the player has connected
+            PacketDistributor.sendToPlayer(player, YACLConfig.getServerData());
+        }
+    }
 
-        ServerLifecycleEvents.SERVER_STARTED.register(server -> SERVER_INSTANCE = server);
-        // syncing server config to the player after they join the server
-        ServerPlayConnectionEvents.JOIN.register(
-                (_, sender, _) -> sender.sendPacket(YACLConfig.getServerData())
-        );
+    public static void register(IEventBus modBus) {
+        modBus.addListener(ConfigNetworkHandler::registerPayloadHandlersEventHandler);
+        NeoForge.EVENT_BUS.addListener(ConfigNetworkHandler::onPlayerLogin);
     }
 }

@@ -1,6 +1,7 @@
 package antigers.melancholic_hunger.hud.mixin;
 
 import antigers.melancholic_hunger.MelancholicHunger;
+import antigers.melancholic_hunger.MelancholicHungerClient;
 import antigers.melancholic_hunger.compat.RaisedCompat;
 import antigers.melancholic_hunger.config.YACLConfig;
 import antigers.melancholic_hunger.hud.*;
@@ -122,7 +123,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
      * Checks if the exp level should be rendered
      */
     @WrapOperation(
-            method = "renderHotbarAndDecorations",
+            method = "renderExperienceLevel",
             at = @At(
                     value="INVOKE",
                     target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;renderExperienceLevel(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/gui/Font;I)V"
@@ -169,7 +170,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
      * Calls the custom method to render the exp bar
      */
     @WrapOperation(
-            method = "renderHotbarAndDecorations",
+            method = "renderContextualInfoBarBackground",
             at = @At(
                     value="INVOKE",
                     target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;renderBackground(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"
@@ -256,14 +257,14 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
             return;
         }
         if (YACLConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen()) {
-            if (MelancholicHunger.raisedInstalled) {
+            if (MelancholicHungerClient.raisedInstalled) {
                 RaisedCompat.startHotbarTranslate(guiGraphics);
             }
             melancholic_hunger$renderExperienceBar(this.contextualInfoBar.getValue(), guiGraphics);
             if (this.minecraft.player.experienceLevel > 0) {
                 melancholic_hunger$renderExperienceLevel(guiGraphics, this.minecraft.font, this.minecraft.player.experienceLevel);
             }
-            if (MelancholicHunger.raisedInstalled) {
+            if (MelancholicHungerClient.raisedInstalled) {
                 RaisedCompat.endTranslate(guiGraphics);
             }
         }

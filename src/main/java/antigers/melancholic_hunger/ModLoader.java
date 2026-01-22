@@ -1,13 +1,13 @@
 package antigers.melancholic_hunger;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.loader.api.FabricLoader;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.fml.loading.FMLPaths;
 
 import java.nio.file.Path;
 
 public class ModLoader {
 	public static boolean isClientside() {
-		return FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT;
+		return FMLEnvironment.getDist().isClient();
 	}
 
 	public static boolean isServerside() {
@@ -15,6 +15,6 @@ public class ModLoader {
 	}
 
 	public static Path getConfigDir() {
-		return FabricLoader.getInstance().getConfigDir();
+		return FMLPaths.CONFIGDIR.get();
 	}
 }

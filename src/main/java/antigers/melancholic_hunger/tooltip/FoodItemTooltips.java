@@ -2,7 +2,6 @@ package antigers.melancholic_hunger.tooltip;
 
 import antigers.melancholic_hunger.config.YACLConfig;
 import antigers.melancholic_hunger.food.Cake;
-import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
@@ -20,6 +19,8 @@ import net.minecraft.util.StringDecomposer;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -142,8 +143,8 @@ public class FoodItemTooltips {
 	}
 
 	public static void register() {
-		ItemTooltipCallback.EVENT.register(
-				(stack, _, _, lines) -> appendTooltip(stack, lines)
+		NeoForge.EVENT_BUS.addListener(
+				ItemTooltipEvent.class, event -> appendTooltip(event.getItemStack(), event.getToolTip())
 		);
 	}
 }

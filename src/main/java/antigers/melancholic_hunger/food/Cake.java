@@ -1,4 +1,4 @@
-package antigers.melancholic_hunger;
+package antigers.melancholic_hunger.food;
 
 import net.minecraft.world.food.FoodProperties;
 

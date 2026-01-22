@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.Permission;
 import net.minecraft.server.permissions.PermissionLevel;
 
@@ -28,14 +29,14 @@ public class ConfigNetworkHandler {
         }
     }
 
-    private static void handleS2CPacket(ServerConfigData.ImmutableServerConfigData data, ClientPlayNetworking.Context context) {
+    private static void handleS2CPacket(ServerConfigData.ImmutableServerConfigData data) {
         if (!Minecraft.getInstance().isSingleplayer()) {
             YACLConfig.setServerData(data);
         }
     }
 
-    private static void handleC2SPacket(ServerConfigData.ImmutableServerConfigData data, ServerPlayNetworking.Context context) {
-        if (!context.player().permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.GAMEMASTERS))) {
+    private static void handleC2SPacket(ServerConfigData.ImmutableServerConfigData data, ServerPlayer player) {
+        if (!player.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.GAMEMASTERS))) {
             // only for operators
             return;
         }
@@ -43,7 +44,7 @@ public class ConfigNetworkHandler {
         if (!dataUpdated) {
             return;
         }
-        syncAllPlayersExceptOf(context.player().getId());
+        syncAllPlayersExceptOf(player.getId());
         YACLConfig.saveToDisk();
     }
 
@@ -56,10 +57,14 @@ public class ConfigNetworkHandler {
 
     public static void register() {
         PayloadTypeRegistry.clientboundPlay().register(ServerConfigData.PAYLOAD_TYPE, ServerConfigData.PAYLOAD_STREAM_CODEC);
-        ClientPlayNetworking.registerGlobalReceiver(ServerConfigData.PAYLOAD_TYPE, ConfigNetworkHandler::handleS2CPacket);
+        ClientPlayNetworking.registerGlobalReceiver(
+                ServerConfigData.PAYLOAD_TYPE, (data, _) -> handleS2CPacket(data)
+        );
 
         PayloadTypeRegistry.serverboundPlay().register(ServerConfigData.PAYLOAD_TYPE, ServerConfigData.PAYLOAD_STREAM_CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(ServerConfigData.PAYLOAD_TYPE, ConfigNetworkHandler::handleC2SPacket);
+        ServerPlayNetworking.registerGlobalReceiver(
+                ServerConfigData.PAYLOAD_TYPE, (data, context) -> handleC2SPacket(data, context.player())
+        );
 
         ServerLifecycleEvents.SERVER_STARTED.register(server -> SERVER_INSTANCE = server);
         // syncing server config to the player after they join the server

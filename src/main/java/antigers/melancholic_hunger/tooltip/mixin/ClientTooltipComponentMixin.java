@@ -1,6 +1,6 @@
-package antigers.melancholic_hunger.mixin;
+package antigers.melancholic_hunger.tooltip.mixin;
 
-import antigers.melancholic_hunger.FoodItemTooltips;
+import antigers.melancholic_hunger.tooltip.FoodItemTooltips;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;

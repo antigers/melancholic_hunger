@@ -1,6 +1,5 @@
-package antigers.melancholic_hunger;
+package antigers.melancholic_hunger.config;
 
-import antigers.melancholic_hunger.config.YACLConfig;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 

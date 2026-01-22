@@ -1,4 +1,4 @@
-package antigers.melancholic_hunger.mixin;
+package antigers.melancholic_hunger.hud.mixin;
 
 import antigers.melancholic_hunger.MelancholicHunger;
 import antigers.melancholic_hunger.compat.RaisedCompat;
@@ -423,13 +423,13 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         )
     )
     private void melancholic_hunger$moveHealthBar(
-            Gui inGameHud, GuiGraphics guiGraphics, Player player, int x, int y, int lines,
+            Gui gui, GuiGraphics guiGraphics, Player player, int x, int y, int lines,
             int regeneratingHeartIndex, float maxHealth, int lastHealth, int health, int absorption, boolean blinking,
             Operation<Void> original
     ) {
         DrawHudContext drawHudContext = (DrawHudContext) guiGraphics;
         original.call(
-                inGameHud, guiGraphics, player, x, drawHudContext.getHealthBarY(), lines, regeneratingHeartIndex,
+                gui, guiGraphics, player, x, drawHudContext.getHealthBarY(), lines, regeneratingHeartIndex,
                 maxHealth, lastHealth, health, absorption, blinking
         );
     }
@@ -456,14 +456,14 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         )
     )
     private void melancholic_hunger$drawRestoredHearts(
-            Gui inGameHud, GuiGraphics guiGraphics, Gui.HeartType type, int x, int y, boolean hardcore,
+            Gui gui, GuiGraphics guiGraphics, Gui.HeartType type, int x, int y, boolean hardcore,
             boolean blinking, boolean half, Operation<Void> original
     ) {
         DrawHudContext drawHudContext = (DrawHudContext) guiGraphics;
         RestoredHeartsDrawHelper restoredHeartsDrawHelper = drawHudContext.getHelper();
         if (type != Gui.HeartType.CONTAINER) {
             original.call(
-                    inGameHud, guiGraphics, type, x, restoredHeartsDrawHelper.getCurrentY(), hardcore, blinking, half
+                    gui, guiGraphics, type, x, restoredHeartsDrawHelper.getCurrentY(), hardcore, blinking, half
             );
             return;
         }
@@ -472,7 +472,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         RestoredHeartsDrawHelper.RestoredHeart firstHeart = res.getFirst();
         if (firstHeart != null) {
             // drawing container for correct background
-            original.call(inGameHud, guiGraphics, Gui.HeartType.CONTAINER, x, y, hardcore, blinking, half);
+            original.call(gui, guiGraphics, Gui.HeartType.CONTAINER, x, y, hardcore, blinking, half);
             melancholic_hunger$drawHeartWithColor(
                     guiGraphics, firstHeart.heartType(), x, y, hardcore, blinking, firstHeart.isHalf(),
                     firstHeart.colorRed(), firstHeart.colorGreen(), firstHeart.colorBlue()
@@ -487,7 +487,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
             }
         }
         else {
-            original.call(inGameHud, guiGraphics, type, x, y, hardcore, blinking, half);
+            original.call(gui, guiGraphics, type, x, y, hardcore, blinking, half);
         }
         restoredHeartsDrawHelper.updateCurrentHeart();
     }

@@ -1,6 +1,7 @@
-package antigers.melancholic_hunger;
+package antigers.melancholic_hunger.tooltip;
 
 import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.food.Cake;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
@@ -17,10 +18,8 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.FormattedCharSink;
 import net.minecraft.util.StringDecomposer;
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.TooltipFlag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,7 +97,7 @@ public class FoodItemTooltips {
 		}
 	}
 
-	private static void appendTooltip(ItemStack stack, Item.TooltipContext context, TooltipFlag tooltipType, List<Component> lines) {
+	private static void appendTooltip(ItemStack stack, List<Component> lines) {
 		FoodProperties foodProperties = stack.get(DataComponents.FOOD);
 		if (foodProperties == null) {
 			if (stack.getItem() != Items.CAKE) {
@@ -143,6 +142,8 @@ public class FoodItemTooltips {
 	}
 
 	public static void register() {
-		ItemTooltipCallback.EVENT.register(FoodItemTooltips::appendTooltip);
+		ItemTooltipCallback.EVENT.register(
+				(stack, _, _, lines) -> appendTooltip(stack, lines)
+		);
 	}
 }

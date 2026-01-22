@@ -20,11 +20,14 @@
 			"antigers.melancholic_hunger.MelancholicHunger"
 		],
 		"modmenu": [
-			"antigers.melancholic_hunger.ModMenuScreen"
+			"antigers.melancholic_hunger.config.ModMenuScreen"
 		]
 	},
 	"mixins": [
-		"melancholic_hunger.mixins.json"
+		"config.mixins.json",
+		"food.mixins.json",
+		"hud.mixins.json",
+		"tooltip.mixins.json"
 	],
 	"depends": {
 		"fabricloader": "*",

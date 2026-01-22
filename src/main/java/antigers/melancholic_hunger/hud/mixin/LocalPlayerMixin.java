@@ -1,4 +1,4 @@
-package antigers.melancholic_hunger.mixin;
+package antigers.melancholic_hunger.hud.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;

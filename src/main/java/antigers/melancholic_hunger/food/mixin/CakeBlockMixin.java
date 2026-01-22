@@ -1,6 +1,6 @@
-package antigers.melancholic_hunger.mixin;
+package antigers.melancholic_hunger.food.mixin;
 
-import antigers.melancholic_hunger.Cake;
+import antigers.melancholic_hunger.food.Cake;
 import antigers.melancholic_hunger.components.HealthRegenerationComponent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;

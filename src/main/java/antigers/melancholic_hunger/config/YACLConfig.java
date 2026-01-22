@@ -1,14 +1,13 @@
 package antigers.melancholic_hunger.config;
 
 import antigers.melancholic_hunger.MelancholicHunger;
+import antigers.melancholic_hunger.ModLoader;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
 import dev.isxander.yacl3.gui.YACLScreen;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -38,7 +37,7 @@ public class YACLConfig {
     private static final ConfigClassHandler<YACLConfig> HANDLER = ConfigClassHandler.createBuilder(YACLConfig.class)
             .id(Identifier.fromNamespaceAndPath(MelancholicHunger.MOD_ID, "config"))
             .serializer(config -> GsonConfigSerializerBuilder.create(config)
-                    .setPath(FabricLoader.getInstance().getConfigDir().resolve(MelancholicHunger.MOD_ID + ".json5"))
+                    .setPath(ModLoader.getConfigDir().resolve(MelancholicHunger.MOD_ID + ".json5"))
                     .setJson5(true)
                     .build())
             .build();
@@ -409,7 +408,7 @@ public class YACLConfig {
     }
 
     private static void updateCurrentScreen() {
-        if (FabricLoader.getInstance().getEnvironmentType() != EnvType.CLIENT) {
+        if (ModLoader.isServerside()) {
             return;
         }
         if (Minecraft.getInstance().screen instanceof YACLScreen) {

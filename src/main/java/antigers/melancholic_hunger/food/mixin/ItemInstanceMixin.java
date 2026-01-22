@@ -1,4 +1,4 @@
-package antigers.melancholic_hunger.mixin;
+package antigers.melancholic_hunger.food.mixin;
 
 import antigers.melancholic_hunger.config.YACLConfig;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;

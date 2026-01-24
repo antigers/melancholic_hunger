@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version "${loom_version}"
+	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
 	id 'maven-publish'
 }
 
@@ -66,8 +66,8 @@ dependencies {
 	modImplementation "dev.isxander:yet-another-config-lib:${project.YACL_version}"
 
 	// Cardinal Components API
-	include (modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-base:${project.CCA_version}")
-	include (modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-entity:${project.CCA_version}")
+	include (modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.CCA_version}")
+	include (modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${project.CCA_version}")
 
 	// ModMenu compatibility
 	modApi "com.terraformersmc:modmenu:${project.mod_menu_version}"
@@ -94,7 +94,7 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 21
+	it.options.release = 17
 }
 
 java {
@@ -103,8 +103,8 @@ java {
 	// If you remove this line, sources will not be generated.
 	withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
 }
 
 jar {

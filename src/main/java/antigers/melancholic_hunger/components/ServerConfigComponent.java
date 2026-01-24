@@ -3,54 +3,32 @@ package antigers.melancholic_hunger.components;
 import antigers.melancholic_hunger.config.ServerConfigData;
 import antigers.melancholic_hunger.config.YACLConfig;
 import com.google.gson.Gson;
-import net.fabricmc.api.EnvType;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
-import org.ladysnake.cca.api.v3.entity.C2SSelfMessagingComponent;
-import org.ladysnake.cca.api.v3.util.CheckEnvironment;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 
-public class ServerConfigComponent implements AutoSyncedComponent, C2SSelfMessagingComponent {
+public class ServerConfigComponent {
     private static MinecraftServer serverInstance;
+    private static final Gson gson = new Gson();
 
-    private final Player player;
-    private final Gson gson = new Gson();
+    private static final ResourceLocation CONFIG_DATA_ID = new ResourceLocation(
+            "melancholic_hunger", "server_config_component"
+    );
 
-    public ServerConfigComponent(Player player) {
-        this.player = player;
-    }
-
-    @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {}
-
-    @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {}
-
-    @Override
-    public boolean shouldSyncWith(ServerPlayer player) {
-        return player == this.player; // only sync with the provider itself
-    }
-
-    @Override
-    @CheckEnvironment(EnvType.SERVER)
-    public void writeSyncPacket(RegistryFriendlyByteBuf buf, ServerPlayer recipient) {
-        buf.writeUtf(gson.toJson(YACLConfig.getServerData()));
-    }
-
-    @Override
-    @CheckEnvironment(EnvType.CLIENT)
-    public void applySyncPacket(RegistryFriendlyByteBuf buf) {
-        if (!Minecraft.getInstance().isSingleplayer() && buf.isReadable()) {
-            YACLConfig.setServerData(
-                    gson.fromJson(buf.readUtf(), ServerConfigData.ImmutableServerConfigData.class)
-            );
-        }
+    private static FriendlyByteBuf createConfigDataBuf() {
+        FriendlyByteBuf buff = PacketByteBufs.create();
+        buff.writeUtf(gson.toJson(YACLConfig.getServerData()));
+        return buff;
     }
 
     public static void syncAllPlayers() {
@@ -63,16 +41,24 @@ public class ServerConfigComponent implements AutoSyncedComponent, C2SSelfMessag
                 continue;
             }
             // sending update to every player
-            PlayerComponents.SERVER_CONFIG.sync(player);
+            ServerPlayNetworking.send(player, CONFIG_DATA_ID, createConfigDataBuf());
+        }
+    }
+
+    private static void handleS2CPacket(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender responseSender) {
+        if (!client.isSingleplayer() && buf.isReadable()) {
+            YACLConfig.setServerData(
+                    gson.fromJson(buf.readUtf(), ServerConfigData.ImmutableServerConfigData.class)
+            );
         }
     }
 
     /**
      * Handles config update from a player on the server side
      */
-    @Override
-    @CheckEnvironment(EnvType.SERVER)
-    public void handleC2SMessage(RegistryFriendlyByteBuf buf) {
+    public static void handleC2SPacket(
+            MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buf, PacketSender responseSender
+    ) {
         if (!player.hasPermissions(2)) {
             // only for operators
             return;
@@ -90,14 +76,20 @@ public class ServerConfigComponent implements AutoSyncedComponent, C2SSelfMessag
     /**
      * Sends config update to the server
      */
-    @CheckEnvironment(EnvType.CLIENT)
-    public void sendToServer(ServerConfigData.ImmutableServerConfigData serverConfigData) {
-        sendC2SMessage(buf -> buf.writeUtf(gson.toJson(serverConfigData)));
+    public static void sendToServer() {
+        ClientPlayNetworking.send(CONFIG_DATA_ID, createConfigDataBuf());
     }
 
     public static void register() {
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             serverInstance = server;
         });
+        ClientPlayNetworking.registerGlobalReceiver(CONFIG_DATA_ID, ServerConfigComponent::handleS2CPacket);
+        ServerPlayNetworking.registerGlobalReceiver(CONFIG_DATA_ID, ServerConfigComponent::handleC2SPacket);
+
+        // syncing server config to the player after they join the server
+        ServerPlayConnectionEvents.JOIN.register(
+                (handler, sender, server) -> sender.sendPacket(CONFIG_DATA_ID, createConfigDataBuf())
+        );
     }
 }

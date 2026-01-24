@@ -41,11 +41,11 @@ public class YACLConfig {
         if (MelancholicHunger.nostalgicTweaksInstalled && GameplayTweak.CUSTOM_FOOD_HEALTH.get().containsItem(itemStack)) {
             return GameplayTweak.CUSTOM_FOOD_HEALTH.get().valueFrom(itemStack);
         }
-        return foodComponent.nutrition();
+        return foodComponent.getNutrition();
     }
 
     private static final ConfigClassHandler<YACLConfig> HANDLER = ConfigClassHandler.createBuilder(YACLConfig.class)
-            .id(ResourceLocation.fromNamespaceAndPath("melancholic_hunger", "config"))
+            .id(new ResourceLocation("melancholic_hunger", "config"))
             .serializer(config -> GsonConfigSerializerBuilder.create(config)
                     .setPath(FabricLoader.getInstance().getConfigDir().resolve("melancholic_hunger.json5"))
                     .setJson5(true)
@@ -405,7 +405,7 @@ public class YACLConfig {
                     }
                     else {
                         // sending config to the server if in multiplayer
-                        PlayerComponents.SERVER_CONFIG.get(player).sendToServer(serverData.getImmutable());
+                        ServerConfigComponent.sendToServer();
                     }
                     // writing new settings to nostalgic tweaks config
                     if (MelancholicHunger.nostalgicTweaksInstalled) {

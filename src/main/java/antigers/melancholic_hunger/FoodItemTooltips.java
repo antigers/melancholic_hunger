@@ -7,16 +7,13 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentContents;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.contents.PlainTextContents;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.FormattedCharSink;
 import net.minecraft.util.StringDecomposer;
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
@@ -35,7 +32,7 @@ public class FoodItemTooltips {
 
 		@Override
 		public ComponentContents getContents() {
-			return PlainTextContents.EMPTY;
+			return ComponentContents.EMPTY;
 		}
 
 		static List<Component> emptySiblings = new ArrayList<>();
@@ -89,17 +86,17 @@ public class FoodItemTooltips {
 			y += 2;
 			for (int i = 0; i < heartsCount - 1; i++) {
 				int textureX = x + i * 9;
-				context.blitSprite(Gui.HeartType.CONTAINER.getSprite(false, false, false), textureX, y, 9, 9);
-				context.blitSprite(Gui.HeartType.NORMAL.getSprite(false, false, false), textureX, y, 9, 9);
+				context.blit(Gui.GUI_ICONS_LOCATION, textureX, y, Gui.HeartType.CONTAINER.getX(false, false), 0, 9, 9);
+				context.blit(Gui.GUI_ICONS_LOCATION, textureX, y, Gui.HeartType.NORMAL.getX(false, false), 0, 9, 9);
 			}
 			int textureX = x + (heartsCount - 1) * 9;
-			context.blitSprite(Gui.HeartType.CONTAINER.getSprite(false, lastHeartIsHalf, false), textureX, y, 9, 9);
-			context.blitSprite(Gui.HeartType.NORMAL.getSprite(false, lastHeartIsHalf, false), textureX, y, 9, 9);
+			context.blit(Gui.GUI_ICONS_LOCATION, textureX, y, Gui.HeartType.CONTAINER.getX(lastHeartIsHalf, false), 0, 9, 9);
+			context.blit(Gui.GUI_ICONS_LOCATION, textureX, y, Gui.HeartType.NORMAL.getX(lastHeartIsHalf, false), 0, 9, 9);
 		}
 	}
 
-	private static void appendTooltip(ItemStack stack, Item.TooltipContext context, TooltipFlag tooltipType, List<Component> lines) {
-		FoodProperties foodProperties = stack.get(DataComponents.FOOD);
+	private static void appendTooltip(ItemStack stack, TooltipFlag context, List<Component> lines) {
+		FoodProperties foodProperties = stack.getItem().getFoodProperties();
 		if (foodProperties == null) {
 			if (stack.getItem() != Items.CAKE) {
 				return;
@@ -117,7 +114,7 @@ public class FoodItemTooltips {
 		if (!YACLConfig.gradualHealthRegeneration()) {
 			return;
 		}
-		float regenerationRatio = foodNutrition / foodProperties.saturation();
+		float regenerationRatio = foodProperties.getSaturationModifier() * 2.0F;
 		String regenerationRate;
 		ChatFormatting formatting;
 		if (regenerationRatio <= 0.5F) {

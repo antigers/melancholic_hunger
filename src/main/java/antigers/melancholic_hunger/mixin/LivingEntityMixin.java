@@ -4,7 +4,6 @@ import antigers.melancholic_hunger.config.HungerEffectOption;
 import antigers.melancholic_hunger.config.YACLConfig;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -57,15 +56,15 @@ public abstract class LivingEntityMixin {
             method="startUsingItem",
             at=@At(
                     value="INVOKE",
-                    target="Lnet/minecraft/world/item/ItemStack;getUseDuration(Lnet/minecraft/world/entity/LivingEntity;)I"
+                    target="Lnet/minecraft/world/item/ItemStack;getUseDuration()I"
             )
     )
     private int melancholic_hunger$setCurrentHandMaxUseTime(
-            ItemStack stack, LivingEntity user, Operation<Integer> original
+            ItemStack stack, Operation<Integer> original
     ) {
-        if (YACLConfig.shouldInstantlyEat(stack.getItem()) && stack.get(DataComponents.FOOD) != null) {
+        if (YACLConfig.shouldInstantlyEat(stack.getItem()) && stack.getItem().getFoodProperties() != null) {
             return 1;
         }
-        return original.call(stack, user);
+        return original.call(stack);
     }
 }

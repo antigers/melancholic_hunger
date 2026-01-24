@@ -34,9 +34,9 @@ public abstract class PlayerEntityMixin extends LivingEntity {
         at = @At("HEAD")
     )
     private void melancholic_hunger$playerEatFood(
-            Level world, ItemStack itemStack, FoodProperties foodComponent, CallbackInfoReturnable<ItemStack> callback
+            Level level, ItemStack itemStack, CallbackInfoReturnable<ItemStack> cir
     ) {
-        PlayerComponents.HEALTH_REGENERATION.get(this).eat(itemStack, foodComponent);
+        PlayerComponents.HEALTH_REGENERATION.get(this).eat(itemStack, itemStack.getItem().getFoodProperties());
     }
 
     /**

@@ -5,7 +5,6 @@ import antigers.melancholic_hunger.config.YACLConfig;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.Util;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
@@ -33,9 +32,9 @@ public class RestoredHeartsDrawHelper {
         playerHealth = Mth.ceil(player.getHealth());
         absorption = Mth.ceil(player.getAbsorptionAmount());
         var heldItemStack = player.getMainHandItem();
-        var foodComponent = heldItemStack.get(DataComponents.FOOD);
+        var foodComponent = heldItemStack.getItem().getFoodProperties();
         if (foodComponent == null) {
-            foodComponent = player.getOffhandItem().get(DataComponents.FOOD);
+            foodComponent = player.getOffhandItem().getItem().getFoodProperties();
         }
         currentHeart = Mth.ceil(player.getMaxHealth());
         this.random = random;

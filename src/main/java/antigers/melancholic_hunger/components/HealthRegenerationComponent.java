@@ -5,14 +5,13 @@ import java.util.HashSet;
 import antigers.melancholic_hunger.config.YACLConfig;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
-import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
-import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+import dev.onyxstudios.cca.api.v3.component.sync.AutoSyncedComponent;
+import dev.onyxstudios.cca.api.v3.component.tick.ServerTickingComponent;
 
 public class HealthRegenerationComponent implements AutoSyncedComponent, ServerTickingComponent {
 
@@ -27,7 +26,7 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
             this.foodComponentId = foodComponent.hashCode();
             this.foodNutrition = foodNutrition;
             this.ticksToHeal = Math.max(
-                    1, (int)(foodNutrition * 20 / (foodComponent.saturation() * YACLConfig.gradualHealthRegenerationSpeed()))
+                    1, (int)(10 / (foodComponent.getSaturationModifier() * YACLConfig.gradualHealthRegenerationSpeed()))
             );
         }
 
@@ -62,7 +61,7 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
     }
 
     @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void readFromNbt(CompoundTag tag) {
         this.consumedNutrition = Math.max(tag.getInt("consumedNutrition"), 0);
         var consumedFoodsStr = tag.getString("consumedFoods");
         if (!consumedFoodsStr.isEmpty()) {
@@ -71,7 +70,7 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
     }
 
     @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    public void writeToNbt(CompoundTag tag) {
         tag.putInt("consumedNutrition", this.consumedNutrition);
         tag.putString("consumedFoods", gson.toJson(this.consumedFoods));
     }

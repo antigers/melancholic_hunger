@@ -78,7 +78,7 @@ public class ItemIntegerMapConfigOption extends ConfigOption<List<String>, Boole
         updateTranslations();
         var result = new ArrayList<String>();
         for (var entry : map.entrySet()) {
-            ResourceLocation itemId = ResourceLocation.parse(entry.getKey());
+            ResourceLocation itemId = new ResourceLocation(entry.getKey());
             String translation = Component.translatable(BuiltInRegistries.ITEM.get(itemId).getDescriptionId()).getString();
             if (translationsToIdsLists.containsKey(translation)) {
                 // adding id in parentheses if the translated name duplicates for multiple items

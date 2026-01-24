@@ -25,6 +25,7 @@ public class DrawHudContext extends GuiGraphics {
     private final boolean shouldRenderStamina;
     private final boolean shouldRenderStaminaInPlaceOfHunger;
     private int staminaBarY;
+    private boolean isStaminaRenderingActuallyHappening = false;
 
     public DrawHudContext(
             Minecraft client, PoseStack matrices, MultiBufferSource.BufferSource vertexConsumers,
@@ -118,9 +119,17 @@ public class DrawHudContext extends GuiGraphics {
         return shouldRenderStaminaInPlaceOfHunger;
     }
 
+    public boolean getIsStaminaRenderingActuallyHappening() {
+        return isStaminaRenderingActuallyHappening;
+    }
+
     public void renderStamina() {
         if (shouldRenderStamina) {
+            // we have to check that isStaminaRenderingActuallyHappening is True in StaminaRendererMixin, so that
+            // stamina doesn't render in any other context
+            isStaminaRenderingActuallyHappening = true;
             StaminaRenderer.render(this, guiHeight() - staminaBarY);
+            isStaminaRenderingActuallyHappening = false;
         }
     }
 }

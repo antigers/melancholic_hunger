@@ -56,9 +56,11 @@ public class ServerConfigComponent {
                     gson.fromJson(buf.readUtf(), ServerConfigData.ImmutableServerConfigData.class)
             );
 
-            var configHandler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
-            // updating client config in NT (ONLY client config), so it's in sync with melancholic
-            configHandler.melancholic_hunger$writeConfigToNT(YACLConfig.getServerData(), YACLConfig.getClientData());
+            if (MelancholicHunger.nostalgicTweaksInstalled) {
+                var configHandler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
+                // updating client config in NT (ONLY client config), so it's in sync with melancholic
+                configHandler.melancholic_hunger$writeConfigToNT(YACLConfig.getServerData(), YACLConfig.getClientData());
+            }
         }
     }
 

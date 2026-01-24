@@ -55,10 +55,11 @@ public class ServerConfigComponent implements AutoSyncedComponent, C2SSelfMessag
             YACLConfig.setServerData(
                     gson.fromJson(buf.readUtf(), ServerConfigData.ImmutableServerConfigData.class)
             );
-
-            var handler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
-            // updating client config in NT (ONLY client config), so it's in sync with melancholic
-            handler.melancholic_hunger$writeConfigToNT(YACLConfig.getServerData(), YACLConfig.getClientData());
+            if (MelancholicHunger.nostalgicTweaksInstalled) {
+                var handler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
+                // updating client config in NT (ONLY client config), so it's in sync with melancholic
+                handler.melancholic_hunger$writeConfigToNT(YACLConfig.getServerData(), YACLConfig.getClientData());
+            }
         }
     }
 

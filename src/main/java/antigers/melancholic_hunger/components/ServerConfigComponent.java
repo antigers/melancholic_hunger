@@ -1,7 +1,9 @@
 package antigers.melancholic_hunger.components;
 
+import antigers.melancholic_hunger.MelancholicHunger;
 import antigers.melancholic_hunger.config.ServerConfigData;
 import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.nostalgic_tweaks.NostalgicTweaksConfigHandlerWriter;
 import com.google.gson.Gson;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -9,6 +11,9 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import mod.adrenix.nostalgic.config.factory.ConfigBuilder;
+import mod.adrenix.nostalgic.tweak.factory.Tweak;
+import mod.adrenix.nostalgic.tweak.factory.TweakPool;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.FriendlyByteBuf;
@@ -50,7 +55,15 @@ public class ServerConfigComponent {
             YACLConfig.setServerData(
                     gson.fromJson(buf.readUtf(), ServerConfigData.ImmutableServerConfigData.class)
             );
+
+            var configHandler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
+            // updating client config in NT (ONLY client config), so it's in sync with melancholic
+            configHandler.melancholic_hunger$writeConfigToNT(YACLConfig.getServerData(), YACLConfig.getClientData());
         }
+    }
+
+    public static void syncNostalgicTweaksToAllPlayers() {
+        TweakPool.filter(Tweak::isMultiplayerLike).forEach(Tweak::sendToAll);
     }
 
     /**
@@ -68,6 +81,11 @@ public class ServerConfigComponent {
         );
         if (!dataUpdated) {
             return;
+        }
+        if (MelancholicHunger.nostalgicTweaksInstalled) {
+            var configHandler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
+            configHandler.melancholic_hunger$writeConfigToNT(YACLConfig.getServerData(), null);
+            syncNostalgicTweaksToAllPlayers();
         }
         syncAllPlayersExceptOf(player.getId());
         YACLConfig.saveToDisk();

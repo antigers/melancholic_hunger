@@ -1,8 +1,13 @@
 package antigers.melancholic_hunger.components;
 
+import antigers.melancholic_hunger.MelancholicHunger;
 import antigers.melancholic_hunger.config.ServerConfigData;
 import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.nostalgic_tweaks.NostalgicTweaksConfigHandlerWriter;
 import com.google.gson.Gson;
+import mod.adrenix.nostalgic.config.factory.ConfigBuilder;
+import mod.adrenix.nostalgic.tweak.factory.Tweak;
+import mod.adrenix.nostalgic.tweak.factory.TweakPool;
 import net.fabricmc.api.EnvType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.HolderLookup;
@@ -50,6 +55,10 @@ public class ServerConfigComponent implements AutoSyncedComponent, C2SSelfMessag
             YACLConfig.setServerData(
                     gson.fromJson(buf.readUtf(), ServerConfigData.ImmutableServerConfigData.class)
             );
+
+            var handler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
+            // updating client config in NT (ONLY client config), so it's in sync with melancholic
+            handler.melancholic_hunger$writeConfigToNT(YACLConfig.getServerData(), YACLConfig.getClientData());
         }
     }
 
@@ -67,6 +76,10 @@ public class ServerConfigComponent implements AutoSyncedComponent, C2SSelfMessag
         }
     }
 
+    public static void syncNostalgicTweaksToAllPlayers() {
+        TweakPool.filter(Tweak::isMultiplayerLike).forEach(Tweak::sendToAll);
+    }
+
     /**
      * Handles config update from a player on the server side
      */
@@ -82,6 +95,11 @@ public class ServerConfigComponent implements AutoSyncedComponent, C2SSelfMessag
         );
         if (!dataUpdated) {
             return;
+        }
+        if (MelancholicHunger.nostalgicTweaksInstalled) {
+            var handler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
+            handler.melancholic_hunger$writeConfigToNT(YACLConfig.getServerData(), null);
+            syncNostalgicTweaksToAllPlayers();
         }
         syncAllPlayersExceptOf(player.getId());
         YACLConfig.saveToDisk();

@@ -2,6 +2,7 @@ package antigers.melancholic_hunger.nostalgic_tweaks.mixin;
 
 import antigers.melancholic_hunger.config.*;
 import antigers.melancholic_hunger.nostalgic_tweaks.NostalgicTweaksConfigHandlerWriter;
+import antigers.melancholic_hunger.utils.ClientOnlyHelper;
 import mod.adrenix.nostalgic.config.ClientConfig;
 import mod.adrenix.nostalgic.config.ServerConfig;
 import mod.adrenix.nostalgic.config.factory.ConfigHandler;
@@ -15,7 +16,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.LinkedHashMap;
 
@@ -61,8 +61,8 @@ public abstract class ConfigHandlerMixin<T extends ConfigMeta> implements Nostal
             serverData.sprinting = SprintingOption.VANILLA;
         }
 
+        serverData.useCustomFoodStackSizes = oldFoodStacking;
         if (oldFoodStacking) {
-            serverData.useCustomFoodStackSizes = true;
             var customFoodStackSizesHashMap = new LinkedHashMap<String, Integer>();
             for (var entry : customFoodStacking.entrySet()) {
                 customFoodStackSizesHashMap.put(entry.getKey(), entry.getValue());
@@ -76,11 +76,18 @@ public abstract class ConfigHandlerMixin<T extends ConfigMeta> implements Nostal
     @Unique
     void setConfigFromNT() {
         if (this.loaded instanceof ClientConfig clientConfig) {
-            var gameplayConfig = clientConfig.gameplay;
-            setGameplayConfigFromNT(
-                    gameplayConfig.disableHunger, gameplayConfig.preventHungerEffect, gameplayConfig.disableSprint,
-                    gameplayConfig.oldFoodStacking, gameplayConfig.customFoodStacking, gameplayConfig.instantEat
-            );
+            if (
+                    ClientOnlyHelper.isInSingleplayer()
+                            || ClientOnlyHelper.hasSingleplayerServer()
+                            || ClientOnlyHelper.getLocalPlayer() == null
+            ) {
+                // when in multiplayer, there is no need to sync local config for options that are controlled by the server
+                var gameplayConfig = clientConfig.gameplay;
+                setGameplayConfigFromNT(
+                        gameplayConfig.disableHunger, gameplayConfig.preventHungerEffect, gameplayConfig.disableSprint,
+                        gameplayConfig.oldFoodStacking, gameplayConfig.customFoodStacking, gameplayConfig.instantEat
+                );
+            }
             var clientData = new ClientConfigData();
             clientData.hideHungerBar = clientConfig.eyeCandy.hideHungerBar;
             clientData.hideExperienceBar = clientConfig.eyeCandy.hideExperienceBar;
@@ -97,7 +104,8 @@ public abstract class ConfigHandlerMixin<T extends ConfigMeta> implements Nostal
 
     @Override
     public void melancholic_hunger$writeConfigToNT(
-            ServerConfigData.ImmutableServerConfigData serverData, ClientConfigData.ImmutableClientConfigData clientData
+            ServerConfigData.ImmutableServerConfigData serverData,
+            @Nullable ClientConfigData.ImmutableClientConfigData clientData
     ) {
         if (loaded == null) {
             this.load();
@@ -109,16 +117,24 @@ public abstract class ConfigHandlerMixin<T extends ConfigMeta> implements Nostal
         boolean useCustomFoodStackSizes = serverData.useCustomFoodStackSizes();
         var customFoodStacking = new ItemMap<>(1).startWith(serverData.customFoodStackSizes());
         if (this.loaded instanceof ClientConfig clientConfig) {
-            var gameplayConfig = clientConfig.gameplay;
-            gameplayConfig.disableHunger = disableHunger;
-            gameplayConfig.preventHungerEffect = preventHungerEffect;
-            gameplayConfig.instantEat = instantEat;
-            gameplayConfig.disableSprint = disableSprint;
-            if (useCustomFoodStackSizes && gameplayConfig.oldFoodStacking) {
+            if (
+                    ClientOnlyHelper.isInSingleplayer()
+                            || ClientOnlyHelper.hasSingleplayerServer()
+                            || ClientOnlyHelper.getLocalPlayer() == null
+            ) {
+                // when in multiplayer, there is no need to sync local config for options that are controlled by the server
+                var gameplayConfig = clientConfig.gameplay;
+                gameplayConfig.disableHunger = disableHunger;
+                gameplayConfig.preventHungerEffect = preventHungerEffect;
+                gameplayConfig.instantEat = instantEat;
+                gameplayConfig.disableSprint = disableSprint;
+                gameplayConfig.oldFoodStacking = useCustomFoodStackSizes;
                 gameplayConfig.customFoodStacking = customFoodStacking;
             }
-            clientConfig.eyeCandy.hideHungerBar = clientData.hideHungerBar();
-            clientConfig.eyeCandy.hideExperienceBar = clientData.hideExperienceBar();
+            if (clientData != null) {
+                clientConfig.eyeCandy.hideHungerBar = clientData.hideHungerBar();
+                clientConfig.eyeCandy.hideExperienceBar = clientData.hideExperienceBar();
+            }
         }
         else if (this.loaded instanceof ServerConfig serverConfig) {
             var gameplayConfig = serverConfig.gameplay;
@@ -126,21 +142,11 @@ public abstract class ConfigHandlerMixin<T extends ConfigMeta> implements Nostal
             gameplayConfig.preventHungerEffect = preventHungerEffect;
             gameplayConfig.instantEat = instantEat;
             gameplayConfig.disableSprint = disableSprint;
-            if (useCustomFoodStackSizes && gameplayConfig.oldFoodStacking) {
-                gameplayConfig.customFoodStacking = customFoodStacking;
-            }
+            gameplayConfig.oldFoodStacking = useCustomFoodStackSizes;
+            gameplayConfig.customFoodStacking = customFoodStacking;
         }
         this.save();
         this.onLoad.run();
-    }
-
-    @Inject(
-        method="load",
-        at=@At("RETURN"),
-        remap=false
-    )
-    void load_nostalgic_tweaks_config(CallbackInfoReturnable<Boolean> cir) {
-        setConfigFromNT();
     }
 
     @Inject(

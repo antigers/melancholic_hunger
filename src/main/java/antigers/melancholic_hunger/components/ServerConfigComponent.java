@@ -59,11 +59,13 @@ public class ServerConfigComponent {
                             // this handler is client side
                             if (!Minecraft.getInstance().isSingleplayer()) {
                                 YACLConfig.setServerData(data);
-                                var handler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
-                                // updating client config in NT (ONLY client config), so it's in sync with melancholic
-                                handler.melancholic_hunger$writeConfigToNT(
-                                        YACLConfig.getServerData(), YACLConfig.getClientData()
-                                );
+                                if (MelancholicHunger.nostalgicTweaksInstalled) {
+                                    var handler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
+                                    // updating client config in NT (ONLY client config), so it's in sync with melancholic
+                                    handler.melancholic_hunger$writeConfigToNT(
+                                            YACLConfig.getServerData(), YACLConfig.getClientData()
+                                    );
+                                }
                             }
                         },
                         (data, context) -> {

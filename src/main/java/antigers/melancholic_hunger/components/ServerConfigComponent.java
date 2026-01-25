@@ -5,6 +5,7 @@ import antigers.melancholic_hunger.config.ServerConfigData;
 import antigers.melancholic_hunger.config.YACLConfig;
 import antigers.melancholic_hunger.nostalgic_tweaks.NostalgicTweaksConfigHandlerWriter;
 import com.google.gson.Gson;
+import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -14,6 +15,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import mod.adrenix.nostalgic.config.factory.ConfigBuilder;
 import mod.adrenix.nostalgic.tweak.factory.Tweak;
 import mod.adrenix.nostalgic.tweak.factory.TweakPool;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.FriendlyByteBuf;
@@ -104,7 +106,9 @@ public class ServerConfigComponent {
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             serverInstance = server;
         });
-        ClientPlayNetworking.registerGlobalReceiver(CONFIG_DATA_ID, ServerConfigComponent::handleS2CPacket);
+        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+            ClientPlayNetworking.registerGlobalReceiver(CONFIG_DATA_ID, ServerConfigComponent::handleS2CPacket);
+        }
         ServerPlayNetworking.registerGlobalReceiver(CONFIG_DATA_ID, ServerConfigComponent::handleC2SPacket);
 
         // syncing server config to the player after they join the server

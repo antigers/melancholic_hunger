@@ -114,7 +114,7 @@ public class FoodItemTooltips {
 		if (!YACLConfig.gradualHealthRegeneration()) {
 			return;
 		}
-		float regenerationRatio = foodProperties.getSaturationModifier() * 2.0F;
+		float regenerationRatio = 0.5F / foodProperties.getSaturationModifier();
 		String regenerationRate;
 		ChatFormatting formatting;
 		if (regenerationRatio <= 0.5F) {

@@ -5,7 +5,7 @@ import antigers.melancholic_hunger.utils.ClientOnlyHelper;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import mod.adrenix.nostalgic.network.packet.tweak.TweakPacket;
-import mod.adrenix.nostalgic.util.client.timer.ClientTimer;
+import mod.adrenix.nostalgic.util.client.ClientTimer;
 import mod.adrenix.nostalgic.util.server.ServerTimer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -41,7 +41,7 @@ public interface TweakPacketMixin {
             method="changeOnClient",
             at=@At(
                     value="INVOKE",
-                    target="Lmod/adrenix/nostalgic/util/client/timer/ClientTimer;runAfter(JLjava/util/concurrent/TimeUnit;Ljava/lang/Runnable;)V"
+                    target="Lmod/adrenix/nostalgic/util/client/ClientTimer;runAfter(JLjava/util/concurrent/TimeUnit;Ljava/lang/Runnable;)V"
             ),
             remap=false
     )

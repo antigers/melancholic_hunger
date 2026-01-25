@@ -85,12 +85,34 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
     }
 
     /**
-     * Sets opacity of both the experience bar and the experience level according to the animation
+     * Sets opacity of the experience bar according to the animation
+     */
+    @WrapOperation(
+            method = "renderExperienceBar",
+            at=@At(
+                    value="INVOKE",
+                    target="Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/ResourceLocation;IIIIII)V"
+            )
+    )
+    private void melancholic_hunger$addExperienceBarShading(
+            GuiGraphics guiGraphics, ResourceLocation atlasLocation, int x1, int y1, int uOffset, int vOffset, int uWidth, int vHeight,
+            Operation<Void> original
+    ) {
+        float u1 = uOffset / 256F, u2 = (uOffset + uWidth) / 256F;
+        float v1 = vOffset / 256F, v2 = (vOffset + vHeight) / 256F;
+        int x2 = x1 + uWidth;
+        int y2 = y1 + vHeight;
+        float currentOpacity = melancholic_hunger$experienceBarAnimation.getCurrentOpacity();
+        guiGraphics.innerBlit(atlasLocation, x1, x2, y1, y2, 0, u1, u2, v1, v2, 1.0F, 1.0F, 1.0F, currentOpacity);
+    }
+
+    /**
+     * Sets opacity of the experience level according to the animation
      */
     @WrapMethod(
             method = "renderExperienceBar"
     )
-    private void melancholic_hunger$addExperienceBarShading(GuiGraphics context, int x, Operation<Void> original) {
+    private void melancholic_hunger$addExperienceLevelShading(GuiGraphics context, int x, Operation<Void> original) {
         float currentOpacity = melancholic_hunger$experienceBarAnimation.getCurrentOpacity();
         context.setColor(1.0F, 1.0F, 1.0F, currentOpacity);
         original.call(context, x);
@@ -241,7 +263,7 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
             target="Lnet/minecraft/util/profiling/ProfilerFiller;push(Ljava/lang/String;)V"
         )
     )
-    private void melancholic_hunger$wrapRenderArmor(GuiGraphics guiGraphics, CallbackInfo ci, @Local(name="s") int s) {
+    private void melancholic_hunger$wrapRenderArmor(GuiGraphics guiGraphics, CallbackInfo ci, @Local(ordinal=9) int s) {
         DrawHudContext drawHudContext = (DrawHudContext) guiGraphics;
         drawHudContext.prepareArmorAndBubblesBarsDrawing(s + 10);
     }

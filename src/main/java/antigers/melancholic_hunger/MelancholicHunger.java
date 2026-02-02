@@ -1,37 +1,75 @@
 package antigers.melancholic_hunger;
 
+import antigers.melancholic_hunger.components.PlayerComponents;
 import antigers.melancholic_hunger.config.YACLConfig;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.ModInitializer;
-
-import net.fabricmc.loader.api.FabricLoader;
+import com.mojang.logging.LogUtils;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.ConfigScreenHandler;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.raphimc.immediatelyfast.ImmediatelyFast;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class MelancholicHunger implements ModInitializer {
-	// This logger is used to write text to the console and the log file.
-	// It is considered best practice to use your mod id as the logger's name.
-	// That way, it's clear which mod wrote info, warnings, and errors.
-    public static final Logger LOGGER = LoggerFactory.getLogger("melancholic_hunger");
+// The value here should match an entry in the META-INF/mods.toml file
+@Mod(MelancholicHunger.MOD_ID)
+public class MelancholicHunger
+{
+	// Define mod id in a common place for everything to reference
+	public static final String MOD_ID = "melancholic_hunger";
+	// Directly reference a slf4j logger
+	public static final Logger LOGGER = LogUtils.getLogger();
+
 	public static boolean nostalgicTweaksInstalled = false;
-    public static boolean raisedInstalled = false;
+	public static boolean raisedInstalled = false;
 
-	@Override
-	public void onInitialize() {
-		// This code runs as soon as Minecraft is in a mod-load-ready state.
-		// However, some things (like resources) may still be uninitialized.
+	public MelancholicHunger(FMLJavaModLoadingContext context)
+	{
+		IEventBus modEventBus = context.getModEventBus();
+
+		// Register the commonSetup method for modloading
+		modEventBus.addListener(this::commonSetup);
+
+		// Register ourselves for server and other game events we are interested in
+		MinecraftForge.EVENT_BUS.register(this);
+
+		// Register YACL config screen
+		context.registerExtensionPoint(
+				ConfigScreenHandler.ConfigScreenFactory.class,
+				() -> new ConfigScreenHandler.ConfigScreenFactory(
+						(mc, parent) -> YACLConfig.getYACLInstance().generateScreen(parent)
+				)
+		);
+
+		// Registering custom player data components
+		PlayerComponents.register();
+	}
+
+	private void commonSetup(final FMLCommonSetupEvent event)
+	{
+		nostalgicTweaksInstalled = ModList.get().isLoaded("nostalgic_tweaks");
 		YACLConfig.loadFromDisk();
-		nostalgicTweaksInstalled = FabricLoader.getInstance().getModContainer("nostalgic_tweaks").isPresent();
+	}
 
-		// Disables hud_batching in Immediately Fast, because it breaks hearts rendering
-		if (FabricLoader.getInstance().getModContainer("immediatelyfast").isPresent()) {
-			ImmediatelyFast.config.hud_batching = false;
-			ImmediatelyFast.runtimeConfig.hud_batching = false;
-		}
-        raisedInstalled = FabricLoader.getInstance().getModContainer("raised").isPresent();
-		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+	// You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
+	@Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+	public static class ClientModEvents
+	{
+		@SubscribeEvent
+		public static void onClientSetup(FMLClientSetupEvent event)
+		{
 			FoodItemTooltips.register();
+			// Disables hud_batching in Immediately Fast, because it breaks hearts rendering
+			if (ModList.get().isLoaded("immediatelyfast")) {
+				ImmediatelyFast.config.hud_batching = false;
+				ImmediatelyFast.runtimeConfig.hud_batching = false;
+			}
+			raisedInstalled = ModList.get().isLoaded("raised");
 		}
 	}
 }

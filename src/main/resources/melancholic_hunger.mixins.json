@@ -2,6 +2,7 @@
 	"required": true,
 	"package": "antigers.melancholic_hunger.mixin",
 	"compatibilityLevel": "JAVA_17",
+	"refmap": "melancholic_hunger.mixins.refmap.json",
 	"mixins": [
 		"HungerManagerMixin",
 		"PlayerEntityMixin",
@@ -16,8 +17,8 @@
 		"ClientMixin",
 		"ClientPlayerEntityMixin",
       	"InGameHudMixin",
+		"ForgeGuiMixin",
 		"ScreenMixin",
-		"YACLListOptionMixin",
-        "TooltipComponentMixin"
+		"YACLListOptionMixin"
 	]
 }

@@ -11,8 +11,6 @@ import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
 import dev.isxander.yacl3.gui.YACLScreen;
 import mod.adrenix.nostalgic.config.factory.ConfigBuilder;
 import mod.adrenix.nostalgic.tweak.config.GameplayTweak;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -22,6 +20,9 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.fml.loading.FMLPaths;
 
 import javax.lang.model.type.NullType;
 import java.util.*;
@@ -44,9 +45,9 @@ public class YACLConfig {
     }
 
     private static final ConfigClassHandler<YACLConfig> HANDLER = ConfigClassHandler.createBuilder(YACLConfig.class)
-            .id(new ResourceLocation("melancholic_hunger", "config"))
+            .id(ResourceLocation.fromNamespaceAndPath(MelancholicHunger.MOD_ID, "config"))
             .serializer(config -> GsonConfigSerializerBuilder.create(config)
-                    .setPath(FabricLoader.getInstance().getConfigDir().resolve("melancholic_hunger.json5"))
+                    .setPath(FMLPaths.CONFIGDIR.get().resolve("melancholic_hunger.json5"))
                     .setJson5(true)
                     .build())
             .build();
@@ -422,7 +423,7 @@ public class YACLConfig {
     }
 
     private static void updateCurrentScreen() {
-        if (FabricLoader.getInstance().getEnvironmentType() != EnvType.CLIENT) {
+        if (!FMLEnvironment.dist.isClient()) {
             return;
         }
         if (Minecraft.getInstance().screen instanceof YACLScreen) {
@@ -439,7 +440,7 @@ public class YACLConfig {
             option.validateValue();
         }
         // Here MelancholicHunger.nostalgicTweaksInstalled may not be initialized yet, so we need to check directly
-        if (FabricLoader.getInstance().getModContainer("nostalgic_tweaks").isEmpty()) {
+        if (!ModList.get().isLoaded("nostalgic_tweaks")) {
             // hideHungerBar option is hidden when NT is not installed, so we have to correct its value
             HIDE_HUNGER_BAR.setValue(false);
         }

@@ -5,6 +5,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraftforge.client.gui.LoadingErrorScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,6 +22,9 @@ public abstract class ScreenMixin extends AbstractContainerEventHandler {
         at=@At("TAIL")
     )
     public void melancholic_hunger$renderExperienceOnTopOfBackground(GuiGraphics drawContext, CallbackInfo callback) {
+        if ((Screen)(Object)this instanceof LoadingErrorScreen) {
+            return;
+        }
         ExperienceHudRenderer inGameHud = (ExperienceHudRenderer) this.minecraft.gui;
         inGameHud.melancholic_hunger$renderExperienceHud(drawContext);
     }

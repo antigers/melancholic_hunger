@@ -1,5 +1,6 @@
 package antigers.melancholic_hunger.mixin;
 
+import antigers.melancholic_hunger.components.HealthRegenerationComponent;
 import antigers.melancholic_hunger.components.PlayerComponents;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -36,7 +37,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     private void melancholic_hunger$playerEatFood(
             Level level, ItemStack itemStack, CallbackInfoReturnable<ItemStack> cir
     ) {
-        PlayerComponents.HEALTH_REGENERATION.get(this).eat(itemStack, itemStack.getItem().getFoodProperties());
+        HealthRegenerationComponent.get((Player)(Object)this).eat(itemStack, itemStack.getItem().getFoodProperties());
     }
 
     /**
@@ -47,6 +48,6 @@ public abstract class PlayerEntityMixin extends LivingEntity {
         if (this.abilities.invulnerable || ignoreHunger) {
             return true;
         }
-        return PlayerComponents.HEALTH_REGENERATION.get(this).canEat();
+        return HealthRegenerationComponent.get((Player)(Object)this).canEat();
     }
 }

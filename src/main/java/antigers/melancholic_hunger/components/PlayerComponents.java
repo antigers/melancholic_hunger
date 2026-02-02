@@ -1,24 +1,9 @@
 package antigers.melancholic_hunger.components;
 
-import net.minecraft.resources.ResourceLocation;
-import dev.onyxstudios.cca.api.v3.component.ComponentKey;
-import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
-import dev.onyxstudios.cca.api.v3.entity.EntityComponentFactoryRegistry;
-import dev.onyxstudios.cca.api.v3.entity.EntityComponentInitializer;
-import dev.onyxstudios.cca.api.v3.entity.RespawnCopyStrategy;
+public class PlayerComponents {
 
-public class PlayerComponents implements EntityComponentInitializer {
-    public static final ComponentKey<HealthRegenerationComponent> HEALTH_REGENERATION = ComponentRegistry
-            .getOrCreate(
-                    new ResourceLocation("melancholic_hunger", "health_regeneration"),
-                    HealthRegenerationComponent.class
-            );
-
-    @Override
-    public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
-        registry.registerForPlayers(
-                HEALTH_REGENERATION, HealthRegenerationComponent::new, RespawnCopyStrategy.LOSSLESS_ONLY
-        );
+    public static void register() {
+        HealthRegenerationComponent.register();
         ServerConfigComponent.register();
     }
 }

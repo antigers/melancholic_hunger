@@ -1,6 +1,8 @@
 package antigers.melancholic_hunger.nostalgic_tweaks;
 
-import net.fabricmc.loader.api.FabricLoader;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.loading.FMLLoader;
+import net.minecraftforge.fml.loading.moddiscovery.ModInfo;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -20,7 +22,11 @@ public class NostalgicTweaksMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        return FabricLoader.getInstance().getModContainer("nostalgic_tweaks").isPresent();
+        return FMLLoader.getLoadingModList()
+                .getMods()
+                .stream()
+                .map(ModInfo::getModId)
+                .anyMatch(id -> id.equals("nostalgic_tweaks"));
     }
 
     @Override

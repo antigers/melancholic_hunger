@@ -1,5 +1,6 @@
 package antigers.melancholic_hunger.hud;
 
+import antigers.melancholic_hunger.components.HealthRegenerationComponent;
 import antigers.melancholic_hunger.components.PlayerComponents;
 import antigers.melancholic_hunger.config.YACLConfig;
 import com.mojang.datafixers.util.Pair;
@@ -41,7 +42,7 @@ public class RestoredHeartsDrawHelper {
         sprintingHealthLimit = YACLConfig.sprintingHealthLimit();
         highlightRegeneratedHearts = YACLConfig.highlightRegeneratedHearts();
         highlightRestoredHearts = YACLConfig.highlightRestoredHearts();
-        consumedNutrition = PlayerComponents.HEALTH_REGENERATION.get(player).getConsumedNutrition();
+        consumedNutrition = HealthRegenerationComponent.getConsumedNutrition(player);
         heldFoodNutrition = foodComponent != null ? YACLConfig.getFoodHealth(heldItemStack, foodComponent) : 0;
         totalNutritionToDraw = highlightRegeneratedHearts ? consumedNutrition + heldFoodNutrition : heldFoodNutrition;
     }

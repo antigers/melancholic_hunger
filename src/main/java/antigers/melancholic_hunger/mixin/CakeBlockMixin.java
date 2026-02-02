@@ -1,7 +1,7 @@
 package antigers.melancholic_hunger.mixin;
 
 import antigers.melancholic_hunger.Cake;
-import antigers.melancholic_hunger.components.PlayerComponents;
+import antigers.melancholic_hunger.components.HealthRegenerationComponent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -30,6 +30,6 @@ public class CakeBlockMixin {
 	private static void melancholic_hunger$eatCake(
 			LevelAccessor level, BlockPos pos, BlockState state, Player player, CallbackInfoReturnable<InteractionResult> cir
 	) {
-		PlayerComponents.HEALTH_REGENERATION.get(player).eat(Items.CAKE.getDefaultInstance(), Cake.FOOD_PROPERTIES);
+		HealthRegenerationComponent.get(player).eat(Items.CAKE.getDefaultInstance(), Cake.FOOD_PROPERTIES);
 	}
 }

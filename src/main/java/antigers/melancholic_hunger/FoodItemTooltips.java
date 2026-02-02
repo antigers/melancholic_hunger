@@ -1,63 +1,35 @@
 package antigers.melancholic_hunger;
 
 import antigers.melancholic_hunger.config.YACLConfig;
-import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
+import com.mojang.datafixers.util.Either;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentContents;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
-import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.util.FormattedCharSink;
-import net.minecraft.util.StringDecomposer;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.TooltipFlag;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
+import net.minecraftforge.client.event.RenderTooltipEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
-import java.util.ArrayList;
 import java.util.List;
 
+@Mod.EventBusSubscriber(modid = MelancholicHunger.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class FoodItemTooltips {
 	private static final String CONFIG_PREFIX = "gui.melancholic_hunger.regeneration_tooltip.";
 
-	public record FoodHealthTextComponent(int foodNutrition) implements Component, FormattedCharSequence {
-		@Override
-		public Style getStyle() {
-			return Style.EMPTY;
-		}
+	private record FoodHealthTooltipComponentType (int foodNutrition) implements TooltipComponent { }
 
-		@Override
-		public ComponentContents getContents() {
-			return ComponentContents.EMPTY;
-		}
-
-		static List<Component> emptySiblings = new ArrayList<>();
-
-		@Override
-		public List<Component> getSiblings() {
-			return emptySiblings;
-		}
-
-		@Override
-		public FormattedCharSequence getVisualOrderText() {
-			return this;
-		}
-
-		@Override
-		public boolean accept(FormattedCharSink visitor) {
-			return StringDecomposer.iterateFormatted(this, getStyle(), visitor);
-		}
-
-		public FoodHealthTooltipComponent getComponent() {
-			return new FoodHealthTooltipComponent(foodNutrition);
-		}
-	}
-
-	public static class FoodHealthTooltipComponent implements ClientTooltipComponent
+	private static class FoodHealthTooltipComponent implements ClientTooltipComponent
 	{
 		private final int heartsCount;
 		private final boolean lastHeartIsHalf;
@@ -95,7 +67,8 @@ public class FoodItemTooltips {
 		}
 	}
 
-	private static void appendTooltip(ItemStack stack, TooltipFlag context, List<Component> lines) {
+	private static void appendTooltip(RenderTooltipEvent.GatherComponents event) {
+		ItemStack stack = event.getItemStack();
 		FoodProperties foodProperties = stack.getItem().getFoodProperties();
 		if (foodProperties == null) {
 			if (stack.getItem() != Items.CAKE) {
@@ -110,7 +83,8 @@ public class FoodItemTooltips {
 		if (foodNutrition <= 0) {
 			return;
 		}
-		lines.add(new FoodHealthTextComponent(foodNutrition));
+		List<Either<FormattedText, TooltipComponent>> lines = event.getTooltipElements();
+		lines.add(Either.right(new FoodHealthTooltipComponentType(foodNutrition)));
 		if (!YACLConfig.gradualHealthRegeneration()) {
 			return;
 		}
@@ -133,13 +107,21 @@ public class FoodItemTooltips {
 			regenerationRate = CONFIG_PREFIX + "very_slow";
 			formatting = ChatFormatting.DARK_RED;
 		}
-		lines.add(
+		lines.add(Either.left(
 				Component.translatable(CONFIG_PREFIX + "template", Component.translatable(regenerationRate))
 						.setStyle(Style.EMPTY.withColor(formatting.getColor()))
+		));
+	}
+
+	@SubscribeEvent
+	public static void registerTooltipComponent(RegisterClientTooltipComponentFactoriesEvent event) {
+		event.register(
+				FoodHealthTooltipComponentType.class,
+				foodHealthTooltipComponentType -> new FoodHealthTooltipComponent(foodHealthTooltipComponentType.foodNutrition())
 		);
 	}
 
 	public static void register() {
-		ItemTooltipCallback.EVENT.register(FoodItemTooltips::appendTooltip);
+		MinecraftForge.EVENT_BUS.addListener(FoodItemTooltips::appendTooltip);
 	}
 }

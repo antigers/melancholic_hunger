@@ -4,59 +4,72 @@ import antigers.melancholic_hunger.MelancholicHunger;
 import antigers.melancholic_hunger.config.ServerConfigData;
 import antigers.melancholic_hunger.config.YACLConfig;
 import antigers.melancholic_hunger.nostalgic_tweaks.NostalgicTweaksConfigHandlerWriter;
+import antigers.melancholic_hunger.utils.ClientOnlyHelper;
 import com.google.gson.Gson;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import mod.adrenix.nostalgic.config.factory.ConfigBuilder;
 import mod.adrenix.nostalgic.tweak.factory.Tweak;
 import mod.adrenix.nostalgic.tweak.factory.TweakPool;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 public class ServerConfigComponent {
-    private static MinecraftServer serverInstance;
-    private static final Gson gson = new Gson();
 
-    private static final ResourceLocation CONFIG_DATA_ID = new ResourceLocation(
-            "melancholic_hunger", "server_config_component"
-    );
+    private static class ConfigNetworkPacket {
+        private static final Gson gson = new Gson();
+        ServerConfigData.ImmutableServerConfigData configData;
 
-    private static FriendlyByteBuf createConfigDataBuf() {
-        FriendlyByteBuf buff = PacketByteBufs.create();
-        buff.writeUtf(gson.toJson(YACLConfig.getServerData()));
-        return buff;
-    }
+        public ConfigNetworkPacket() {
+            configData = YACLConfig.getServerData();
+        }
 
-    public static void syncAllPlayers() {
-        syncAllPlayersExceptOf(null);
-    }
+        public ConfigNetworkPacket(ServerConfigData.ImmutableServerConfigData configData) {
+            this.configData = configData;
+        }
 
-    public static void syncAllPlayersExceptOf(Integer ignoredPlayerId) {
-        for (var player : serverInstance.getPlayerList().getPlayers()) {
-            if (ignoredPlayerId != null && player.getId() == ignoredPlayerId) {
-                continue;
-            }
-            // sending update to every player
-            ServerPlayNetworking.send(player, CONFIG_DATA_ID, createConfigDataBuf());
+        public static ConfigNetworkPacket decode(FriendlyByteBuf buf) {
+            return new ConfigNetworkPacket(gson.fromJson(buf.readUtf(), ServerConfigData.ImmutableServerConfigData.class));
+        }
+
+        public void encode(FriendlyByteBuf buf) {
+            buf.writeUtf(gson.toJson(configData));
+        }
+
+        public void handle(NetworkEvent.Context context) {
+            context.enqueueWork(() -> {
+                if (context.getDirection() == NetworkDirection.PLAY_TO_CLIENT) {
+                    handleS2CPacket(configData);
+                } else {
+                    ServerPlayer sender = context.getSender();
+                    if (sender != null) {
+                        handleC2SPacket(sender, configData);
+                    }
+                }
+            });
         }
     }
 
-    private static void handleS2CPacket(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender responseSender) {
-        if (!client.isSingleplayer() && buf.isReadable()) {
-            YACLConfig.setServerData(
-                    gson.fromJson(buf.readUtf(), ServerConfigData.ImmutableServerConfigData.class)
-            );
+    public static void syncAllPlayers() {
+        Networking.sendToAllPlayers(new ConfigNetworkPacket());
+    }
+
+    public static void syncAllPlayersExceptOf(int ignoredPlayerId) {
+        for (var player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers()) {
+            if (player.getId() == ignoredPlayerId) {
+                continue;
+            }
+            // sending update to every player
+            Networking.sendToPlayer(player, new ConfigNetworkPacket());
+        }
+    }
+
+    private static void handleS2CPacket(ServerConfigData.ImmutableServerConfigData configData) {
+        if (!ClientOnlyHelper.isInSingleplayer()) {
+            YACLConfig.setServerData(configData);
 
             if (MelancholicHunger.nostalgicTweaksInstalled) {
                 var configHandler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
@@ -73,16 +86,12 @@ public class ServerConfigComponent {
     /**
      * Handles config update from a player on the server side
      */
-    public static void handleC2SPacket(
-            MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buf, PacketSender responseSender
-    ) {
+    public static void handleC2SPacket(ServerPlayer player, ServerConfigData.ImmutableServerConfigData configData) {
         if (!player.hasPermissions(2)) {
             // only for operators
             return;
         }
-        boolean dataUpdated = YACLConfig.setServerData(
-                gson.fromJson(buf.readUtf(), ServerConfigData.ImmutableServerConfigData.class)
-        );
+        boolean dataUpdated = YACLConfig.setServerData(configData);
         if (!dataUpdated) {
             return;
         }
@@ -99,21 +108,18 @@ public class ServerConfigComponent {
      * Sends config update to the server
      */
     public static void sendToServer() {
-        ClientPlayNetworking.send(CONFIG_DATA_ID, createConfigDataBuf());
+        Networking.sendToServer(new ConfigNetworkPacket());
+    }
+
+    public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            // syncing config for the player at the moment when the player has connected
+            Networking.sendToPlayer(player, new ConfigNetworkPacket());
+        }
     }
 
     public static void register() {
-        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
-            serverInstance = server;
-        });
-        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-            ClientPlayNetworking.registerGlobalReceiver(CONFIG_DATA_ID, ServerConfigComponent::handleS2CPacket);
-        }
-        ServerPlayNetworking.registerGlobalReceiver(CONFIG_DATA_ID, ServerConfigComponent::handleC2SPacket);
-
-        // syncing server config to the player after they join the server
-        ServerPlayConnectionEvents.JOIN.register(
-                (handler, sender, server) -> sender.sendPacket(CONFIG_DATA_ID, createConfigDataBuf())
-        );
+        Networking.registerPacket(ConfigNetworkPacket.class, ConfigNetworkPacket::encode, ConfigNetworkPacket::decode, ConfigNetworkPacket::handle);
+        MinecraftForge.EVENT_BUS.addListener(ServerConfigComponent::onPlayerLogin);
     }
 }

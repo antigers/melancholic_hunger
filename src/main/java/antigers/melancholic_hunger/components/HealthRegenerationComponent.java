@@ -2,18 +2,33 @@ package antigers.melancholic_hunger.components;
 
 import java.util.HashSet;
 
+import antigers.melancholic_hunger.MelancholicHunger;
 import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.utils.ClientOnlyHelper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
-import dev.onyxstudios.cca.api.v3.component.sync.AutoSyncedComponent;
-import dev.onyxstudios.cca.api.v3.component.tick.ServerTickingComponent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.*;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkEvent;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class HealthRegenerationComponent implements AutoSyncedComponent, ServerTickingComponent {
+@AutoRegisterCapability
+public class HealthRegenerationComponent {
 
     private static class ConsumedFood {
         private final int foodComponentId;
@@ -49,39 +64,105 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
         }
     }
 
-    private final TypeToken<HashSet<ConsumedFood>> consumedFoodSetTypeToken = new TypeToken<>() {};
+    private static class CapabilityProvider implements ICapabilitySerializable<CompoundTag> {
+
+        private final Player player;
+        private HealthRegenerationComponent component;
+        private LazyOptional<HealthRegenerationComponent> optional = LazyOptional.of(this::getComponent);
+
+        private CapabilityProvider(Player player) {
+            this.player = player;
+        }
+
+        private HealthRegenerationComponent getComponent() {
+            if (component == null) {
+                component = new HealthRegenerationComponent(player);
+            }
+            return component;
+        }
+
+        @Override
+        public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, final @Nullable Direction side) {
+            if (cap == CAPABILITY) {
+                return optional.cast();
+            }
+            return LazyOptional.empty();
+        }
+
+        @Override
+        public CompoundTag serializeNBT() {
+            CompoundTag nbt = new CompoundTag();
+            HealthRegenerationComponent component = getComponent();
+            nbt.putInt("consumedNutrition", component.consumedNutrition);
+            nbt.putString("consumedFoods", gson.toJson(component.consumedFoods));
+            return nbt;
+        }
+
+        @Override
+        public void deserializeNBT(CompoundTag nbt) {
+            HealthRegenerationComponent component = getComponent();
+            component.consumedNutrition = Math.max(nbt.getInt("consumedNutrition"), 0);
+            var consumedFoodsStr = nbt.getString("consumedFoods");
+            if (!consumedFoodsStr.isEmpty()) {
+                component.consumedFoods = gson.fromJson(consumedFoodsStr, consumedFoodSetTypeToken);
+            }
+        }
+    }
+
+    private static class SyncNetworkPacket {
+        private int consumedNutrition;
+
+        public SyncNetworkPacket(int consumedNutrition) {
+            this.consumedNutrition = consumedNutrition;
+        }
+
+        public static SyncNetworkPacket decode(FriendlyByteBuf buf) {
+            return new SyncNetworkPacket(buf.getInt(1));
+        }
+
+        public void encode(FriendlyByteBuf buf) {
+            buf.writeInt(consumedNutrition);
+        }
+
+        public void handle(NetworkEvent.Context context) {
+            context.enqueueWork(() -> {
+                if (context.getDirection() == NetworkDirection.PLAY_TO_CLIENT) {
+                    HealthRegenerationComponent.get(ClientOnlyHelper.getPlayerOnClient()).consumedNutrition = this.consumedNutrition;
+                }
+            });
+        }
+    }
+
+    private static final ResourceLocation CAPABILITY_ID = ResourceLocation.fromNamespaceAndPath(
+            MelancholicHunger.MOD_ID, "health_regeneration_component"
+    );
+    private static final Capability<HealthRegenerationComponent> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
+
+    private static final TypeToken<HashSet<ConsumedFood>> consumedFoodSetTypeToken = new TypeToken<>() {};
+    private static final Gson gson = new Gson();
 
     private final Player player;
     private HashSet<ConsumedFood> consumedFoods = new HashSet<>();
     private int consumedNutrition = 0;
-    private final Gson gson = new Gson();
 
     public HealthRegenerationComponent(Player player) {
         this.player = player;
     }
 
-    @Override
-    public void readFromNbt(CompoundTag tag) {
-        this.consumedNutrition = Math.max(tag.getInt("consumedNutrition"), 0);
-        var consumedFoodsStr = tag.getString("consumedFoods");
-        if (!consumedFoodsStr.isEmpty()) {
-            this.consumedFoods = gson.fromJson(consumedFoodsStr, consumedFoodSetTypeToken);
+    public static HealthRegenerationComponent get(Player player) {
+        return player.getCapability(CAPABILITY).orElseThrow(
+                () -> new RuntimeException("Unable to get HealthRegenerationComponent capability for player " + player)
+        );
+    }
+
+    private static void onServerTick(TickEvent.PlayerTickEvent event) {
+        if (event.side != LogicalSide.SERVER) {
+            return;
         }
+        event.player.getCapability(CAPABILITY).ifPresent(HealthRegenerationComponent::serverTick);
     }
 
-    @Override
-    public void writeToNbt(CompoundTag tag) {
-        tag.putInt("consumedNutrition", this.consumedNutrition);
-        tag.putString("consumedFoods", gson.toJson(this.consumedFoods));
-    }
-
-    @Override
-    public boolean shouldSyncWith(ServerPlayer player) {
-        return player == this.player; // only sync with the provider itself
-    }
-
-    @Override
-    public void serverTick() {
+    private void serverTick() {
         if (!YACLConfig.gradualHealthRegeneration()) {
             return;
         }
@@ -116,7 +197,9 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
     }
 
     private void sync() {
-        PlayerComponents.HEALTH_REGENERATION.sync(player);
+        if (player instanceof ServerPlayer serverPlayer) {
+            Networking.sendToPlayer(serverPlayer, new SyncNetworkPacket(consumedNutrition));
+        }
     }
 
     public boolean canEat() {
@@ -144,10 +227,26 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
         }
     }
 
-    public int getConsumedNutrition() {
+    public static int getConsumedNutrition(Player player) {
         if (!YACLConfig.gradualHealthRegeneration()) {
             return 0;
         }
-        return consumedNutrition;
+		return player.getCapability(CAPABILITY).resolve()
+                .map(component -> component.consumedNutrition)
+                .orElse(0);
+	}
+
+    private static void attachCapabilityToPlayers(AttachCapabilitiesEvent<Entity> event) {
+        if (event.getObject() instanceof Player player) {
+            if (!player.getCapability(CAPABILITY).isPresent()) {
+                event.addCapability(CAPABILITY_ID, new CapabilityProvider(player));
+            }
+        }
+    }
+
+    public static void register() {
+        MinecraftForge.EVENT_BUS.addListener(HealthRegenerationComponent::onServerTick);
+        MinecraftForge.EVENT_BUS.addGenericListener(Entity.class, HealthRegenerationComponent::attachCapabilityToPlayers);
+        Networking.registerPacket(SyncNetworkPacket.class, SyncNetworkPacket::encode, SyncNetworkPacket::decode, SyncNetworkPacket::handle);
     }
 }

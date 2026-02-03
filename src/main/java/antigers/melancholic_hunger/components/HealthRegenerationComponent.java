@@ -174,6 +174,7 @@ public class HealthRegenerationComponent {
             return;
         }
         var digestingFoods = new HashSet<Integer>();
+        boolean needsSync = false;
         for (var iterator = consumedFoods.iterator(); iterator.hasNext();) {
             var consumedFood = iterator.next();
             var consumedFoodId = consumedFood.getFoodComponentId();
@@ -188,12 +189,15 @@ public class HealthRegenerationComponent {
             if (consumedNutrition > 0) {
                 player.heal(1.0F);
                 consumedNutrition--;
+                needsSync = true;
             }
             if (consumedFood.isFullyDigested()) {
                 iterator.remove();
             }
         }
-        sync();
+        if (needsSync) {
+            sync();
+        }
     }
 
     private void sync() {
@@ -213,7 +217,7 @@ public class HealthRegenerationComponent {
     }
 
     public void eat(ItemStack itemStack, FoodProperties foodComponent) {
-        if (!YACLConfig.disableHunger()) {
+        if (!(player instanceof ServerPlayer) || !YACLConfig.disableHunger()) {
             return;
         }
         var foodHealth = YACLConfig.getFoodHealth(itemStack, foodComponent);

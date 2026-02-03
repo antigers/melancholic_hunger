@@ -7,7 +7,7 @@
         "StaminaRendererMixin",
         "TweakListingMixin",
         "TweakMixin",
-        "TweakPacketMixin"
+        "ConfigCacheMixin"
     ],
     "injectors": {
         "defaultRequire": 1

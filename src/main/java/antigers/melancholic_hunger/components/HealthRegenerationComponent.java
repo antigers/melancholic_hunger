@@ -7,12 +7,15 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
+import net.fabricmc.api.EnvType;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+import org.ladysnake.cca.api.v3.util.CheckEnvironment;
 
 public class HealthRegenerationComponent implements AutoSyncedComponent, ServerTickingComponent {
 
@@ -77,6 +80,17 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
     }
 
     @Override
+    public void writeSyncPacket(RegistryFriendlyByteBuf buf, ServerPlayer recipient) {
+        buf.writeInt(consumedNutrition);
+    }
+
+    @Override
+    @CheckEnvironment(EnvType.CLIENT)
+    public void applySyncPacket(RegistryFriendlyByteBuf buf) {
+        consumedNutrition = buf.readInt();
+    }
+
+    @Override
     public boolean shouldSyncWith(ServerPlayer player) {
         return player == this.player; // only sync with the provider itself
     }
@@ -94,6 +108,7 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
             return;
         }
         var digestingFoods = new HashSet<Integer>();
+        boolean needsSync = false;
         for (var iterator = consumedFoods.iterator(); iterator.hasNext();) {
             var consumedFood = iterator.next();
             var consumedFoodId = consumedFood.getFoodComponentId();
@@ -108,12 +123,15 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
             if (consumedNutrition > 0) {
                 player.heal(1.0F);
                 consumedNutrition--;
+                needsSync = true;
             }
             if (consumedFood.isFullyDigested()) {
                 iterator.remove();
             }
         }
-        sync();
+        if (needsSync) {
+            sync();
+        }
     }
 
     private void sync() {
@@ -131,7 +149,7 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
     }
 
     public void eat(ItemStack itemStack, FoodProperties foodComponent) {
-        if (!YACLConfig.disableHunger()) {
+        if (!(player instanceof ServerPlayer) || !YACLConfig.disableHunger()) {
             return;
         }
         var foodHealth = YACLConfig.getFoodHealth(itemStack, foodComponent);

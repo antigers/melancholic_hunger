@@ -1,6 +1,5 @@
 package antigers.melancholic_hunger.nostalgic_tweaks;
 
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.fml.loading.moddiscovery.ModInfo;
 import org.objectweb.asm.tree.ClassNode;

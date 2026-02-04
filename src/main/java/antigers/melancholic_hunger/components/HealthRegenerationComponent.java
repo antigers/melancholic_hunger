@@ -24,6 +24,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -156,13 +157,14 @@ public class HealthRegenerationComponent {
     }
 
     private static void onServerTick(TickEvent.PlayerTickEvent event) {
-        if (event.side != LogicalSide.SERVER) {
+        if (event.side != LogicalSide.SERVER || event.phase != TickEvent.Phase.END) {
             return;
         }
         event.player.getCapability(CAPABILITY).ifPresent(HealthRegenerationComponent::serverTick);
     }
 
     private void serverTick() {
+        MelancholicHunger.LOGGER.info("Current tick {}", ServerLifecycleHooks.getCurrentServer().getTickCount());
         if (!YACLConfig.gradualHealthRegeneration()) {
             return;
         }

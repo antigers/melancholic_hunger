@@ -61,7 +61,6 @@ public class ForgeGuiMixin extends Gui {
 						? 7 : experienceBarAnimation.getCurrentPos(), hasMountHealth, mountHealthRows
 		);
 		original.call(drawHudContext, partialTick);
-		drawHudContext.renderStamina();
 	}
 
 	/**
@@ -178,10 +177,9 @@ public class ForgeGuiMixin extends Gui {
 		if (!YACLConfig.hideHungerBar()) {
 			// hunger bar is drawn at the same height as health bar
 			y = drawHudContext.getHealthBarY();
-		} else {
-			return;
+			original.call(guiGraphics, atlasLocation, x, y, uOffset, vOffset, uWidth, vHeight);
 		}
-		original.call(guiGraphics, atlasLocation, x, y, uOffset, vOffset, uWidth, vHeight);
+		drawHudContext.renderStamina();
 	}
 
 	/**

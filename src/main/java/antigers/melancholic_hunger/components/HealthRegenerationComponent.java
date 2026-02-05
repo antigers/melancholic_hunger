@@ -164,7 +164,6 @@ public class HealthRegenerationComponent {
     }
 
     private void serverTick() {
-        MelancholicHunger.LOGGER.info("Current tick {}", ServerLifecycleHooks.getCurrentServer().getTickCount());
         if (!YACLConfig.gradualHealthRegeneration()) {
             return;
         }

@@ -1,5 +1,6 @@
 package antigers.melancholic_hunger.components;
 
+import antigers.melancholic_hunger.InstalledMods;
 import antigers.melancholic_hunger.MelancholicHunger;
 import antigers.melancholic_hunger.config.ServerConfigData;
 import antigers.melancholic_hunger.config.YACLConfig;
@@ -55,7 +56,7 @@ public class ServerConfigComponent implements AutoSyncedComponent, C2SSelfMessag
             YACLConfig.setServerData(
                     gson.fromJson(buf.readUtf(), ServerConfigData.ImmutableServerConfigData.class)
             );
-            if (MelancholicHunger.nostalgicTweaksInstalled) {
+            if (InstalledMods.NOSTALGIC_TWEAKS) {
                 var handler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
                 // updating client config in NT (ONLY client config), so it's in sync with melancholic
                 handler.melancholic_hunger$writeConfigToNT(YACLConfig.getServerData(), YACLConfig.getClientData());
@@ -97,7 +98,7 @@ public class ServerConfigComponent implements AutoSyncedComponent, C2SSelfMessag
         if (!dataUpdated) {
             return;
         }
-        if (MelancholicHunger.nostalgicTweaksInstalled) {
+        if (InstalledMods.NOSTALGIC_TWEAKS) {
             var handler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
             handler.melancholic_hunger$writeConfigToNT(YACLConfig.getServerData(), null);
             syncNostalgicTweaksToAllPlayers();

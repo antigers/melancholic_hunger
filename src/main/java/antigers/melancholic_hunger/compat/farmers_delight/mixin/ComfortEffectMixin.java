@@ -1,0 +1,27 @@
+package antigers.melancholic_hunger.compat.farmers_delight.mixin;
+
+import antigers.melancholic_hunger.compat.farmers_delight.ComfortEffectHandler;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.food.FoodData;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import vectorwing.farmersdelight.common.effect.ComfortEffect;
+
+@Mixin(ComfortEffect.class)
+public class ComfortEffectMixin {
+	@WrapOperation(
+			method="applyEffectTick",
+			at=@At(
+					value="INVOKE",
+					target="Lnet/minecraft/world/food/FoodData;getSaturationLevel()F"
+			)
+	)
+	private float melancholic_hunger$comfortEffectSaturationCheck(
+			FoodData instance, Operation<Float> original, @Local(name = "player") Player player
+	) {
+		return ComfortEffectHandler.shouldApply(player) ? 0.0F : 1.0F;
+	}
+}

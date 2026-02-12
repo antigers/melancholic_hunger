@@ -13,6 +13,8 @@ public class ServerConfigData {
     public Integer sprintingHealthLimit;
     public Boolean instantEating;
     public Boolean showFoodItemTooltips;
+    public Integer nourishmentHealthBoostHeartsCount;
+    public Float nourishmentRegenSpeedMultiplier;
 
     public record ImmutableServerConfigData (
             Boolean disableHunger,
@@ -24,14 +26,16 @@ public class ServerConfigData {
             SprintingOption sprinting,
             Integer sprintingHealthLimit,
             Boolean instantEating,
-            Boolean showFoodItemTooltips
+            Boolean showFoodItemTooltips,
+            Integer nourishmentHealthBoostHeartsCount,
+            Float nourishmentRegenSpeedMultiplier
     ) {}
 
     public ImmutableServerConfigData getImmutable() {
         return new ImmutableServerConfigData(
                 disableHunger, hungerEffect, gradualHealthRegeneration, gradualHealthRegenerationSpeed,
                 useCustomFoodStackSizes, customFoodStackSizes, sprinting, sprintingHealthLimit, instantEating,
-                showFoodItemTooltips
+                showFoodItemTooltips, nourishmentHealthBoostHeartsCount, nourishmentRegenSpeedMultiplier
         );
     }
 }

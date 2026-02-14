@@ -18,8 +18,6 @@ import net.raphimc.immediatelyfast.ImmediatelyFast;
 // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
 @EventBusSubscriber(modid = MelancholicHunger.MOD_ID, value = Dist.CLIENT)
 public class MelancholicHungerClient {
-    public static boolean raisedInstalled = false;
-
     public MelancholicHungerClient(ModContainer container) {
         // Allows NeoForge to create a config screen for this mod's configs.
         // The config screen is accessed by going to the Mods screen > clicking on your mod > clicking on config.
@@ -37,6 +35,5 @@ public class MelancholicHungerClient {
             ImmediatelyFast.config.hud_batching = false;
             ImmediatelyFast.runtimeConfig.hud_batching = false;
         }
-        raisedInstalled = ModList.get().isLoaded("raised");
     }
 }

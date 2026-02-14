@@ -1,5 +1,6 @@
 package antigers.melancholic_hunger.components;
 
+import antigers.melancholic_hunger.InstalledMods;
 import antigers.melancholic_hunger.MelancholicHunger;
 import antigers.melancholic_hunger.config.ServerConfigData;
 import antigers.melancholic_hunger.config.YACLConfig;
@@ -59,7 +60,7 @@ public class ServerConfigComponent {
                             // this handler is client side
                             if (!Minecraft.getInstance().isSingleplayer()) {
                                 YACLConfig.setServerData(data);
-                                if (MelancholicHunger.nostalgicTweaksInstalled) {
+                                if (InstalledMods.NOSTALGIC_TWEAKS) {
                                     var handler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
                                     // updating client config in NT (ONLY client config), so it's in sync with melancholic
                                     handler.melancholic_hunger$writeConfigToNT(
@@ -78,7 +79,7 @@ public class ServerConfigComponent {
                             if (!dataUpdated) {
                                 return;
                             }
-                            if (MelancholicHunger.nostalgicTweaksInstalled) {
+                            if (InstalledMods.NOSTALGIC_TWEAKS) {
                                 var handler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
                                 handler.melancholic_hunger$writeConfigToNT(YACLConfig.getServerData(), null);
                                 syncNostalgicTweaksToAllPlayers();

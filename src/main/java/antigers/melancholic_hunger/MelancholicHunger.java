@@ -1,8 +1,8 @@
 package antigers.melancholic_hunger;
 
+import antigers.melancholic_hunger.compat.farmers_delight.FarmersDelightCompatRegistrator;
 import antigers.melancholic_hunger.config.YACLConfig;
 import antigers.melancholic_hunger.components.PlayerComponents;
-import net.neoforged.fml.ModList;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -15,7 +15,6 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(MelancholicHunger.MOD_ID)
 public class MelancholicHunger {
-    public static boolean nostalgicTweaksInstalled = false;
     // Define mod id in a common place for everything to reference
     public static final String MOD_ID = "melancholic_hunger";
     // Directly reference a slf4j logger
@@ -29,10 +28,10 @@ public class MelancholicHunger {
 
         // Registering custom player data components
         PlayerComponents.register(modEventBus);
+        FarmersDelightCompatRegistrator.register(modEventBus);
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
         YACLConfig.loadFromDisk();
-        nostalgicTweaksInstalled = ModList.get().isLoaded("nostalgic_tweaks");
     }
 }

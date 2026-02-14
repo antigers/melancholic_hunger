@@ -1,7 +1,10 @@
 package antigers.melancholic_hunger.mixin;
 
+import antigers.melancholic_hunger.InstalledMods;
+import antigers.melancholic_hunger.compat.farmers_delight.NourishmentEffectHandler;
 import antigers.melancholic_hunger.config.HungerEffectOption;
 import antigers.melancholic_hunger.config.YACLConfig;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.core.component.DataComponents;
@@ -11,43 +14,38 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin {
-    @Shadow public abstract boolean addEffect(MobEffectInstance effect, @Nullable Entity source);
-
     /**
      * Replace hunger effect with poison effect. Decreases duration of the effect 2 times
      */
-    @Inject(
-        at=@At(value="HEAD"),
-        method="addEffect(Lnet/minecraft/world/effect/MobEffectInstance;Lnet/minecraft/world/entity/Entity;)Z",
-        cancellable=true
+    @WrapMethod(
+        method="addEffect(Lnet/minecraft/world/effect/MobEffectInstance;Lnet/minecraft/world/entity/Entity;)Z"
     )
-    void melancholic_hunger$addPoisonInsteadOfHunger(
-            MobEffectInstance effect, Entity source, CallbackInfoReturnable<Boolean> callback
+    boolean melancholic_hunger$addStatusEffect(
+                    MobEffectInstance effect, Entity source, Operation<Boolean> original
     ) {
-        if (
-                ((LivingEntity) (Object) this) instanceof Player &&
-                effect.getEffect() == MobEffects.HUNGER
-        ) {
-            var hungerEffect = YACLConfig.hungerEffect();
+        if (!(((LivingEntity) (Object) this) instanceof Player)) {
+            return false;
+        }
+        if (effect.getEffect() == MobEffects.HUNGER) {
+            HungerEffectOption hungerEffect = YACLConfig.hungerEffect();
             if (hungerEffect == HungerEffectOption.DISABLED) {
-                callback.setReturnValue(false);
+                return false;
             }
             else if (hungerEffect == HungerEffectOption.REPLACED_WITH_POISON) {
-                MobEffectInstance poisonEffect = new MobEffectInstance(
+                effect = new MobEffectInstance(
                         MobEffects.POISON, effect.getDuration() / 2, effect.getAmplifier()
                 );
-                callback.setReturnValue(this.addEffect(poisonEffect, source));
             }
         }
+        else if (InstalledMods.FARMERS_DELIGHT) {
+            effect = NourishmentEffectHandler.getEffectToApply(effect);
+        }
+        return original.call(effect, source);
     }
 
     /**

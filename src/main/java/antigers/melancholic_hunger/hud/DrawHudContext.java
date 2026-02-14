@@ -52,6 +52,10 @@ public class DrawHudContext extends GuiGraphics {
         return restoredHeartsDrawHelper;
     }
 
+    public int getHudExperienceOffset() {
+        return hudExperienceOffset;
+    }
+
     public void prepareArmorAndBubblesBarsDrawing(int healthBarHighestRowY) {
         var aboveHealthY = healthBarHighestRowY - 3 - hudExperienceOffset;
         if (hasMountHealth) {

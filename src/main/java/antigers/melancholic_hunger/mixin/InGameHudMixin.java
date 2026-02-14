@@ -1,7 +1,6 @@
 package antigers.melancholic_hunger.mixin;
 
 import antigers.melancholic_hunger.InstalledMods;
-import antigers.melancholic_hunger.compat.farmers_delight.HUDHelper;
 import antigers.melancholic_hunger.compat.RaisedCompat;
 import antigers.melancholic_hunger.compat.farmers_delight.NourishmentEffectHandler;
 import antigers.melancholic_hunger.config.YACLConfig;
@@ -176,9 +175,6 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
             GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci
     ) {
         melancholic_hunger$experienceBarAnimation.update(melancholic_hunger$needToRenderExperienceHudOnCurrentScreen());
-        if (InstalledMods.FARMERS_DELIGHT) {
-            HUDHelper.setOffset(melancholic_hunger$experienceBarAnimation.getCurrentPos());
-        }
     }
 
     /**

@@ -35,7 +35,7 @@ public class AbstractInventoryScreenMixin {
 	)
 	private int melancholic_hunger$getEffectDescription(MobEffectInstance effect, Operation<Integer> original) {
 		// removing drawn effect amplifier number for nourishment health boost effect
-		if (effect.getEffect() == NourishmentEffectHandler.NOURISHMENT_HEALTH_BOOST) {
+		if (NourishmentEffectHandler.isNourishmentHealthBoost(effect.getEffect())) {
 			return 0;
 		}
 		return original.call(effect);

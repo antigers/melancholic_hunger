@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import vectorwing.farmersdelight.client.gui.NourishmentHungerOverlay;
 
 @Mixin(NourishmentHungerOverlay.class)
-public class HUDOverlaysMixin {
+public class NourishmentHungerOverlayMixin {
 	@WrapMethod(method="drawNourishmentOverlay")
 	private static void melancholic_hunger$drawNourishmentOverlay(
 			FoodData foodData, Minecraft minecraft, GuiGraphics graphics, int right, int top, boolean naturalHealing, Operation<Void> original

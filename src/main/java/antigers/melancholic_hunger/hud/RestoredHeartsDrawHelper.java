@@ -40,12 +40,7 @@ public class RestoredHeartsDrawHelper {
         }
         currentHeart = Mth.ceil(player.getMaxHealth());
         this.random = random;
-        if (YACLConfig.sprinting() == SprintingOption.LIMITED_BY_HEALTH) {
-            sprintingHealthLimit = YACLConfig.sprintingHealthLimit();
-        }
-        else {
-            sprintingHealthLimit = 4;
-        }
+        sprintingHealthLimit = YACLConfig.sprinting() == SprintingOption.LIMITED_BY_HEALTH ? YACLConfig.sprintingHealthLimit() : 4;
         highlightRegeneratedHearts = YACLConfig.highlightRegeneratedHearts();
         highlightRestoredHearts = YACLConfig.highlightRestoredHearts();
         consumedNutrition = player.getData(PlayerComponents.HEALTH_REGENERATION).getConsumedNutrition();

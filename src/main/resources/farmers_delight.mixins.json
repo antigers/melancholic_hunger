@@ -1,0 +1,16 @@
+{
+    "package": "antigers.melancholic_hunger.compat.farmers_delight.mixin",
+    "plugin": "antigers.melancholic_hunger.compat.farmers_delight.FarmersDelightMixinPlugin",
+    "compatibilityLevel": "JAVA_21",
+    "mixins": [
+        "ComfortEffectMixin"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    },
+    "client": [
+        "EffectsInInventoryMixin",
+        "ComfortOverlayMixin",
+        "HUDOverlaysMixin"
+    ]
+}

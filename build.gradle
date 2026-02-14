@@ -47,6 +47,16 @@ repositories {
 		name = 'ParchmentMC'
 		url = 'https://maven.parchmentmc.org'
 	}
+	exclusiveContent {
+		forRepository {
+			maven {
+				url = "https://jitpack.io"
+			}
+		}
+		filter {
+			includeGroup "com.github.Chocohead"
+		}
+	}
 }
 
 dependencies {
@@ -81,6 +91,14 @@ dependencies {
 
     //Raised compatibility
     modImplementation "maven.modrinth:raised:${project.raised_version}"
+
+	// Manningham Mills (Farmer's Delight dependency)
+	modImplementation("com.github.Chocohead:Fabric-ASM:${manningham_mills_version}") {
+		exclude (group: "net.fabricmc.fabric-api")
+	}
+
+	// Farmer's Delight compatibility
+    modImplementation "maven.modrinth:farmers-delight-refabricated:${project.farmers_delight_version}"
 }
 
 processResources {

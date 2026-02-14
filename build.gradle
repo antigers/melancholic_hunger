@@ -42,16 +42,6 @@ repositories {
             includeGroup "maven.modrinth"
         }
     }
-//    exclusiveContent {
-//        forRepository {
-//            maven {
-//                url = "https://jitpack.io"
-//            }
-//        }
-//        filter {
-//            includeGroup "com.github.Chocohead"
-//        }
-//    }
 }
 
 base {
@@ -187,11 +177,6 @@ dependencies {
 
     // Raised compatibility (compileOnly, because it breaks the server in the runtime)
     compileOnly "maven.modrinth:raised:${project.raised_version}"
-
-	// Manningham Mills (Farmer's Delight dependency)
-//	modImplementation("com.github.Chocohead:Fabric-ASM:${manningham_mills_version}") {
-//		exclude (group: "net.fabricmc.fabric-api")
-//	}
 
 	// Farmer's Delight compatibility
     implementation "maven.modrinth:farmers-delight:${project.farmers_delight_version}"

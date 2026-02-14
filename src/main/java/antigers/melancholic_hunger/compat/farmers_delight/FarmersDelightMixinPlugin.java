@@ -1,7 +1,6 @@
 package antigers.melancholic_hunger.compat.farmers_delight;
 
-import net.neoforged.fml.loading.FMLLoader;
-import net.neoforged.fml.loading.moddiscovery.ModInfo;
+import antigers.melancholic_hunger.ModLoader;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -21,11 +20,7 @@ public class FarmersDelightMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        return FMLLoader.getCurrent().getLoadingModList()
-                .getMods()
-                .stream()
-                .map(ModInfo::getModId)
-                .anyMatch(id -> id.equals("farmersdelight"));
+        return ModLoader.isModLoading("farmersdelight");
     }
 
     @Override

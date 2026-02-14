@@ -1,13 +1,9 @@
 package antigers.melancholic_hunger;
 
-import net.neoforged.fml.ModList;
+import static antigers.melancholic_hunger.ModLoader.isModLoaded;
 
 public class InstalledMods {
-	public static boolean NOSTALGIC_TWEAKS = checkIfInstalled("nostalgic_tweaks");
-	public static boolean RAISED = checkIfInstalled("raised");
-	public static boolean FARMERS_DELIGHT = checkIfInstalled("farmersdelight");
-
-	private static boolean checkIfInstalled(String modName) {
-		return ModList.get().isLoaded(modName);
-	}
+	public static boolean NOSTALGIC_TWEAKS = isModLoaded("nostalgic_tweaks");
+	public static boolean RAISED = isModLoaded("raised");
+	public static boolean FARMERS_DELIGHT = isModLoaded("farmersdelight");
 }

@@ -27,7 +27,8 @@
 		]
 	},
 	"mixins": [
-		"melancholic_hunger.mixins.json"
+		"melancholic_hunger.mixins.json",
+        "farmers_delight.mixins.json"
 	],
 	"depends": {
 		"fabricloader": "*",

@@ -1,6 +1,7 @@
 package antigers.melancholic_hunger.hud;
 
 import antigers.melancholic_hunger.components.PlayerComponents;
+import antigers.melancholic_hunger.config.SprintingOption;
 import antigers.melancholic_hunger.config.YACLConfig;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.component.DataComponentTypes;
@@ -40,7 +41,7 @@ public class RestoredHeartsDrawHelper {
         }
         currentHeart = MathHelper.ceil(player.getMaxHealth());
         this.random = random;
-        sprintingHealthLimit = YACLConfig.sprintingHealthLimit();
+        sprintingHealthLimit = YACLConfig.sprinting() == SprintingOption.LIMITED_BY_HEALTH ? YACLConfig.sprintingHealthLimit() : 4;
         highlightRegeneratedHearts = YACLConfig.highlightRegeneratedHearts();
         highlightRestoredHearts = YACLConfig.highlightRestoredHearts();
         consumedNutrition = PlayerComponents.HEALTH_REGENERATION.get(player).getConsumedNutrition();
@@ -99,11 +100,16 @@ public class RestoredHeartsDrawHelper {
         return currentY;
     }
 
-    public int updateCurrentY(int y) {
+    public int addShakingIfNeeded(int y) {
         // making hearts shake when there are 3 or fewer hearts left instead of default 2
         if (playerHealth <= sprintingHealthLimit) {
-            y += this.random.nextInt(2);
+            return y + this.random.nextInt(2);
         }
+        return y;
+    }
+
+    public int updateCurrentY(int y) {
+        y = addShakingIfNeeded(y);
         currentY = y;
         return y;
     }

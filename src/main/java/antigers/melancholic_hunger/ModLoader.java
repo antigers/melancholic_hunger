@@ -17,4 +17,12 @@ public class ModLoader {
 	public static Path getConfigDir() {
 		return FabricLoader.getInstance().getConfigDir();
 	}
+
+	public static boolean isModLoaded(String modName) {
+		return FabricLoader.getInstance().getModContainer(modName).isPresent();
+	}
+
+	public static boolean isModLoading(String modName) {
+		return isModLoaded(modName);
+	}
 }

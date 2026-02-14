@@ -1,8 +1,8 @@
 package antigers.melancholic_hunger.config;
 
 import antigers.melancholic_hunger.nostalgic_tweaks.NostalgicTweaksConfigHandlerWriter;
-import antigers.melancholic_hunger.MelancholicHunger;
 import antigers.melancholic_hunger.components.ServerConfigComponent;
+import antigers.melancholic_hunger.InstalledMods;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
@@ -37,7 +37,7 @@ public class YACLConfig {
     private static ServerConfigData serverData = new ServerConfigData();
 
     public static int getFoodHealth(ItemStack itemStack, FoodProperties foodComponent) {
-        if (MelancholicHunger.nostalgicTweaksInstalled && GameplayTweak.CUSTOM_FOOD_HEALTH.get().containsItem(itemStack)) {
+        if (InstalledMods.NOSTALGIC_TWEAKS && GameplayTweak.CUSTOM_FOOD_HEALTH.get().containsItem(itemStack)) {
             return GameplayTweak.CUSTOM_FOOD_HEALTH.get().valueFrom(itemStack);
         }
         return foodComponent.getNutrition();
@@ -215,12 +215,23 @@ public class YACLConfig {
             () -> clientData.renderExperienceOverBackground, val -> clientData.renderExperienceOverBackground = val
     ).addValueDependency(HIDE_EXPERIENCE_BAR, true, true, false);
 
+    private static final ConfigOption<Integer, Boolean> NOURISHMENT_HEALTH_BOOST_COUNT = new ConfigOption<Integer, Boolean>(
+            "nourishmentHealthBoostHeartsCount", 3, false, true,
+            () -> serverData.nourishmentHealthBoostHeartsCount, val -> serverData.nourishmentHealthBoostHeartsCount = val
+    ).addDependency(DISABLE_HUNGER, true);
+
+    private static final ConfigOption<Float, Boolean> NOURISHMENT_REGEN_SPEED_MULTIPLIER = new ConfigOption<Float, Boolean>(
+            "nourishmentRegenSpeedMultiplier", 1.5F, false, true,
+            () -> serverData.nourishmentRegenSpeedMultiplier, val -> serverData.nourishmentRegenSpeedMultiplier = val
+    ).addDependency(DISABLE_HUNGER, true);
+
     private static final List<ConfigOption<?, ?>> ALL_OPTIONS = List.of(
             DISABLE_HUNGER, GRADUAL_HEALTH_REGENERATION, GRADUAL_HEALTH_REGENERATION_SPEED, HIDE_HUNGER_BAR,
             HUNGER_EFFECT, HIGHLIGHT_REGENERATED_HEARTS, INSTANT_EATING, SHOW_FOOD_ITEM_TOOLTIPS, USE_CUSTOM_FOOD_STACK_SIZES,
             CUSTOM_FOOD_STACK_SIZES, SPRINTING, SPRINTING_HEALTH_LIMIT, HIGHLIGHT_RESTORED_HEARTS,
             HIDE_EXPERIENCE_BAR, SHOW_EXPERIENCE_IN_INVENTORY, SHOW_EXPERIENCE_ON_SCREENS, SHOW_EXPERIENCE_ON_GAIN,
-            ENABLE_EXPERIENCE_ANIMATION, RENDER_EXPERIENCE_OVER_BACKGROUND
+            ENABLE_EXPERIENCE_ANIMATION, RENDER_EXPERIENCE_OVER_BACKGROUND, NOURISHMENT_HEALTH_BOOST_COUNT,
+            NOURISHMENT_REGEN_SPEED_MULTIPLIER
     );
 
     private static BooleanControllerBuilder createBooleanController(Option<Boolean> option) {
@@ -232,7 +243,7 @@ public class YACLConfig {
                 .name(Component.translatable(CONFIG_PREFIX + "hunger_category_name"))
                 .tooltip(Component.translatable(CONFIG_PREFIX + "hunger_category_tooltip"))
                 .option(DISABLE_HUNGER.buildYACLOption(YACLConfig::createBooleanController));
-        if (MelancholicHunger.nostalgicTweaksInstalled) {
+        if (InstalledMods.NOSTALGIC_TWEAKS) {
             builder.option(HIDE_HUNGER_BAR.buildYACLOption(YACLConfig::createBooleanController));
         }
         builder
@@ -379,8 +390,22 @@ public class YACLConfig {
                 .build();
     }
 
+    private static ConfigCategory buildFarmersDelightCategory() {
+        return ConfigCategory.createBuilder()
+                .name(Component.translatable(CONFIG_PREFIX + "farmers_delight_category_name"))
+                .tooltip(Component.translatable(CONFIG_PREFIX + "farmers_delight_category_tooltip"))
+                .option(NOURISHMENT_HEALTH_BOOST_COUNT.buildYACLOption(
+                        option -> IntegerSliderControllerBuilder.create(option).range(0, 10).step(1))
+                )
+                .option(NOURISHMENT_REGEN_SPEED_MULTIPLIER.buildYACLOption(
+                        option -> FloatSliderControllerBuilder.create(option).range(1.0F, 5.0F).step(0.1F))
+                )
+                .build();
+    }
+
     public static YetAnotherConfigLib getYACLInstance() {
-        return YetAnotherConfigLib.create(HANDLER, (defaults, config, builder) -> builder
+        return YetAnotherConfigLib.create(HANDLER, (defaults, config, builder) -> {
+            builder
                 .title(Component.translatable(CONFIG_PREFIX + "title"))
                 .category(buildHungerCategory())
                 .category(buildFoodItemsCategory())
@@ -391,7 +416,7 @@ public class YACLConfig {
                     boolean isSinglePlayer = client.isSingleplayer();
                     boolean hasSingleplayerServer = client.hasSingleplayerServer();
                     var player = client.player;
-                    if (!MelancholicHunger.nostalgicTweaksInstalled) {
+                    if (!InstalledMods.NOSTALGIC_TWEAKS) {
                         // hideHungerBar option is hidden when NT is not installed, so we have to correct its value
                         clientData.hideHungerBar = serverData.disableHunger;
                     }
@@ -408,7 +433,7 @@ public class YACLConfig {
                     }
                     // Syncing new settings to the nostalgic tweaks config.
                     // If in multiplayer, only the client config will be synced
-                    if (MelancholicHunger.nostalgicTweaksInstalled) {
+                    if (InstalledMods.NOSTALGIC_TWEAKS) {
                         var handler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
                         handler.melancholic_hunger$writeConfigToNT(
                                 YACLConfig.serverData.getImmutable(), YACLConfig.clientData.getImmutable()
@@ -417,8 +442,12 @@ public class YACLConfig {
                             ServerConfigComponent.syncNostalgicTweaksToAllPlayers();
                         }
                     }
-                })
-        );
+                });
+            if (InstalledMods.FARMERS_DELIGHT) {
+                builder.category(buildFarmersDelightCategory());
+            }
+            return builder;
+        });
     }
 
     private static void updateCurrentScreen() {
@@ -438,8 +467,7 @@ public class YACLConfig {
         for (var option : ALL_OPTIONS) {
             option.validateValue();
         }
-        // Here MelancholicHunger.nostalgicTweaksInstalled may not be initialized yet, so we need to check directly
-        if (FabricLoader.getInstance().getModContainer("nostalgic_tweaks").isEmpty()) {
+        if (!InstalledMods.NOSTALGIC_TWEAKS) {
             // hideHungerBar option is hidden when NT is not installed, so we have to correct its value
             HIDE_HUNGER_BAR.setValue(false);
         }
@@ -477,7 +505,7 @@ public class YACLConfig {
             return false;
         }
         DISABLE_HUNGER.setValue(newServerData.disableHunger());
-        if (!MelancholicHunger.nostalgicTweaksInstalled) {
+        if (!InstalledMods.NOSTALGIC_TWEAKS) {
             // hideHungerBar option is hidden when NT is not installed, so we have to correct its value
             HIDE_HUNGER_BAR.setValue(false);
         }
@@ -490,6 +518,8 @@ public class YACLConfig {
         CUSTOM_FOOD_STACK_SIZES.setValue(newServerData.customFoodStackSizes());
         SPRINTING.setValue(newServerData.sprinting());
         SPRINTING_HEALTH_LIMIT.setValue(newServerData.sprintingHealthLimit());
+        NOURISHMENT_HEALTH_BOOST_COUNT.setValue(newServerData.nourishmentHealthBoostHeartsCount());
+        NOURISHMENT_REGEN_SPEED_MULTIPLIER.setValue(newServerData.nourishmentRegenSpeedMultiplier());
         updateCurrentScreen();
         return true;
     }
@@ -519,7 +549,7 @@ public class YACLConfig {
         if (!serverData.instantEating) {
             return false;
         }
-        if (MelancholicHunger.nostalgicTweaksInstalled) {
+        if (InstalledMods.NOSTALGIC_TWEAKS) {
             return !GameplayTweak.IGNORED_EDIBLES.get().containsItem(item);
         }
         return true;
@@ -554,4 +584,6 @@ public class YACLConfig {
     }
     public static boolean enableExperienceAnimation() {return clientData.enableExperienceAnimation;}
     public static boolean renderExperienceOverBackground() {return clientData.renderExperienceOverBackground;}
+    public static int nourishmentHealthBoostHeartsCount() {return serverData.nourishmentHealthBoostHeartsCount;}
+    public static float nourishmentRegenSpeedMultiplier() {return serverData.nourishmentRegenSpeedMultiplier;}
 }

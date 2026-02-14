@@ -47,6 +47,26 @@ repositories {
 		name = 'ParchmentMC'
 		url = 'https://maven.parchmentmc.org'
 	}
+	exclusiveContent {
+		forRepository {
+			maven {
+				url = "https://jitpack.io"
+			}
+		}
+		filter {
+			includeGroup "com.github.Chocohead"
+		}
+	}
+	maven {
+		// Reach Entity Attributes (Required by Porting Lib)
+		url = "https://maven.jamieswhiteshirt.com/libs-release"
+		content {
+			includeGroup "com.jamieswhiteshirt"
+		}
+	}
+	maven {
+		url = "https://mvn.devos.one/releases/"
+	}
 }
 
 dependencies {
@@ -83,6 +103,19 @@ dependencies {
 
     //Raised compatibility
     modImplementation "maven.modrinth:raised:${project.raised_version}"
+
+	// Manningham Mills (Farmer's Delight dependency)
+	modImplementation("com.github.Chocohead:Fabric-ASM:${manningham_mills_version}") {
+		exclude (group: "net.fabricmc.fabric-api")
+	}
+
+	// Porting-Lib (Farmer's Delight dependency)
+	for (String module in ["base", "config", "networking", "loot", "lazy_registration", "recipe_book_categories"]) {
+		modApi("io.github.fabricators_of_create.Porting-Lib:$module:$port_lib_version")
+	}
+
+	// Farmer's Delight compatibility
+    modImplementation "maven.modrinth:farmers-delight-refabricated:${project.farmers_delight_version}"
 }
 
 processResources {

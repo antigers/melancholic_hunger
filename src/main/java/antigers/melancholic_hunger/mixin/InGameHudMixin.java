@@ -1,7 +1,8 @@
 package antigers.melancholic_hunger.mixin;
 
-import antigers.melancholic_hunger.MelancholicHunger;
+import antigers.melancholic_hunger.InstalledMods;
 import antigers.melancholic_hunger.compat.RaisedCompat;
+import antigers.melancholic_hunger.compat.farmers_delight.NourishmentEffectHandler;
 import antigers.melancholic_hunger.config.YACLConfig;
 import antigers.melancholic_hunger.hud.ExperienceBarAnimation;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -13,8 +14,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.*;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.MobEffectTextureManager;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
@@ -138,11 +143,11 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
 
     public void melancholic_hunger$renderExperienceHud(GuiGraphics drawContext) {
         if (YACLConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen()) {
-            if (MelancholicHunger.raisedInstalled) {
+            if (InstalledMods.RAISED) {
                 RaisedCompat.startHotbarTranslate(drawContext);
             }
             this.renderExperienceBar(drawContext, drawContext.guiWidth() / 2 - 91);
-            if (MelancholicHunger.raisedInstalled) {
+            if (InstalledMods.RAISED) {
                 RaisedCompat.endTranslate(drawContext);
             }
         }
@@ -369,5 +374,21 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
             original.call(inGameHud, drawContext, type, x, y, yOffset, renderHighlight, halfHeart);
         }
         restoredHeartsDrawHelper.updateCurrentHeart();
+    }
+
+    @WrapOperation(
+            method="renderEffects",
+            at=@At(
+                    value="INVOKE",
+                    target="Lnet/minecraft/client/resources/MobEffectTextureManager;get(Lnet/minecraft/world/effect/MobEffect;)Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;"
+            )
+    )
+    private TextureAtlasSprite melancholic_hunger$getEffectSprite(
+            MobEffectTextureManager instance, MobEffect effect, Operation<TextureAtlasSprite> original
+    ) {
+        if (InstalledMods.FARMERS_DELIGHT) {
+            effect = NourishmentEffectHandler.getEffectForSprite(effect);
+        }
+        return original.call(instance, effect);
     }
 }

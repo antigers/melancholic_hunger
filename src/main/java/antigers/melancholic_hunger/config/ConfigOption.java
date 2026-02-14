@@ -1,5 +1,6 @@
 package antigers.melancholic_hunger.config;
 
+import antigers.melancholic_hunger.InstalledMods;
 import antigers.melancholic_hunger.MelancholicHunger;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.OptionDescription;
@@ -136,9 +137,9 @@ class ConfigOption<T, U> {
 
     protected OptionDescription buildOptionDescription(T value) {
         var descriptionBuilder = OptionDescription.createBuilder().text(
-                Component.translatable(OPTION_CONFIG_PREFIX + name + ".description")
+                Component.literal("\n"), Component.translatable(OPTION_CONFIG_PREFIX + name + ".description")
         );
-        if (MelancholicHunger.nostalgicTweaksInstalled && nostalgicTweaksRelated) {
+        if (InstalledMods.NOSTALGIC_TWEAKS && nostalgicTweaksRelated) {
             descriptionBuilder.text(
                     Component.literal("\n"),
                     Component.translatable(CONFIG_PREFIX + "nostalgic_tweaks_controlled_option")

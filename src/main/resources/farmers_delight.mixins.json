@@ -11,6 +11,6 @@
     "client": [
         "AbstractInventoryScreenMixin",
         "ComfortHealthOverlayMixin",
-        "HUDOverlaysMixin"
+        "NourishmentHungerOverlayMixin"
     ]
 }

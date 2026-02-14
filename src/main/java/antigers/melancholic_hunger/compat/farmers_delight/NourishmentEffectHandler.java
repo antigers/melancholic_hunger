@@ -49,9 +49,13 @@ public class NourishmentEffectHandler {
 		);
 	}
 
+	public static boolean isNourishmentHealthBoost(RegistryEntry<StatusEffect> effect) {
+		return effect == NOURISHMENT_HEALTH_BOOST;
+	}
+
 	public static RegistryEntry<StatusEffect> getEffectForSprite(RegistryEntry<StatusEffect> effect) {
 		// making nourishment health boost effect use standard nourishment's sprite
-		if (effect == NOURISHMENT_HEALTH_BOOST) {
+		if (isNourishmentHealthBoost(effect)) {
 			return ModEffects.NOURISHMENT;
 		}
 		return effect;

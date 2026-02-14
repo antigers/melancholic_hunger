@@ -1,5 +1,6 @@
 {
     "package": "antigers.melancholic_hunger.nostalgic_tweaks.mixin",
+    "plugin": "antigers.melancholic_hunger.nostalgic_tweaks.NostalgicTweaksMixinPlugin",
     "compatibilityLevel": "JAVA_21",
     "mixins": [
         "ConfigHandlerMixin",

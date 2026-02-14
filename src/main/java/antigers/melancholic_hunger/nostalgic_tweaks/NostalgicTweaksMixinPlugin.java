@@ -1,5 +1,7 @@
 package antigers.melancholic_hunger.nostalgic_tweaks;
 
+import net.neoforged.fml.loading.FMLLoader;
+import net.neoforged.fml.loading.moddiscovery.ModInfo;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -19,8 +21,11 @@ public class NostalgicTweaksMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        // seems to not be important to check if mod exists on Neo
-        return true;
+        return FMLLoader.getLoadingModList()
+                .getMods()
+                .stream()
+                .map(ModInfo::getModId)
+                .anyMatch(id -> id.equals("nostalgic_tweaks"));
     }
 
     @Override

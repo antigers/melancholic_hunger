@@ -197,6 +197,9 @@ dependencies {
 
     // Raised compatibility (compileOnly, because it breaks the server in the runtime)
     compileOnly "maven.modrinth:raised:${project.raised_version}"
+
+    // Farmer's Delight compatibility
+    implementation fg.deobf("maven.modrinth:farmers-delight:${project.farmers_delight_version}")
 }
 
 mixin {
@@ -204,6 +207,7 @@ mixin {
     add sourceSets.main, 'melancholic_hunger.mixins.refmap.json'
     config 'melancholic_hunger.mixins.json'
     config 'nostalgic_tweaks.mixins.json'
+    config 'farmers_delight.mixins.json'
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

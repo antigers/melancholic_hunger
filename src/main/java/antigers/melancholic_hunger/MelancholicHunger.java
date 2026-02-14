@@ -1,6 +1,7 @@
 package antigers.melancholic_hunger;
 
 import antigers.melancholic_hunger.components.PlayerComponents;
+import antigers.melancholic_hunger.compat.farmers_delight.FarmersDelightCompatRegistrator;
 import antigers.melancholic_hunger.config.YACLConfig;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.api.distmarker.Dist;
@@ -25,9 +26,6 @@ public class MelancholicHunger
 	// Directly reference a slf4j logger
 	public static final Logger LOGGER = LogUtils.getLogger();
 
-	public static boolean nostalgicTweaksInstalled = false;
-	public static boolean raisedInstalled = false;
-
 	public MelancholicHunger(FMLJavaModLoadingContext context)
 	{
 		IEventBus modEventBus = context.getModEventBus();
@@ -48,11 +46,11 @@ public class MelancholicHunger
 
 		// Registering custom player data components
 		PlayerComponents.register();
+		FarmersDelightCompatRegistrator.register(modEventBus);
 	}
 
 	private void commonSetup(final FMLCommonSetupEvent event)
 	{
-		nostalgicTweaksInstalled = ModList.get().isLoaded("nostalgic_tweaks");
 		YACLConfig.loadFromDisk();
 	}
 
@@ -69,7 +67,6 @@ public class MelancholicHunger
 				ImmediatelyFast.config.hud_batching = false;
 				ImmediatelyFast.runtimeConfig.hud_batching = false;
 			}
-			raisedInstalled = ModList.get().isLoaded("raised");
 		}
 	}
 }

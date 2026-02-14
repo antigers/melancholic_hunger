@@ -1,6 +1,7 @@
 package antigers.melancholic_hunger;
 
 import antigers.melancholic_hunger.config.ConfigNetworkHandler;
+import antigers.melancholic_hunger.compat.farmers_delight.FarmersDelightCompatRegistrator;
 import antigers.melancholic_hunger.config.YACLConfig;
 import antigers.melancholic_hunger.components.Components;
 
@@ -8,7 +9,6 @@ import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -21,8 +21,6 @@ public class MelancholicHunger {
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    public static boolean nostalgicTweaksInstalled = false;
-
     // The constructor for the mod class is the first code that is run when your mod is loaded.
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
     public MelancholicHunger(IEventBus modEventBus, ModContainer modContainer) {
@@ -31,10 +29,10 @@ public class MelancholicHunger {
 
         Components.register(modEventBus);
         ConfigNetworkHandler.register(modEventBus);
+		FarmersDelightCompatRegistrator.register(modEventBus);
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
         YACLConfig.loadFromDisk();
-        nostalgicTweaksInstalled = ModList.get().isLoaded("nostalgic_tweaks");
     }
 }

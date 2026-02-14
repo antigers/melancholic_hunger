@@ -1,8 +1,10 @@
 package antigers.melancholic_hunger.hud.mixin;
 
+import antigers.melancholic_hunger.InstalledMods;
 import antigers.melancholic_hunger.MelancholicHunger;
 import antigers.melancholic_hunger.MelancholicHungerClient;
 import antigers.melancholic_hunger.compat.RaisedCompat;
+import antigers.melancholic_hunger.compat.farmers_delight.NourishmentEffectHandler;
 import antigers.melancholic_hunger.config.YACLConfig;
 import antigers.melancholic_hunger.hud.*;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -22,11 +24,13 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.waypoints.ClientWaypointManager;
 import net.minecraft.data.AtlasIds;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.CommonColors;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import org.apache.commons.lang3.tuple.Pair;
@@ -257,14 +261,14 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
             return;
         }
         if (YACLConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen()) {
-            if (MelancholicHungerClient.raisedInstalled) {
+            if (InstalledMods.RAISED) {
                 RaisedCompat.startHotbarTranslate(guiGraphics);
             }
             melancholic_hunger$renderExperienceBar(this.contextualInfoBar.getValue(), guiGraphics);
             if (this.minecraft.player.experienceLevel > 0) {
                 melancholic_hunger$renderExperienceLevel(guiGraphics, this.minecraft.font, this.minecraft.player.experienceLevel);
             }
-            if (MelancholicHungerClient.raisedInstalled) {
+            if (InstalledMods.RAISED) {
                 RaisedCompat.endTranslate(guiGraphics);
             }
         }
@@ -493,5 +497,13 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
             x = drawHudContext.getMirroredX(x);
         }
         original.call(guiGraphics, pipeline, texture, x, drawHudContext.getBubblesBarY(), width, height);
+    }
+
+    @WrapMethod(method="getMobEffectSprite")
+    private static Identifier melancholic_hunger$getEffectSprite(Holder<MobEffect> effect, Operation<Identifier> original) {
+        if (InstalledMods.FARMERS_DELIGHT) {
+            effect = NourishmentEffectHandler.getEffectForSprite(effect);
+        }
+        return original.call(effect);
     }
 }

@@ -21,6 +21,8 @@ public class ServerConfigData {
     public Integer sprintingHealthLimit;
     public Boolean instantEating;
     public Boolean showFoodItemTooltips;
+    public Integer nourishmentHealthBoostHeartsCount;
+    public Float nourishmentRegenSpeedMultiplier;
 
     public static final CustomPacketPayload.Type<ImmutableServerConfigData> PAYLOAD_TYPE = new CustomPacketPayload.Type<>(
             Identifier.fromNamespaceAndPath(MelancholicHunger.MOD_ID, "server_config_component")
@@ -43,7 +45,9 @@ public class ServerConfigData {
             SprintingOption sprinting,
             Integer sprintingHealthLimit,
             Boolean instantEating,
-            Boolean showFoodItemTooltips
+            Boolean showFoodItemTooltips,
+            Integer nourishmentHealthBoostHeartsCount,
+            Float nourishmentRegenSpeedMultiplier
     ) implements CustomPacketPayload {
 
         @Override
@@ -64,7 +68,7 @@ public class ServerConfigData {
         return new ImmutableServerConfigData(
                 disableHunger, hungerEffect, gradualHealthRegeneration, gradualHealthRegenerationSpeed,
                 useCustomFoodStackSizes, customFoodStackSizes, sprinting, sprintingHealthLimit, instantEating,
-                showFoodItemTooltips
+                showFoodItemTooltips, nourishmentHealthBoostHeartsCount, nourishmentRegenSpeedMultiplier
         );
     }
 }

@@ -27,7 +27,8 @@
 		"config.mixins.json",
 		"food.mixins.json",
 		"hud.mixins.json",
-		"tooltip.mixins.json"
+		"tooltip.mixins.json",
+        "farmers_delight.mixins.json"
 	],
 	"depends": {
 		"fabricloader": "*",

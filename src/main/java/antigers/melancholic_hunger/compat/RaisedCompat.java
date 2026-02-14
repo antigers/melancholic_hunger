@@ -1,7 +1,7 @@
 package antigers.melancholic_hunger.compat;
 
-//import dev.yurisuika.raised.registry.LayerRegistry;
-//import dev.yurisuika.raised.util.Translate;
+import dev.yurisuika.raised.registry.LayerRegistry;
+import dev.yurisuika.raised.util.Translate;
 import net.minecraft.client.gui.GuiGraphics;
 
 public class RaisedCompat {

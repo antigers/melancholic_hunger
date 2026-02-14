@@ -2,7 +2,9 @@ package antigers.melancholic_hunger.components;
 
 import java.util.HashSet;
 
+import antigers.melancholic_hunger.InstalledMods;
 import antigers.melancholic_hunger.MelancholicHunger;
+import antigers.melancholic_hunger.compat.farmers_delight.NourishmentEffectHandler;
 import antigers.melancholic_hunger.config.YACLConfig;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -44,7 +46,8 @@ public class HealthRegenerationComponent {
             return digestedNutrition >= foodNutrition;
         }
 
-        boolean tick() {
+        boolean tick(float regenSpeedMultiplier) {
+            int ticksToHeal = Math.max(1, (int)(this.ticksToHeal / regenSpeedMultiplier));
             if (ticksCounter < ticksToHeal) {
                 ticksCounter++;
                 return false;
@@ -106,6 +109,10 @@ public class HealthRegenerationComponent {
         }
         var digestingFoods = new HashSet<Integer>();
         boolean needsSync = false;
+        float regenSpeedMultiplier = 1.0F;
+        if (InstalledMods.FARMERS_DELIGHT && NourishmentEffectHandler.playerHasEffect(player)) {
+            regenSpeedMultiplier = YACLConfig.nourishmentRegenSpeedMultiplier();
+        }
         for (var iterator = consumedFoods.iterator(); iterator.hasNext();) {
             var consumedFood = iterator.next();
             var consumedFoodId = consumedFood.getFoodComponentId();
@@ -114,7 +121,7 @@ public class HealthRegenerationComponent {
                 continue;
             }
             digestingFoods.add(consumedFoodId);
-            if (!consumedFood.tick()) {
+            if (!consumedFood.tick(regenSpeedMultiplier)) {
                 continue;
             }
             if (consumedNutrition > 0) {

@@ -2,11 +2,7 @@ package antigers.melancholic_hunger.compat.farmers_delight;
 
 import antigers.melancholic_hunger.MelancholicHunger;
 import antigers.melancholic_hunger.config.YACLConfig;
-import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -17,8 +13,6 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 import vectorwing.farmersdelight.common.effect.NourishmentEffect;
 import vectorwing.farmersdelight.common.registry.ModEffects;
-
-import java.util.function.Supplier;
 
 public class NourishmentEffectHandler {
 	private static final DeferredRegister<MobEffect> MOB_EFFECTS = DeferredRegister.create(Registries.MOB_EFFECT, MelancholicHunger.MOD_ID);

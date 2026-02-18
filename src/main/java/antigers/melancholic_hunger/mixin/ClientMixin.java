@@ -18,18 +18,11 @@ public abstract class ClientMixin {
     @Unique private final ResourcesReloadListener resourcesReloadListener = new ResourcesReloadListener();
 
     @Inject(
-            method="onGameLoadFinished",
-            at=@At("TAIL")
-    )
-    private void melancholic_hunger$onFinishedLoading(CallbackInfo ci) {
-        resourcesReloadListener.onResourceManagerReload(resourceManager);
-    }
-
-    @Inject(
         method="<init>",
         at=@At("TAIL")
     )
     private void melancholic_hunger$registerResourcesReloadListener(GameConfig gameConfig, CallbackInfo ci) {
         resourceManager.registerReloadListener(resourcesReloadListener);
+        resourcesReloadListener.onResourceManagerReload(resourceManager);
     }
 }

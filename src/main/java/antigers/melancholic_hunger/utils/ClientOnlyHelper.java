@@ -6,7 +6,8 @@ import net.minecraft.world.entity.player.Player;
 
 public class ClientOnlyHelper {
     public static boolean isInSingleplayer() {
-        return Minecraft.getInstance().isSingleplayer();
+        Minecraft minecraft = Minecraft.getInstance();
+        return minecraft.hasSingleplayerServer() && !minecraft.getSingleplayerServer().isPublished();
     }
 
     public static boolean hasSingleplayerServer() {

@@ -1,11 +1,10 @@
 package antigers.melancholic_hunger.mixin;
 
 import antigers.melancholic_hunger.hud.ExperienceHudRenderer;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraftforge.client.gui.LoadingErrorScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -18,14 +17,14 @@ public abstract class ScreenMixin extends AbstractContainerEventHandler {
     @Shadow protected Minecraft minecraft;
 
     @Inject(
-        method="renderBackground",
+        method="renderBackground(Lcom/mojang/blaze3d/vertex/PoseStack;)V",
         at=@At("TAIL")
     )
-    public void melancholic_hunger$renderExperienceOnTopOfBackground(GuiGraphics drawContext, CallbackInfo callback) {
+    public void melancholic_hunger$renderExperienceOnTopOfBackground(PoseStack poseStack, CallbackInfo callback) {
         if ((Screen)(Object)this instanceof LoadingErrorScreen) {
             return;
         }
         ExperienceHudRenderer inGameHud = (ExperienceHudRenderer) this.minecraft.gui;
-        inGameHud.melancholic_hunger$renderExperienceHud(drawContext);
+        inGameHud.melancholic_hunger$renderExperienceHud(poseStack);
     }
 }

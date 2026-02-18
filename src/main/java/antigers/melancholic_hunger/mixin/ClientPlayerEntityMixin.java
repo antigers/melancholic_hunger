@@ -2,13 +2,16 @@ package antigers.melancholic_hunger.mixin;
 
 import antigers.melancholic_hunger.config.YACLConfig;
 import antigers.melancholic_hunger.hud.ExperienceHudRenderer;
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.ProfilePublicKey;
+import net.minecraft.world.food.FoodData;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,32 +23,35 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ClientPlayerEntityMixin extends AbstractClientPlayer {
     @Shadow @Final protected Minecraft minecraft;
 
-    public ClientPlayerEntityMixin(ClientLevel clientLevel, GameProfile profile) {
-        super(clientLevel, profile);
+    public ClientPlayerEntityMixin(ClientLevel pClientLevel, GameProfile pGameProfile, @Nullable ProfilePublicKey pProfilePublicKey) {
+        super(pClientLevel, pGameProfile, pProfilePublicKey);
     }
 
     /**
      * Allowing player to sprint only if they have more than 3 hearts (or custom amount)
      */
-    @WrapMethod(method = "hasEnoughFoodToStartSprinting")
-    private boolean melancholic_hunger$canPlayerSprint(Operation<Boolean> original) {
-        if (this.isPassenger() || this.getAbilities().mayfly) {
-            return true;
-        }
+    @WrapOperation(
+            method = "aiStep",
+            at = @At(
+                    value="INVOKE",
+                    target="Lnet/minecraft/world/food/FoodData;getFoodLevel()I"
+            )
+    )
+    private int melancholic_hunger$canPlayerSprint(FoodData instance, Operation<Integer> original) {
         switch (YACLConfig.sprinting()) {
             case DISABLED -> {
-                return false;
+                return 0;
             }
             case LIMITED_BY_HEALTH -> {
                 if (this.getHealth() <= YACLConfig.sprintingHealthLimit()) {
-                    return false;
+                    return 0;
                 }
             }
         }
         if (YACLConfig.disableHunger()) {
-            return true;
+            return 10;
         }
-        return (float)this.getFoodData().getFoodLevel() > 6.0F;
+        return original.call(instance);
     }
 
     /**

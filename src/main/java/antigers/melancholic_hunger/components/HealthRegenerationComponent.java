@@ -67,6 +67,8 @@ public class HealthRegenerationComponent {
         }
     }
 
+    private static class HashSetConsumedFood extends HashSet<ConsumedFood> {}
+
     private static class CapabilityProvider implements ICapabilitySerializable<CompoundTag> {
 
         private final Player player;
@@ -107,7 +109,7 @@ public class HealthRegenerationComponent {
             component.consumedNutrition = Math.max(nbt.getInt("consumedNutrition"), 0);
             var consumedFoodsStr = nbt.getString("consumedFoods");
             if (!consumedFoodsStr.isEmpty()) {
-                component.consumedFoods = gson.fromJson(consumedFoodsStr, consumedFoodSetTypeToken);
+                component.consumedFoods = gson.fromJson(consumedFoodsStr, HashSetConsumedFood.class);
             }
         }
     }
@@ -141,7 +143,6 @@ public class HealthRegenerationComponent {
     );
     private static final Capability<HealthRegenerationComponent> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
 
-    private static final TypeToken<HashSet<ConsumedFood>> consumedFoodSetTypeToken = new TypeToken<>() {};
     private static final Gson gson = new Gson();
 
     private final Player player;

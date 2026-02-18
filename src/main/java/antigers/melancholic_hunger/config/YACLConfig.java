@@ -1,57 +1,133 @@
 package antigers.melancholic_hunger.config;
 
 import antigers.melancholic_hunger.MelancholicHunger;
-import antigers.melancholic_hunger.nostalgic_tweaks.NostalgicTweaksConfigHandlerWriter;
-import antigers.melancholic_hunger.components.ServerConfigComponent;
 import antigers.melancholic_hunger.InstalledMods;
-import dev.isxander.yacl3.api.*;
-import dev.isxander.yacl3.api.controller.*;
-import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
-import dev.isxander.yacl3.config.v2.api.SerialEntry;
-import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
-import dev.isxander.yacl3.gui.YACLScreen;
-import mod.adrenix.nostalgic.config.factory.ConfigBuilder;
-import mod.adrenix.nostalgic.tweak.config.GameplayTweak;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.quiltmc.parsers.json.JsonReader;
+import org.quiltmc.parsers.json.JsonWriter;
+import org.quiltmc.parsers.json.gson.GsonReader;
+import org.quiltmc.parsers.json.gson.GsonWriter;
 
 import javax.lang.model.type.NullType;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class YACLConfig {
     private static final String CONFIG_PREFIX = "screen.melancholic_hunger.config.";
+    private static final Path CONFIG_PATH = FMLPaths.CONFIGDIR.get().resolve("melancholic_hunger.json5");
     private static boolean isLoadedFromDisk = false;
 
-    @SerialEntry(value = "clientOptions")
     private static ClientConfigData clientData = new ClientConfigData();
-    @SerialEntry(value = "serverOptions")
     private static ServerConfigData serverData = new ServerConfigData();
 
     public static int getFoodHealth(ItemStack itemStack, FoodProperties foodComponent) {
-        if (InstalledMods.NOSTALGIC_TWEAKS && GameplayTweak.CUSTOM_FOOD_HEALTH.get().containsItem(itemStack)) {
-            return GameplayTweak.CUSTOM_FOOD_HEALTH.get().valueFrom(itemStack);
-        }
         return foodComponent.getNutrition();
     }
 
-    private static final ConfigClassHandler<YACLConfig> HANDLER = ConfigClassHandler.createBuilder(YACLConfig.class)
-            .id(ResourceLocation.fromNamespaceAndPath(MelancholicHunger.MOD_ID, "config"))
-            .serializer(config -> GsonConfigSerializerBuilder.create(config)
-                    .setPath(FMLPaths.CONFIGDIR.get().resolve("melancholic_hunger.json5"))
-                    .setJson5(true)
-                    .build())
-            .build();
+    private static void loadConfig() {
+        if (!Files.exists(CONFIG_PATH)) {
+            MelancholicHunger.LOGGER.info("Config file '{}' does not exist. Creating it with default values.", CONFIG_PATH);
+            return;
+        }
+        MelancholicHunger.LOGGER.info("Deserializing config from '{}'", CONFIG_PATH);
+        Gson gson = new Gson();
+        try (JsonReader jsonReader = JsonReader.json5(CONFIG_PATH)) {
+            GsonReader gsonReader = new GsonReader(jsonReader);
+            jsonReader.beginObject();
+
+            while (jsonReader.hasNext()) {
+                String name = jsonReader.nextName();
+                Class<?> type;
+                Consumer<Object> fieldSetter;
+                if (name.equals("clientData")) {
+                    type = ClientConfigData.class;
+                    fieldSetter = value -> clientData = (ClientConfigData) value;
+                }
+                else if (name.equals("serverData")) {
+                    type = ServerConfigData.class;
+                    fieldSetter = value -> serverData = (ServerConfigData) value;
+                }
+                else {
+                    MelancholicHunger.LOGGER.warn("Found unknown config field '{}'.", name);
+                    jsonReader.skipValue();
+                    continue;
+                }
+
+                JsonElement element;
+                try {
+                    element = gson.fromJson(gsonReader, JsonElement.class);
+                } catch (Exception e) {
+                    MelancholicHunger.LOGGER.error("Failed to deserialize config field '{}'. Due to the error state this JSON reader cannot be re-used and loading will be aborted.", name, e);
+                    return;
+                }
+
+                if (element.isJsonNull()) {
+                    MelancholicHunger.LOGGER.warn("Found null value in non-nullable config field '{}'. Leaving field as default and marking as dirty.", name);
+                    continue;
+                }
+
+                try {
+                    fieldSetter.accept(gson.fromJson(element, type));
+                } catch (Exception e) {
+                    MelancholicHunger.LOGGER.error("Failed to deserialize config field '{}'. Leaving as default.", name, e);
+                }
+            }
+
+            jsonReader.endObject();
+        } catch (IOException e) {
+            MelancholicHunger.LOGGER.error("Failed to deserialize config class.", e);
+		}
+	}
+
+    private static void saveConfig() {
+        MelancholicHunger.LOGGER.info("Serializing config to '{}'", CONFIG_PATH);
+        Gson gson = new Gson();
+        try (StringWriter stringWriter = new StringWriter()) {
+            JsonWriter jsonWriter = JsonWriter.json5(stringWriter);
+            GsonWriter gsonWriter = new GsonWriter(jsonWriter);
+            jsonWriter.beginObject();
+
+            for (Pair<String, ?> field : List.of(new Pair<>("clientData", clientData), new Pair<>("serverData", serverData))) {
+                String name = field.getFirst();
+                Object value = field.getSecond();
+                jsonWriter.name(name);
+                JsonElement element;
+                try {
+                    element = gson.toJsonTree(value, value.getClass());
+                } catch (Exception e) {
+                    MelancholicHunger.LOGGER.error("Failed to serialize config field '{}'. Serializing as null.", name, e);
+                    jsonWriter.nullValue();
+                    continue;
+                }
+
+                try {
+                    gson.toJson(element, gsonWriter);
+                } catch (Exception e) {
+                    MelancholicHunger.LOGGER.error("Failed to serialize config field '{}'. Due to the error state this JSON writer cannot continue safely and the save will be abandoned.", name, e);
+                    return;
+                }
+            }
+            jsonWriter.endObject();
+            jsonWriter.flush();
+            Files.createDirectories(CONFIG_PATH.getParent());
+            Files.writeString(CONFIG_PATH, stringWriter.toString(), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+        } catch (IOException e) {
+            MelancholicHunger.LOGGER.error("Failed to serialize config.", e);
+        }
+    }
 
     private static final ConfigOption<Boolean, NullType> DISABLE_HUNGER = new ConfigOption<>(
             "disableHunger", true, true, true,
@@ -175,7 +251,7 @@ public class YACLConfig {
 
         var result = new LinkedHashMap<String, Integer>();
         for (var entry : sizes.entrySet()) {
-            result.put(BuiltInRegistries.ITEM.getKey(entry.getKey()).toString(), entry.getValue());
+            result.put(ForgeRegistries.ITEMS.getKey(entry.getKey()).toString(), entry.getValue());
         }
         return result;
     }
@@ -236,236 +312,13 @@ public class YACLConfig {
             NOURISHMENT_REGEN_SPEED_MULTIPLIER
     );
 
-    private static BooleanControllerBuilder createBooleanController(Option<Boolean> option) {
-        return BooleanControllerBuilder.create(option).yesNoFormatter().coloured(true);
-    }
-
-    private static ConfigCategory buildHungerCategory() {
-        var builder = ConfigCategory.createBuilder()
-                .name(Component.translatable(CONFIG_PREFIX + "hunger_category_name"))
-                .tooltip(Component.translatable(CONFIG_PREFIX + "hunger_category_tooltip"))
-                .option(DISABLE_HUNGER.buildYACLOption(YACLConfig::createBooleanController));
-        if (InstalledMods.NOSTALGIC_TWEAKS) {
-            builder.option(HIDE_HUNGER_BAR.buildYACLOption(YACLConfig::createBooleanController));
-        }
-        builder
-                .option(HUNGER_EFFECT.buildYACLOption(
-                        option -> EnumControllerBuilder.create(option).enumClass(HungerEffectOption.class)
-                                .formatValue(
-                                        value -> switch (value) {
-                                            case VANILLA ->
-                                                    Component.translatable(CONFIG_PREFIX + "hunger_effect_vanilla_option")
-                                                            // green
-                                                            .setStyle(Style.EMPTY.withColor(5635925));
-                                            case DISABLED ->
-                                                    Component.translatable(CONFIG_PREFIX + "hunger_effect_disabled_option")
-                                                            // red
-                                                            .setStyle(Style.EMPTY.withColor(16733525));
-                                            case REPLACED_WITH_POISON ->
-                                                    Component.translatable(CONFIG_PREFIX + "hunger_effect_replaced_with_poison_option")
-                                                            // yellow
-                                                            .setStyle(Style.EMPTY.withColor(16777045));
-                                        }
-                                )
-                ))
-                .option(HIGHLIGHT_RESTORED_HEARTS.buildYACLOption(YACLConfig::createBooleanController))
-                .option(GRADUAL_HEALTH_REGENERATION.buildYACLOption(YACLConfig::createBooleanController))
-                .option(GRADUAL_HEALTH_REGENERATION_SPEED.buildYACLOption(
-                        option -> FloatSliderControllerBuilder.create(option).range(0.1F, 10.0F).step(0.1F)
-                ))
-                .option(HIGHLIGHT_REGENERATED_HEARTS.buildYACLOption(YACLConfig::createBooleanController))
-                .option(INSTANT_EATING.buildYACLOption(YACLConfig::createBooleanController))
-                .option(SHOW_FOOD_ITEM_TOOLTIPS.buildYACLOption(YACLConfig::createBooleanController));
-
-        return builder.build();
-    }
-
-    private static void setAllFoodStacksTo1(YACLScreen screen, ButtonOption button) {
-        LinkedHashMap<String, Integer> stacks = getDefaultItemStackSizes();
-        stacks.replaceAll((k, v) -> 1);
-        stacks.replace(Items.COOKIE.toString(), 8);
-        stacks.replace(Items.BEETROOT.toString(), 8);
-        stacks.replace(Items.CARROT.toString(), 8);
-        stacks.replace(Items.CHORUS_FRUIT.toString(), 8);
-        stacks.replace(Items.MELON_SLICE.toString(), 8);
-        stacks.replace(Items.POTATO.toString(), 8);
-        stacks.replace(Items.POISONOUS_POTATO.toString(), 8);
-        stacks.replace(Items.SWEET_BERRIES.toString(), 8);
-        stacks.replace(Items.GLOW_BERRIES.toString(), 8);
-        stacks.replace(Items.DRIED_KELP.toString(), 9);
-        stacks.replace(Items.HONEY_BOTTLE.toString(), 4);
-        CUSTOM_FOOD_STACK_SIZES.updatePendingValue(stacks);
-    }
-
-    private static void setAllFoodStacksTo64(YACLScreen screen, ButtonOption button) {
-        LinkedHashMap<String, Integer> stacks = getDefaultItemStackSizes();
-        stacks.replaceAll((k, v) -> 64);
-        CUSTOM_FOOD_STACK_SIZES.updatePendingValue(stacks);
-    }
-
-    private static ButtonOption createButtonOption(
-            String buttonName, BiConsumer<YACLScreen, ButtonOption> action,
-            ConfigOption.ConfigOptionDependency<?> dependency
-    ) {
-        boolean playerHasPermission = ConfigOption.getPlayerHasPermission();
-        var descriptionBuilder = OptionDescription.createBuilder();
-        descriptionBuilder.text(Component.translatable(CONFIG_PREFIX + "button." + buttonName + ".description"));
-        if (!playerHasPermission) {
-            descriptionBuilder.text(
-                    Component.literal("\n"),
-                    Component.translatable(CONFIG_PREFIX + "op_privileges_required_option")
-                            .setStyle(Style.EMPTY.withColor(16733525).withItalic(true))
-            );
-        }
-        ButtonOption buttonOption = ButtonOption.createBuilder()
-                .name(Component.translatable(CONFIG_PREFIX + "button." + buttonName + ".name"))
-                .available(ConfigOption.getPlayerHasPermission())
-                .description(descriptionBuilder.build()).text(Component.empty()).action(action).build();
-
-        dependency.configOption().YACLOption.addEventListener(
-                (option, event) -> {
-                    if (event != OptionEventListener.Event.STATE_CHANGE) {
-                        return;
-                    }
-                    buttonOption.setAvailable(dependency.isPendingValueEqualsRequired());
-                }
-        );
-        return buttonOption;
-    }
-
-    private static ConfigCategory buildFoodItemsCategory() {
-        return ConfigCategory.createBuilder()
-                .name(Component.translatable(CONFIG_PREFIX + "food_category_name"))
-                .tooltip(Component.translatable(CONFIG_PREFIX + "food_category_tooltip"))
-                .option(USE_CUSTOM_FOOD_STACK_SIZES.buildYACLOption(YACLConfig::createBooleanController))
-                .option(CUSTOM_FOOD_STACK_SIZES.buildYACLOption())
-                .option(createButtonOption(
-                        "set_all_food_stack_sizes_to_1", YACLConfig::setAllFoodStacksTo1,
-                        new ConfigOption.ConfigOptionDependency<>(USE_CUSTOM_FOOD_STACK_SIZES, true)
-                ))
-                .option(createButtonOption(
-                        "set_all_food_stack_sizes_to_64", YACLConfig::setAllFoodStacksTo64,
-                        new ConfigOption.ConfigOptionDependency<>(USE_CUSTOM_FOOD_STACK_SIZES, true)
-                ))
-                .build();
-    }
-
-    private static ConfigCategory buildSprintingCategory() {
-        return ConfigCategory.createBuilder()
-                .name(Component.translatable(CONFIG_PREFIX + "sprinting_category_name"))
-                .tooltip(Component.translatable(CONFIG_PREFIX + "sprinting_category_tooltip"))
-                .option(SPRINTING.buildYACLOption(
-                        option -> EnumControllerBuilder.create(option).enumClass(SprintingOption.class)
-                                .formatValue(
-                                        value -> switch (value) {
-                                            case VANILLA ->
-                                                    Component.translatable(CONFIG_PREFIX + "sprinting_vanilla_option")
-                                                            // green
-                                                            .setStyle(Style.EMPTY.withColor(5635925));
-                                            case DISABLED ->
-                                                    Component.translatable(CONFIG_PREFIX + "sprinting_disabled_option")
-                                                            // red
-                                                            .setStyle(Style.EMPTY.withColor(16733525));
-                                            case LIMITED_BY_HEALTH ->
-                                                    Component.translatable(CONFIG_PREFIX + "sprinting_limited_by_health_option")
-                                                            // yellow
-                                                            .setStyle(Style.EMPTY.withColor(16777045));
-                                        }
-                                )
-                ))
-                .option(SPRINTING_HEALTH_LIMIT.buildYACLOption(
-                        option -> IntegerSliderControllerBuilder.create(option).range(1, 20).step(1)
-                ))
-                .build();
-    }
-
-    private static ConfigCategory buildExperienceCategory() {
-        return ConfigCategory.createBuilder()
-                .name(Component.translatable(CONFIG_PREFIX + "experience_category_name"))
-                .tooltip(Component.translatable(CONFIG_PREFIX + "experience_category_tooltip"))
-                .option(HIDE_EXPERIENCE_BAR.buildYACLOption(YACLConfig::createBooleanController))
-                .option(SHOW_EXPERIENCE_IN_INVENTORY.buildYACLOption(YACLConfig::createBooleanController))
-                .option(SHOW_EXPERIENCE_ON_SCREENS.buildYACLOption(YACLConfig::createBooleanController))
-                .option(SHOW_EXPERIENCE_ON_GAIN.buildYACLOption(YACLConfig::createBooleanController))
-                .option(ENABLE_EXPERIENCE_ANIMATION.buildYACLOption(YACLConfig::createBooleanController))
-                .option(RENDER_EXPERIENCE_OVER_BACKGROUND.buildYACLOption(YACLConfig::createBooleanController))
-                .build();
-    }
-
-    private static ConfigCategory buildFarmersDelightCategory() {
-        return ConfigCategory.createBuilder()
-                .name(Component.translatable(CONFIG_PREFIX + "farmers_delight_category_name"))
-                .tooltip(Component.translatable(CONFIG_PREFIX + "farmers_delight_category_tooltip"))
-                .option(NOURISHMENT_HEALTH_BOOST_COUNT.buildYACLOption(
-                        option -> IntegerSliderControllerBuilder.create(option).range(0, 10).step(1))
-                )
-                .option(NOURISHMENT_REGEN_SPEED_MULTIPLIER.buildYACLOption(
-                        option -> FloatSliderControllerBuilder.create(option).range(1.0F, 5.0F).step(0.1F))
-                )
-                .build();
-    }
-
-    public static YetAnotherConfigLib getYACLInstance() {
-        return YetAnotherConfigLib.create(HANDLER, (defaults, config, builder) -> {
-            builder
-                .title(Component.translatable(CONFIG_PREFIX + "title"))
-                .category(buildHungerCategory())
-                .category(buildFoodItemsCategory())
-                .category(buildSprintingCategory())
-                .category(buildExperienceCategory())
-                .save(() -> {
-                    var client = Minecraft.getInstance();
-                    boolean isSinglePlayer = client.isSingleplayer();
-                    boolean hasSingleplayerServer = client.hasSingleplayerServer();
-                    var player = client.player;
-                    if (!InstalledMods.NOSTALGIC_TWEAKS) {
-                        // hideHungerBar option is hidden when NT is not installed, so we have to correct its value
-                        clientData.hideHungerBar = serverData.disableHunger;
-                    }
-                    if (isSinglePlayer || player == null || hasSingleplayerServer) {
-                        // writing config file if in singleplayer or if on title screen
-                        HANDLER.save();
-                        if (hasSingleplayerServer) {
-                            ServerConfigComponent.syncAllPlayersExceptOf(player.getId());
-                        }
-                    }
-                    else {
-                        // sending config to the server if in multiplayer
-                        ServerConfigComponent.sendToServer();
-                    }
-                    // Syncing new settings to the nostalgic tweaks config.
-                    // If in multiplayer, only the client config will be synced
-                    if (InstalledMods.NOSTALGIC_TWEAKS) {
-                        var handler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
-                        handler.melancholic_hunger$writeConfigToNT(
-                                YACLConfig.serverData.getImmutable(), YACLConfig.clientData.getImmutable()
-                        );
-                        if (hasSingleplayerServer) {
-                            ServerConfigComponent.syncNostalgicTweaksToAllPlayers();
-                        }
-                    }
-                });
-            if (InstalledMods.FARMERS_DELIGHT) {
-                builder.category(buildFarmersDelightCategory());
-            }
-            return builder;
-        });
-    }
-
-    private static void updateCurrentScreen() {
-        if (!FMLEnvironment.dist.isClient()) {
-            return;
-        }
-        if (Minecraft.getInstance().screen instanceof YACLScreen) {
-            ALL_OPTIONS.forEach(ConfigOption::forgetPendingValueIfServerOption);
-        }
-    }
+    private static void updateCurrentScreen() {}
 
     public static void loadFromDisk() {
         if (isLoadedFromDisk) {
             return;
         }
-        HANDLER.load();
+        loadConfig();
         for (var option : ALL_OPTIONS) {
             option.validateValue();
         }
@@ -474,10 +327,11 @@ public class YACLConfig {
             HIDE_HUNGER_BAR.setValue(false);
         }
         isLoadedFromDisk = true;
+        saveConfig();
     }
 
     public static void saveToDisk() {
-        HANDLER.save();
+        saveConfig();
     }
 
     public static ClientConfigData.ImmutableClientConfigData getClientData() {
@@ -551,16 +405,13 @@ public class YACLConfig {
         if (!serverData.instantEating) {
             return false;
         }
-        if (InstalledMods.NOSTALGIC_TWEAKS) {
-            return !GameplayTweak.IGNORED_EDIBLES.get().containsItem(item);
-        }
         return true;
     }
     public static boolean showFoodItemTooltips() {
         return serverData.showFoodItemTooltips;
     }
     public static Integer getItemStackSize(ItemStack itemStack) {
-        var itemId = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).toString();
+        var itemId = ForgeRegistries.ITEMS.getKey(itemStack.getItem()).toString();
         if (serverData.useCustomFoodStackSizes && serverData.customFoodStackSizes.containsKey(itemId)) {
             return serverData.customFoodStackSizes.get(itemId);
         }

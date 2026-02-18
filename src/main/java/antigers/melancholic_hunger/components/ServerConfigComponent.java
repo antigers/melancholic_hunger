@@ -1,14 +1,9 @@
 package antigers.melancholic_hunger.components;
 
-import antigers.melancholic_hunger.InstalledMods;
 import antigers.melancholic_hunger.config.ServerConfigData;
 import antigers.melancholic_hunger.config.YACLConfig;
-import antigers.melancholic_hunger.nostalgic_tweaks.NostalgicTweaksConfigHandlerWriter;
 import antigers.melancholic_hunger.utils.ClientOnlyHelper;
 import com.google.gson.Gson;
-import mod.adrenix.nostalgic.config.factory.ConfigBuilder;
-import mod.adrenix.nostalgic.tweak.factory.Tweak;
-import mod.adrenix.nostalgic.tweak.factory.TweakPool;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.common.MinecraftForge;
@@ -32,7 +27,7 @@ public class ServerConfigComponent {
         }
 
         public static ConfigNetworkPacket decode(FriendlyByteBuf buf) {
-            return new ConfigNetworkPacket(gson.fromJson(buf.readUtf(), ServerConfigData.ImmutableServerConfigData.class));
+            return new ConfigNetworkPacket(gson.fromJson(buf.readUtf(), ServerConfigData.class).getImmutable());
         }
 
         public void encode(FriendlyByteBuf buf) {
@@ -70,17 +65,7 @@ public class ServerConfigComponent {
     private static void handleS2CPacket(ServerConfigData.ImmutableServerConfigData configData) {
         if (!ClientOnlyHelper.isInSingleplayer()) {
             YACLConfig.setServerData(configData);
-
-            if (InstalledMods.NOSTALGIC_TWEAKS) {
-                var configHandler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
-                // updating client config in NT (ONLY client config), so it's in sync with melancholic
-                configHandler.melancholic_hunger$writeConfigToNT(YACLConfig.getServerData(), YACLConfig.getClientData());
-            }
         }
-    }
-
-    public static void syncNostalgicTweaksToAllPlayers() {
-        TweakPool.filter(Tweak::isMultiplayerLike).forEach(Tweak::sendToAll);
     }
 
     /**
@@ -94,11 +79,6 @@ public class ServerConfigComponent {
         boolean dataUpdated = YACLConfig.setServerData(configData);
         if (!dataUpdated) {
             return;
-        }
-        if (InstalledMods.NOSTALGIC_TWEAKS) {
-            var configHandler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
-            configHandler.melancholic_hunger$writeConfigToNT(YACLConfig.getServerData(), null);
-            syncNostalgicTweaksToAllPlayers();
         }
         syncAllPlayersExceptOf(player.getId());
         YACLConfig.saveToDisk();

@@ -1,12 +1,16 @@
 package antigers.melancholic_hunger;
 
 import antigers.melancholic_hunger.config.YACLConfig;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Either;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
@@ -53,17 +57,19 @@ public class FoodItemTooltips {
 		}
 
 		@Override
-		public void renderImage(Font font, int x, int y, GuiGraphics context)
+		public void renderImage(Font font, int x, int y, PoseStack poseStack, ItemRenderer itemRenderer, int blitOffset)
 		{
+			Gui gui = Minecraft.getInstance().gui;
+			RenderSystem.setShaderTexture(0, GuiComponent.GUI_ICONS_LOCATION);
 			y += 2;
 			for (int i = 0; i < heartsCount - 1; i++) {
 				int textureX = x + i * 9;
-				context.blit(Gui.GUI_ICONS_LOCATION, textureX, y, Gui.HeartType.CONTAINER.getX(false, false), 0, 9, 9);
-				context.blit(Gui.GUI_ICONS_LOCATION, textureX, y, Gui.HeartType.NORMAL.getX(false, false), 0, 9, 9);
+				gui.blit(poseStack, textureX, y, Gui.HeartType.CONTAINER.getX(false, false), 0, 9, 9);
+				gui.blit(poseStack, textureX, y, Gui.HeartType.NORMAL.getX(false, false), 0, 9, 9);
 			}
 			int textureX = x + (heartsCount - 1) * 9;
-			context.blit(Gui.GUI_ICONS_LOCATION, textureX, y, Gui.HeartType.CONTAINER.getX(lastHeartIsHalf, false), 0, 9, 9);
-			context.blit(Gui.GUI_ICONS_LOCATION, textureX, y, Gui.HeartType.NORMAL.getX(lastHeartIsHalf, false), 0, 9, 9);
+			gui.blit(poseStack, textureX, y, Gui.HeartType.CONTAINER.getX(lastHeartIsHalf, false), 0, 9, 9);
+			gui.blit(poseStack, textureX, y, Gui.HeartType.NORMAL.getX(lastHeartIsHalf, false), 0, 9, 9);
 		}
 	}
 

@@ -37,12 +37,12 @@ public class MelancholicHunger
 		MinecraftForge.EVENT_BUS.register(this);
 
 		// Register YACL config screen
-		context.registerExtensionPoint(
-				ConfigScreenHandler.ConfigScreenFactory.class,
-				() -> new ConfigScreenHandler.ConfigScreenFactory(
-						(mc, parent) -> YACLConfig.getYACLInstance().generateScreen(parent)
-				)
-		);
+//		context.registerExtensionPoint(
+//				ConfigScreenHandler.ConfigScreenFactory.class,
+//				() -> new ConfigScreenHandler.ConfigScreenFactory(
+//						(mc, parent) -> YACLConfig.getYACLInstance().generateScreen(parent)
+//				)
+//		);
 
 		// Registering custom player data components
 		PlayerComponents.register();

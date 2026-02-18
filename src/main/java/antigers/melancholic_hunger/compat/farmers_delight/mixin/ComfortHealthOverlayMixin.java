@@ -2,11 +2,12 @@ package antigers.melancholic_hunger.compat.farmers_delight.mixin;
 
 import antigers.melancholic_hunger.compat.farmers_delight.ComfortEffectHandler;
 import antigers.melancholic_hunger.hud.DrawHudContext;
+import antigers.melancholic_hunger.hud.ExperienceHudRenderer;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodData;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,14 +33,14 @@ public class ComfortHealthOverlayMixin {
 			method="drawComfortOverlay",
 			at=@At(
 					value="INVOKE",
-					target="Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/ResourceLocation;IIIIII)V"
+					target="Lnet/minecraft/client/gui/Gui;blit(Lcom/mojang/blaze3d/vertex/PoseStack;IIIIII)V"
 			)
 	)
 	private static void melancholic_hunger$drawComfortOverlay(
-			GuiGraphics graphics, ResourceLocation atlasLocation, int x, int y, int uOffset, int vOffset, int uWidth, int vHeight, Operation<Void> original
+			Gui gui, PoseStack poseStack, int x, int y, int uOffset, int vOffset, int uWidth, int vHeight, Operation<Void> original
 	) {
-		DrawHudContext drawHudContext = (DrawHudContext) graphics;
+		DrawHudContext drawHudContext = ((ExperienceHudRenderer) gui).melancholic_hunger$getDrawHudContext();
 		y = drawHudContext.getHelper().addShakingIfNeeded(drawHudContext.getHealthBarY());
-		original.call(graphics, atlasLocation, x, y, uOffset, vOffset, uWidth, vHeight);
+		original.call(gui, poseStack, x, y, uOffset, vOffset, uWidth, vHeight);
 	}
 }

@@ -22,7 +22,7 @@ public class ResourcesReloadListener implements ResourceManagerReloadListener {
 
 	private static boolean isProgrammerArtTexture(ResourceManager resourceManager, byte[] currentTexture) throws IOException {
 		var programmerArt = resourceManager.listPacks().filter(
-				packResources -> packResources.packId().equals("programmer_art")
+				packResources -> packResources.getName().equals("Programmer Art")
 		).findFirst();
 		if (programmerArt.isEmpty()) {
 			return false;
@@ -37,22 +37,23 @@ public class ResourcesReloadListener implements ResourceManagerReloadListener {
 	public void onResourceManagerReload(ResourceManager resourceManager) {
 		var currentArmorResource = resourceManager.getResource(Gui.GUI_ICONS_LOCATION);
 		boolean isDefaultArmorHudTexture = currentArmorResource
-				.map(value -> value.sourcePackId().equals("vanilla"))
+				.map(value -> value.sourcePackId().equals("Default"))
 				.orElse(false);
 		if (isDefaultArmorHudTexture) {
 			DrawHudContext.isDefaultArmorHudTexture = true;
 			return;
 		}
 		// getting texture from the default vanilla resource pack
-		var vanillaResourceManager = getResourceManager(Minecraft.getInstance().getVanillaPackResources());
+		var vanillaResourceManager = getResourceManager(Minecraft.getInstance().getClientPackSource().getVanillaPack());
 		var vanillaArmorResource = vanillaResourceManager.getResource(Gui.GUI_ICONS_LOCATION);
 		try {
 			var vanillaTexture = vanillaArmorResource.orElseThrow().open().readAllBytes();
 			var currentTexture = currentArmorResource.orElseThrow().open().readAllBytes();
 			isDefaultArmorHudTexture = Arrays.equals(vanillaTexture, currentTexture);
 			if (!isDefaultArmorHudTexture) {
-				DrawHudContext.isDefaultArmorHudTexture = isProgrammerArtTexture(resourceManager, currentTexture);
+				isDefaultArmorHudTexture = isProgrammerArtTexture(resourceManager, currentTexture);
 			}
+			DrawHudContext.isDefaultArmorHudTexture = isDefaultArmorHudTexture;
 		}
 		catch (IOException | NoSuchElementException ignored) {
 			DrawHudContext.isDefaultArmorHudTexture = false;

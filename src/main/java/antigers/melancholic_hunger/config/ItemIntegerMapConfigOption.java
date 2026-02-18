@@ -1,11 +1,9 @@
 package antigers.melancholic_hunger.config;
 
-import dev.isxander.yacl3.api.ListOption;
-import dev.isxander.yacl3.impl.controller.StringControllerBuilderImpl;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -51,10 +49,10 @@ public class ItemIntegerMapConfigOption extends ConfigOption<List<String>, Boole
         translationsLanguage = currentLanguage;
         translationsToIds.clear();
         translationsToIdsLists.clear();
-        BuiltInRegistries.ITEM.iterator().forEachRemaining(
+        ForgeRegistries.ITEMS.iterator().forEachRemaining(
                 item -> {
                     String key = Component.translatable(item.getDescriptionId()).getString();
-                    String value = BuiltInRegistries.ITEM.getKey(item).toString();
+                    String value = ForgeRegistries.ITEMS.getKey(item).toString();
                     if (translationsToIds.containsKey(key)) {
                         if (translationsToIdsLists.containsKey(key)) {
                             translationsToIdsLists.get(key).add(value);
@@ -79,7 +77,7 @@ public class ItemIntegerMapConfigOption extends ConfigOption<List<String>, Boole
         var result = new ArrayList<String>();
         for (var entry : map.entrySet()) {
             ResourceLocation itemId = ResourceLocation.parse(entry.getKey());
-            String translation = Component.translatable(BuiltInRegistries.ITEM.get(itemId).getDescriptionId()).getString();
+            String translation = Component.translatable(ForgeRegistries.ITEMS.getValue(itemId).getDescriptionId()).getString();
             if (translationsToIdsLists.containsKey(translation)) {
                 // adding id in parentheses if the translated name duplicates for multiple items
                 translation = String.format("%s (%s)", translation, itemId);
@@ -143,30 +141,5 @@ public class ItemIntegerMapConfigOption extends ConfigOption<List<String>, Boole
         }
         outerSetter.accept(value);
         updateDependents();
-    }
-
-    public ListOption<String> buildYACLOption() {
-        var option = ListOption.<String>createBuilder()
-                .name(Component.translatable(OPTION_CONFIG_PREFIX + name + ".name"))
-                .binding(new ItemIntegerMapOptionBinding(
-                        mapDefaultValue, getter, setter, ItemIntegerMapConfigOption::convertMapToListOfStrings
-                ))
-                .controller(StringControllerBuilderImpl::new)
-                .initial(": 0")
-                .available(getOptionAvailability())
-                .description(buildOptionDescription(null))
-                .addListener(
-                        (opt, event) ->
-                                ((CustomYACLListOption)opt).melancholic_hunger$updateDescription(
-                                        buildOptionDescription(null)
-                                )
-                )
-                .build();
-        YACLOption = option;
-        return option;
-    }
-
-    public void updatePendingValue(LinkedHashMap<String, Integer> value) {
-        YACLOption.requestSet(convertMapToListOfStrings(value));
     }
 }

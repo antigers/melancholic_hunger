@@ -123,14 +123,6 @@ repositories {
     //     dir 'libs'
     // }
     maven {
-        name = 'Xander Maven'
-        url = 'https://maven.isxander.dev/releases'
-    }
-    maven {
-        name = 'Kotlin for Forge'
-        url = 'https://thedarkcolour.github.io/KotlinForForge/'
-    }
-    maven {
         name = "Architectury"
         url = "https://maven.architectury.dev/"
     }
@@ -146,6 +138,7 @@ repositories {
             includeGroup "maven.modrinth"
         }
     }
+    maven { url = "https://maven.quiltmc.org/repository/release"}
 }
 
 dependencies {
@@ -180,17 +173,16 @@ dependencies {
         jarJar.ranged(it, "[0.5.3,)")
     }
 
-    // Kotlin For Forge (YACL dependency)
-    compileOnly "thedarkcolour:kotlinforforge-neoforge:${project.kotlin_for_forge_version}"
-
-    // YACL
-    implementation fg.deobf("dev.isxander:yet-another-config-lib:${project.YACL_version}")
-
-    // Architectury (Nostalgic Tweaks dependency)
-    implementation fg.deobf("dev.architectury:architectury-forge:${project.architectury_version}")
-
-    // Nostalgic Tweaks compatibility
-    implementation fg.deobf("maven.modrinth:nostalgic-tweaks:${project.nostalgic_tweaks_version}")
+    // JSON parsers for config
+    jarJar("org.quiltmc.parsers:json:0.2.1") {
+        jarJar.ranged(it, "[0.2.1,)")
+    }
+    jarJar("org.quiltmc.parsers:gson:0.2.1") {
+        jarJar.ranged(it, "[0.2.1,)")
+        exclude (group: "com.google.code.gson")
+    }
+    minecraftLibrary("org.quiltmc.parsers:json:0.2.1")
+    minecraftLibrary("org.quiltmc.parsers:gson:0.2.1")
 
     // Immediately Fast compatibility
     compileOnly fg.deobf("maven.modrinth:immediatelyfast:${project.immediately_fast_version}")
@@ -206,7 +198,6 @@ mixin {
     // MixinGradle Settings
     add sourceSets.main, 'melancholic_hunger.mixins.refmap.json'
     config 'melancholic_hunger.mixins.json'
-    config 'nostalgic_tweaks.mixins.json'
     config 'farmers_delight.mixins.json'
 }
 

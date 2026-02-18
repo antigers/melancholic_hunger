@@ -8,9 +8,11 @@ import antigers.melancholic_hunger.hud.RestoredHeartsDrawHelper;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -43,7 +45,7 @@ public class ForgeGuiMixin extends Gui {
 	 * Replaces default GuiGraphics object with the custom DrawHudContext object
 	 */
 	@WrapMethod(method="render")
-	private void melancholic_hunger$replaceDrawContext(GuiGraphics drawContext, float partialTick, Operation<Void> original) {
+	private void melancholic_hunger$replaceDrawContext(PoseStack poseStack, float partialTick, Operation<Void> original) {
 		Player playerEntity = this.getCameraPlayer();
 		if (playerEntity == null) {
 			return;
@@ -55,12 +57,14 @@ public class ForgeGuiMixin extends Gui {
 		int mountHealthHeartCount = this.getVehicleMaxHearts(this.getPlayerVehicleWithHealth());
 		boolean hasMountHealth = mountHealthHeartCount > 0;
 		int mountHealthRows = this.getVisibleVehicleHeartRows(mountHealthHeartCount);
-		var drawHudContext = new DrawHudContext(
-				this.minecraft, drawContext.pose(), drawContext.bufferSource, drawRestoredHeartsHelper,
-				this.minecraft.player.jumpableVehicle() != null
-						? 7 : experienceBarAnimation.getCurrentPos(), hasMountHealth, mountHealthRows
+		((ExperienceHudRenderer) this).melancholic_hunger$setDrawHudContext(
+				new DrawHudContext(
+						this.minecraft, drawRestoredHeartsHelper,
+						this.minecraft.player.isRidingJumpable() ? 7 : experienceBarAnimation.getCurrentPos(),
+						hasMountHealth, mountHealthRows, screenWidth, screenHeight
+				)
 		);
-		original.call(drawHudContext, partialTick);
+		original.call(poseStack, partialTick);
 	}
 
 	/**
@@ -68,35 +72,32 @@ public class ForgeGuiMixin extends Gui {
 	 */
 	@WrapMethod(method="renderArmor", remap=false)
 	private void melancholic_hunger$wrapRenderArmor(
-			GuiGraphics guiGraphics, int x, int y, Operation<Void> original
+			PoseStack poseStack, int x, int y, Operation<Void> original
 	) {
-		DrawHudContext drawHudContext = (DrawHudContext) guiGraphics;
+		DrawHudContext drawHudContext = ((ExperienceHudRenderer) this).melancholic_hunger$getDrawHudContext();
 		drawHudContext.prepareArmorAndBubblesBarsDrawing(y - leftHeight + 10);
-		original.call(guiGraphics, x, y);
+		original.call(poseStack, x, y);
 	}
 
 	@WrapOperation(
 			method = "renderArmor",
 			at = @At(
 					value="INVOKE",
-					target="Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/ResourceLocation;IIIIII)V"
+					target="Lnet/minecraftforge/client/gui/overlay/ForgeGui;blit(Lcom/mojang/blaze3d/vertex/PoseStack;IIIIII)V"
 			)
 	)
 	private void melancholic_hunger$modifyRenderArmor(
-			GuiGraphics guiGraphics, ResourceLocation atlasLocation, int x, int y, int uOffset, int vOffset, int uWidth, int vHeight, Operation<Void> original
+			ForgeGui instance, PoseStack poseStack, int x, int y, int uOffset, int vOffset, int uWidth, int vHeight, Operation<Void> original
 	) {
 		// Move armor bar on the right side and down because hunger and experience bars are disabled
-		DrawHudContext drawHudContext = (DrawHudContext) guiGraphics;
+		DrawHudContext drawHudContext = ((ExperienceHudRenderer) this).melancholic_hunger$getDrawHudContext();
 		ResourceLocation newArmorTexture = null;
 		y = drawHudContext.getArmorBarY();
-		if (
-				YACLConfig.hideHungerBar() &&
-						!drawHudContext.getShouldRenderStaminaInPlaceOfHunger() && !drawHudContext.getHasMountHealth()
-		) {
+		if (YACLConfig.hideHungerBar() && !drawHudContext.getHasMountHealth()) {
 			// move bar to the right and reverse render order from right to left
 			x = drawHudContext.getMirroredX(x);
 			if (!DrawHudContext.isDefaultArmorHudTexture) {
-				melancholic_hunger$drawGuiTextureInversed(guiGraphics, atlasLocation, x, y, uOffset, vOffset);
+				melancholic_hunger$drawGuiTextureInversed(poseStack, x, y, uOffset, vOffset);
 				return;
 			}
 			newArmorTexture = melancholic_hunger$fixVanillaArmorTexture(uOffset, true);
@@ -106,25 +107,28 @@ public class ForgeGuiMixin extends Gui {
 		}
 		int textureWidth = 256, textureHeight = 256;
 		if (newArmorTexture != null) {
-			atlasLocation = newArmorTexture;
+			RenderSystem.setShaderTexture(0, newArmorTexture);
 			uOffset = 0;
 			vOffset = 0;
 			textureWidth = 9;
 			textureHeight = 9;
 		}
-		guiGraphics.blit(atlasLocation, x, y, uOffset, vOffset, uWidth, vHeight, textureWidth, textureHeight);
+		blit(poseStack, x, y, uOffset, vOffset, uWidth, vHeight, textureWidth, textureHeight);
+		if (newArmorTexture != null) {
+			RenderSystem.setShaderTexture(0, GuiComponent.GUI_ICONS_LOCATION);
+		}
 	}
 
 	@Unique
 	private static void melancholic_hunger$drawGuiTextureInversed(
-			GuiGraphics guiGraphics, ResourceLocation atlasLocation, int x1, int y1, int uOffset, int vOffset
+			PoseStack poseStack, int x1, int y1, int uOffset, int vOffset
 	) {
 		float u1 = uOffset / 256F, u2 = (uOffset + 9F) / 256F;
 		float v1 = vOffset / 256F, v2 = (vOffset + 9F) / 256F;
 		int x2 = x1 + 9;
 		int y2 = y1 + 9;
 		// swapping u1 and u2 to rotate the texture along the vertical axis
-		guiGraphics.innerBlit(atlasLocation, x1, x2, y1, y2, 0, u2, u1, v1, v2);
+		innerBlit(poseStack.last().pose(), x1, x2, y1, y2, 0, u2, u1, v1, v2);
 	}
 
 	@Unique
@@ -142,54 +146,50 @@ public class ForgeGuiMixin extends Gui {
 			method = "renderAir",
 			at = @At(
 					value="INVOKE",
-					target="Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/ResourceLocation;IIIIII)V"
+					target="Lnet/minecraftforge/client/gui/overlay/ForgeGui;blit(Lcom/mojang/blaze3d/vertex/PoseStack;IIIIII)V"
 			)
 	)
 	private void melancholic_hunger$modifyRenderAir(
-			GuiGraphics guiGraphics, ResourceLocation atlasLocation, int x, int y, int uOffset, int vOffset, int uWidth, int vHeight, Operation<Void> original
+			ForgeGui instance, PoseStack poseStack, int x, int y, int uOffset, int vOffset, int uWidth, int vHeight, Operation<Void> original
 	) {
 		// Move air bubbles on top of health rows
-		DrawHudContext drawHudContext = (DrawHudContext) guiGraphics;
-		if (
-				!(drawHudContext.getShouldRenderStamina() && drawHudContext.getShouldRenderStaminaInPlaceOfHunger())
-						&& YACLConfig.hideHungerBar() && !drawHudContext.getHasMountHealth()
-		) {
+		DrawHudContext drawHudContext = ((ExperienceHudRenderer) this).melancholic_hunger$getDrawHudContext();
+		if (YACLConfig.hideHungerBar() && !drawHudContext.getHasMountHealth()) {
 			// move bar to the left and reverse render order from left to right
 			x = drawHudContext.getMirroredX(x);
 		}
 		y = drawHudContext.getBubblesBarY();
-		original.call(guiGraphics, atlasLocation, x, y, uOffset, vOffset, uWidth, vHeight);
+		original.call(instance, poseStack, x, y, uOffset, vOffset, uWidth, vHeight);
 	}
 
 	@WrapOperation(
 			method = "renderFood",
 			at = @At(
 					value="INVOKE",
-					target="Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/ResourceLocation;IIIIII)V"
+					target="Lnet/minecraftforge/client/gui/overlay/ForgeGui;blit(Lcom/mojang/blaze3d/vertex/PoseStack;IIIIII)V"
 			)
 	)
 	private void melancholic_hunger$modifyRenderFood(
-			GuiGraphics guiGraphics, ResourceLocation atlasLocation, int x, int y, int uOffset, int vOffset, int uWidth, int vHeight, Operation<Void> original
+			ForgeGui forgeGui, PoseStack poseStack, int x, int y, int uOffset, int vOffset, int uWidth, int vHeight, Operation<Void> original
 	) {
 		// Move air bubbles on top of health rows
-		DrawHudContext drawHudContext = (DrawHudContext) guiGraphics;
+		DrawHudContext drawHudContext = ((ExperienceHudRenderer) this).melancholic_hunger$getDrawHudContext();
 		// Disables hunger bar rendering or moves it down if experience bar is disabled
 		if (!YACLConfig.hideHungerBar()) {
 			// hunger bar is drawn at the same height as health bar
 			y = drawHudContext.getHealthBarY();
-			original.call(guiGraphics, atlasLocation, x, y, uOffset, vOffset, uWidth, vHeight);
+			original.call(forgeGui, poseStack, x, y, uOffset, vOffset, uWidth, vHeight);
 		}
-		drawHudContext.renderStamina();
 	}
 
 	/**
 	 * Moves mount health bar according to the exp bar animation position if there is no mount jump bar
 	 */
 	@WrapMethod(method="renderHealthMount", remap=false)
-	private void melancholic_hunger$moveMountHealthBar(int x, int y, GuiGraphics guiGraphics, Operation<Void> original) {
-		if (this.minecraft.player.jumpableVehicle() == null) {
+	private void melancholic_hunger$moveMountHealthBar(int x, int y, PoseStack poseStack, Operation<Void> original) {
+		if (!this.minecraft.player.isRidingJumpable()) {
 			y -= ((ExperienceHudRenderer)this).melancholic_hunger$getExperienceBarAnimation().getCurrentPos() - 7;
 		}
-		original.call(x, y, guiGraphics);
+		original.call(x, y, poseStack);
 	}
 }

@@ -35,7 +35,7 @@ import antigers.melancholic_hunger.hud.ExperienceHudRenderer;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Gui.class)
-public abstract class InGameHudMixin extends GuiComponent implements ExperienceHudRenderer {
+public abstract class GuiMixin extends GuiComponent implements ExperienceHudRenderer {
     @Shadow @Final protected Minecraft minecraft;
     @Shadow protected int screenWidth;
     @Shadow protected int screenHeight;
@@ -203,11 +203,11 @@ public abstract class InGameHudMixin extends GuiComponent implements ExperienceH
      * Draws amount of hearts that can be restored by eating currently held food item
      */
     @WrapOperation(
-        method="renderHearts",
-        at=@At(
-            value="INVOKE",
-            target="Lnet/minecraft/client/gui/Gui;renderHeart(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/gui/Gui$HeartType;IIIZZ)V"
-        )
+            method="renderHearts",
+            at=@At(
+                    value="INVOKE",
+                    target="Lnet/minecraft/client/gui/Gui;renderHeart(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/gui/Gui$HeartType;IIIZZ)V"
+            )
     )
     private void melancholic_hunger$drawRestoredHearts(
             Gui inGameHud, PoseStack poseStack, Gui.HeartType type, int x, int y, int yOffset, boolean renderHighlight,

@@ -17,8 +17,8 @@ public abstract class ScreenMixin extends AbstractContainerEventHandler {
     @Shadow protected Minecraft minecraft;
 
     @Inject(
-        method="renderBackground(Lcom/mojang/blaze3d/vertex/PoseStack;)V",
-        at=@At("TAIL")
+            method="renderBackground(Lcom/mojang/blaze3d/vertex/PoseStack;)V",
+            at=@At("TAIL")
     )
     public void melancholic_hunger$renderExperienceOnTopOfBackground(PoseStack poseStack, CallbackInfo callback) {
         if ((Screen)(Object)this instanceof LoadingErrorScreen) {

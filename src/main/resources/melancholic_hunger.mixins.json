@@ -4,8 +4,8 @@
     "compatibilityLevel": "JAVA_17",
     "refmap": "melancholic_hunger.mixins.refmap.json",
     "mixins": [
-        "HungerManagerMixin",
-        "PlayerEntityMixin",
+        "FoodDataMixin",
+        "PlayerMixin",
         "LivingEntityMixin",
         "ItemStackMixin",
         "CakeBlockMixin"
@@ -14,10 +14,10 @@
         "defaultRequire": 1
     },
     "client": [
-        "ClientMixin",
-        "ClientPlayerEntityMixin",
-        "InGameHudMixin",
         "ForgeGuiMixin",
+        "MinecraftMixin",
+        "LocalPlayerMixin",
+        "GuiMixin",
         "ScreenMixin"
     ]
 }

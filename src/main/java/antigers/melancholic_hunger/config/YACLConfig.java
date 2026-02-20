@@ -33,8 +33,8 @@ public class YACLConfig {
     private static ClientConfigData clientData = new ClientConfigData();
     private static ServerConfigData serverData = new ServerConfigData();
 
-    public static int getFoodHealth(ItemStack itemStack, FoodProperties foodComponent) {
-        return foodComponent.getNutrition();
+    public static int getFoodHealth(ItemStack itemStack, FoodProperties foodProperties) {
+        return foodProperties.getNutrition();
     }
 
     private static void loadConfig() {

@@ -1,14 +1,12 @@
 package antigers.melancholic_hunger.mixin;
 
 import antigers.melancholic_hunger.components.HealthRegenerationComponent;
-import antigers.melancholic_hunger.components.PlayerComponents;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Final;
@@ -19,10 +17,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Player.class)
-public abstract class PlayerEntityMixin extends LivingEntity {
+public abstract class PlayerMixin extends LivingEntity {
     @Final @Shadow private Abilities abilities;
 
-    private PlayerEntityMixin(EntityType<? extends LivingEntity> entityType, Level world)
+    private PlayerMixin(EntityType<? extends LivingEntity> entityType, Level world)
     {
         super(entityType, world);
     }
@@ -31,8 +29,8 @@ public abstract class PlayerEntityMixin extends LivingEntity {
      * Restores player's health after eating food
      */
     @Inject(
-        method = "eat",
-        at = @At("HEAD")
+            method = "eat",
+            at = @At("HEAD")
     )
     private void melancholic_hunger$playerEatFood(
             Level level, ItemStack itemStack, CallbackInfoReturnable<ItemStack> cir

@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Minecraft.class)
-public abstract class ClientMixin {
+public abstract class MinecraftMixin {
     @Shadow @Final private ReloadableResourceManager resourceManager;
     @Unique private final ResourcesReloadListener resourcesReloadListener = new ResourcesReloadListener();
 

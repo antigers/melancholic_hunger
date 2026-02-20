@@ -27,14 +27,15 @@ import java.util.function.BiConsumer;
 
 public class YACLConfig {
     private static final String CONFIG_PREFIX = "screen.melancholic_hunger.config.";
+    private static boolean isLoadedFromDisk = false;
 
     @SerialEntry(value = "clientOptions")
     private static ClientConfigData clientData = new ClientConfigData();
     @SerialEntry(value = "serverOptions")
     private static ServerConfigData serverData = new ServerConfigData();
 
-    public static int getFoodHealth(ItemStack itemStack, FoodProperties foodComponent) {
-        return foodComponent.nutrition();
+    public static int getFoodHealth(ItemStack itemStack, FoodProperties foodProperties) {
+        return foodProperties.nutrition();
     }
 
     private static final ConfigClassHandler<YACLConfig> HANDLER = ConfigClassHandler.createBuilder(YACLConfig.class)
@@ -449,6 +450,9 @@ public class YACLConfig {
     }
 
     public static void loadFromDisk() {
+        if (isLoadedFromDisk) {
+            return;
+        }
         HANDLER.load();
         for (var option : ALL_OPTIONS) {
             option.validateValue();
@@ -457,6 +461,7 @@ public class YACLConfig {
             // hideHungerBar option is hidden when NT is not installed, so we have to correct its value
             HIDE_HUNGER_BAR.setValue(false);
         }
+        isLoadedFromDisk = true;
     }
 
     public static void saveToDisk() {
@@ -464,6 +469,7 @@ public class YACLConfig {
     }
 
     public static ClientConfigData.ImmutableClientConfigData getClientData() {
+        loadFromDisk();
         return clientData.getImmutable();
     }
 
@@ -481,6 +487,7 @@ public class YACLConfig {
     }
 
     public static ServerConfigData.ImmutableServerConfigData getServerData() {
+        loadFromDisk();
         return serverData.getImmutable();
     }
 

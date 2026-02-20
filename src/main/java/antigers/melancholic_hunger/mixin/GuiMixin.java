@@ -41,7 +41,7 @@ import org.spongepowered.asm.mixin.injection.*;
 import java.util.Objects;
 
 @Mixin(Gui.class)
-public abstract class InGameHudMixin implements ExperienceHudRenderer {
+public abstract class GuiMixin implements ExperienceHudRenderer {
     @Shadow private Pair<Gui.ContextualInfo, ContextualBarRenderer> contextualInfoBar;
     @Shadow @Final private Minecraft minecraft;
     @Shadow @Nullable protected abstract Player getCameraPlayer();
@@ -324,11 +324,11 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
      * Disables hunger bar rendering or moves it down if experience bar is disabled
      */
     @WrapOperation(
-        method = "renderPlayerHealth",
-        at = @At(
-            value="INVOKE",
-            target="Lnet/minecraft/client/gui/Gui;renderFood(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/entity/player/Player;II)V"
-        )
+            method = "renderPlayerHealth",
+            at = @At(
+                    value="INVOKE",
+                    target="Lnet/minecraft/client/gui/Gui;renderFood(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/entity/player/Player;II)V"
+            )
     )
     private void melancholic_hunger$disableHungerBar(
             Gui instance, GuiGraphics drawContext, Player player, int top, int right,
@@ -345,11 +345,11 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
      * Calculates positions of armor and bubbles bars
      */
     @WrapOperation(
-        method="renderPlayerHealth",
-        at=@At(
-            value="INVOKE",
-            target="Lnet/minecraft/client/gui/Gui;renderArmor(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/entity/player/Player;IIII)V"
-        )
+            method="renderPlayerHealth",
+            at=@At(
+                    value="INVOKE",
+                    target="Lnet/minecraft/client/gui/Gui;renderArmor(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/entity/player/Player;IIII)V"
+            )
     )
     private void melancholic_hunger$wrapRenderArmor(
             GuiGraphics drawContext, Player player, int i, int j, int k, int x, Operation<Void> original
@@ -387,11 +387,11 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
      * Moves armor bar right and down because hunger and experience bars are disabled
      */
     @WrapOperation(
-        method="renderArmor",
-        at=@At(
-            value="INVOKE",
-            target="Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/ResourceLocation;IIII)V"
-        )
+            method="renderArmor",
+            at=@At(
+                    value="INVOKE",
+                    target="Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/ResourceLocation;IIII)V"
+            )
     )
     private static void melancholic_hunger$moveArmorBar(
             GuiGraphics drawContext, RenderPipeline pipeline, ResourceLocation texture, int x, int y, int width, int height,
@@ -418,11 +418,11 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
      * Moves health bar down because experience bar is disabled
      */
     @WrapOperation(
-        method="renderPlayerHealth",
-        at=@At(
-            value="INVOKE",
-            target="Lnet/minecraft/client/gui/Gui;renderHearts(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/entity/player/Player;IIIIFIIIZ)V"
-        )
+            method="renderPlayerHealth",
+            at=@At(
+                    value="INVOKE",
+                    target="Lnet/minecraft/client/gui/Gui;renderHearts(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/entity/player/Player;IIIIFIIIZ)V"
+            )
     )
     private void melancholic_hunger$moveHealthBar(
             Gui inGameHud, GuiGraphics drawContext, Player player, int x, int y, int lines,
@@ -451,11 +451,11 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
      * Draws amount of hearts that can be restored by eating currently held food item
      */
     @WrapOperation(
-        method="renderHearts",
-        at=@At(
-            value="INVOKE",
-            target="Lnet/minecraft/client/gui/Gui;renderHeart(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/gui/Gui$HeartType;IIZZZ)V"
-        )
+            method="renderHearts",
+            at=@At(
+                    value="INVOKE",
+                    target="Lnet/minecraft/client/gui/Gui;renderHeart(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/gui/Gui$HeartType;IIZZZ)V"
+            )
     )
     private void melancholic_hunger$drawRestoredHearts(
             Gui inGameHud, GuiGraphics drawContext, Gui.HeartType type, int x, int y, boolean hardcore,

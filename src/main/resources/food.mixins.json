@@ -7,7 +7,7 @@
         "FoodDataMixin",
         "ItemInstanceMixin",
         "LivingEntityMixin",
-        "PlayerEntityMixin",
+        "PlayerMixin",
         "CakeBlockMixin"
     ],
     "injectors": {

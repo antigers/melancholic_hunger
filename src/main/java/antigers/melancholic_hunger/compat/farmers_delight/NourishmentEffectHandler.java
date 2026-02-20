@@ -2,36 +2,36 @@ package antigers.melancholic_hunger.compat.farmers_delight;
 
 import antigers.melancholic_hunger.MelancholicHunger;
 import antigers.melancholic_hunger.config.YACLConfig;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import vectorwing.farmersdelight.common.effect.NourishmentEffect;
 import vectorwing.farmersdelight.common.registry.ModEffects;
 
 public class NourishmentEffectHandler {
-	public static final RegistryEntry<StatusEffect> NOURISHMENT_HEALTH_BOOST = Registry.registerReference(
-			Registries.STATUS_EFFECT, Identifier.of(MelancholicHunger.MOD_ID, "nourishment_health_boost"), new NourishmentHealthBoostEffect()
-					.addAttributeModifier(EntityAttributes.GENERIC_MAX_HEALTH, Identifier.of(MelancholicHunger.MOD_ID, "effect.health_boost"), 2.0, EntityAttributeModifier.Operation.ADD_VALUE)
+	public static final Holder<MobEffect> NOURISHMENT_HEALTH_BOOST = Registry.registerForHolder(
+			BuiltInRegistries.MOB_EFFECT, ResourceLocation.fromNamespaceAndPath(MelancholicHunger.MOD_ID, "nourishment_health_boost"), new NourishmentHealthBoostEffect()
+					.addAttributeModifier(Attributes.MAX_HEALTH, ResourceLocation.fromNamespaceAndPath(MelancholicHunger.MOD_ID, "effect.health_boost"), 2.0, AttributeModifier.Operation.ADD_VALUE)
 	);
 
 	private static class NourishmentHealthBoostEffect extends NourishmentEffect {
-		public String getTranslationKey() {
-			return ModEffects.NOURISHMENT.value().getTranslationKey();
+		public String getDescriptionId() {
+			return ModEffects.NOURISHMENT.value().getDescriptionId();
 		}
 
-		public boolean canApplyUpdateEffect(int duration, int amplifier) {
+		public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
 			return false;
 		}
 	}
 
-	public static StatusEffectInstance getEffectToApply(StatusEffectInstance effect) {
-		RegistryEntry<StatusEffect> effectType = effect.getEffectType();
+	public static MobEffectInstance getEffectToApply(MobEffectInstance effect) {
+		Holder<MobEffect> effectType = effect.getEffect();
 		if (effectType != ModEffects.NOURISHMENT || !YACLConfig.disableHunger()) {
 			return effect;
 		}
@@ -44,16 +44,16 @@ public class NourishmentEffectHandler {
 		else {
 			amplifier = effect.getAmplifier();
 		}
-		return new StatusEffectInstance(
+		return new MobEffectInstance(
 				effectType, effect.getDuration(), amplifier, effect.isAmbient(), false, true
 		);
 	}
 
-	public static boolean isNourishmentHealthBoost(RegistryEntry<StatusEffect> effect) {
+	public static boolean isNourishmentHealthBoost(Holder<MobEffect> effect) {
 		return effect == NOURISHMENT_HEALTH_BOOST;
 	}
 
-	public static RegistryEntry<StatusEffect> getEffectForSprite(RegistryEntry<StatusEffect> effect) {
+	public static Holder<MobEffect> getEffectForSprite(Holder<MobEffect> effect) {
 		// making nourishment health boost effect use standard nourishment's sprite
 		if (isNourishmentHealthBoost(effect)) {
 			return ModEffects.NOURISHMENT;
@@ -61,8 +61,8 @@ public class NourishmentEffectHandler {
 		return effect;
 	}
 
-	public static boolean playerHasEffect(PlayerEntity player) {
-		return player.hasStatusEffect(ModEffects.NOURISHMENT) || player.hasStatusEffect(NOURISHMENT_HEALTH_BOOST);
+	public static boolean playerHasEffect(Player player) {
+		return player.hasEffect(ModEffects.NOURISHMENT) || player.hasEffect(NOURISHMENT_HEALTH_BOOST);
 	}
 
 	public static void register() {}

@@ -7,13 +7,13 @@ import antigers.melancholic_hunger.config.YACLConfig;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -23,22 +23,22 @@ public abstract class LivingEntityMixin {
      * Replace hunger effect with poison effect. Decreases duration of the effect 2 times
      */
     @WrapMethod(
-        method="addStatusEffect(Lnet/minecraft/entity/effect/StatusEffectInstance;Lnet/minecraft/entity/Entity;)Z"
+            method="addEffect(Lnet/minecraft/world/effect/MobEffectInstance;Lnet/minecraft/world/entity/Entity;)Z"
     )
     boolean melancholic_hunger$addStatusEffect(
-            StatusEffectInstance effect, Entity source, Operation<Boolean> original
+            MobEffectInstance effect, Entity source, Operation<Boolean> original
     ) {
-        if (!(((LivingEntity) (Object) this) instanceof PlayerEntity)) {
+        if (!(((LivingEntity) (Object) this) instanceof Player)) {
             return false;
         }
-        if (effect.getEffectType() == StatusEffects.HUNGER) {
+        if (effect.getEffect() == MobEffects.HUNGER) {
             HungerEffectOption hungerEffect = YACLConfig.hungerEffect();
             if (hungerEffect == HungerEffectOption.DISABLED) {
                 return false;
             }
             else if (hungerEffect == HungerEffectOption.REPLACED_WITH_POISON) {
-                effect = new StatusEffectInstance(
-                        StatusEffects.POISON, effect.getDuration() / 2, effect.getAmplifier()
+                effect = new MobEffectInstance(
+                        MobEffects.POISON, effect.getDuration() / 2, effect.getAmplifier()
                 );
             }
         }
@@ -52,16 +52,16 @@ public abstract class LivingEntityMixin {
      * Enables instant eating
      */
     @WrapOperation(
-            method="setCurrentHand",
+            method="startUsingItem",
             at=@At(
                     value="INVOKE",
-                    target="Lnet/minecraft/item/ItemStack;getMaxUseTime(Lnet/minecraft/entity/LivingEntity;)I"
+                    target="Lnet/minecraft/world/item/ItemStack;getUseDuration(Lnet/minecraft/world/entity/LivingEntity;)I"
             )
     )
     private int melancholic_hunger$setCurrentHandMaxUseTime(
             ItemStack stack, LivingEntity user, Operation<Integer> original
     ) {
-        if (YACLConfig.instantEating() && stack.get(DataComponentTypes.FOOD) != null) {
+        if (YACLConfig.instantEating() && stack.get(DataComponents.FOOD) != null) {
             return 1;
         }
         return original.call(stack, user);

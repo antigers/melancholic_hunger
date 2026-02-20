@@ -3,8 +3,8 @@
     "package": "antigers.melancholic_hunger.mixin",
     "compatibilityLevel": "JAVA_21",
     "mixins": [
-        "HungerManagerMixin",
-        "PlayerEntityMixin",
+        "FoodDataMixin",
+        "PlayerMixin",
         "LivingEntityMixin",
         "ItemStackMixin",
         "CakeBlockMixin"
@@ -13,9 +13,9 @@
         "defaultRequire": 1
     },
     "client": [
-        "ClientMixin",
-        "ClientPlayerEntityMixin",
-        "InGameHudMixin",
+        "MinecraftMixin",
+        "LocalPlayerMixin",
+        "GuiMixin",
         "ScreenMixin",
         "YACLListOptionMixin",
         "TooltipComponentMixin"

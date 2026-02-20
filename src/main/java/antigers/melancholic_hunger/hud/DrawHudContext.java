@@ -1,12 +1,12 @@
 package antigers.melancholic_hunger.hud;
 
 import antigers.melancholic_hunger.config.YACLConfig;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.util.math.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.MultiBufferSource;
 
-public class DrawHudContext extends DrawContext {
+public class DrawHudContext extends GuiGraphics {
     private final int offsetX;
     private final int healthBarY;
     private final int hudExperienceOffset;
@@ -18,17 +18,17 @@ public class DrawHudContext extends DrawContext {
     private final int mountHealthRows;
 
     public DrawHudContext(
-            MinecraftClient client, MatrixStack matrices, VertexConsumerProvider.Immediate vertexConsumers,
+            Minecraft client, PoseStack matrices, MultiBufferSource.BufferSource vertexConsumers,
             RestoredHeartsDrawHelper restoredHeartsDrawHelper, int hudExperienceOffset, boolean hasMountHealth,
             int mountHealthRows
     ) {
         super(client, matrices, vertexConsumers);
         this.restoredHeartsDrawHelper = restoredHeartsDrawHelper;
-        var windowWidth = this.getScaledWindowWidth();
+        var windowWidth = this.guiWidth();
         // fixing offset for odd window width value because vanilla code does integer division by 2 when
         // calculating the x coordinate
         offsetX = windowWidth - ((windowWidth % 2 == 0) ? 9 : 10);
-        healthBarY = this.getScaledWindowHeight() - 32 - hudExperienceOffset;
+        healthBarY = this.guiHeight() - 32 - hudExperienceOffset;
         this.hudExperienceOffset = hudExperienceOffset;
         this.hasMountHealth = hasMountHealth;
         this.mountHealthRows = mountHealthRows;

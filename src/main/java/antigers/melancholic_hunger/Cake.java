@@ -1,7 +1,7 @@
 package antigers.melancholic_hunger;
 
-import net.minecraft.component.type.FoodComponent;
+import net.minecraft.world.food.FoodProperties;
 
 public class Cake {
-	public static final FoodComponent FOOD_COMPONENT = new FoodComponent.Builder().nutrition(2).saturationModifier(0.1F).build();
+	public static final FoodProperties FOOD_PROPERTIES = new FoodProperties.Builder().nutrition(2).saturationModifier(0.1F).build();
 }

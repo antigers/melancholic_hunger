@@ -2,18 +2,24 @@ package antigers.melancholic_hunger;
 
 import antigers.melancholic_hunger.config.YACLConfig;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.hud.InGameHud;
-import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.FoodComponent;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.text.*;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentContents;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.contents.PlainTextContents;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.FormattedCharSink;
+import net.minecraft.util.StringDecomposer;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.TooltipFlag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,32 +27,32 @@ import java.util.List;
 public class FoodItemTooltips {
 	private static final String CONFIG_PREFIX = "gui.melancholic_hunger.regeneration_tooltip.";
 
-	public record FoodHealthTextComponent(int foodNutrition) implements Text, OrderedText {
+	public record FoodHealthTextComponent(int foodNutrition) implements Component, FormattedCharSequence {
 		@Override
 		public Style getStyle() {
 			return Style.EMPTY;
 		}
 
 		@Override
-		public TextContent getContent() {
-			return PlainTextContent.EMPTY;
+		public ComponentContents getContents() {
+			return PlainTextContents.EMPTY;
 		}
 
-		static List<Text> emptySiblings = new ArrayList<>();
+		static List<Component> emptySiblings = new ArrayList<>();
 
 		@Override
-		public List<Text> getSiblings() {
+		public List<Component> getSiblings() {
 			return emptySiblings;
 		}
 
 		@Override
-		public OrderedText asOrderedText() {
+		public FormattedCharSequence getVisualOrderText() {
 			return this;
 		}
 
 		@Override
-		public boolean accept(CharacterVisitor visitor) {
-			return TextVisitFactory.visitFormatted(this, getStyle(), visitor);
+		public boolean accept(FormattedCharSink visitor) {
+			return StringDecomposer.iterateFormatted(this, getStyle(), visitor);
 		}
 
 		public FoodHealthTooltipComponent getComponent() {
@@ -54,7 +60,7 @@ public class FoodItemTooltips {
 		}
 	}
 
-	public static class FoodHealthTooltipComponent implements TooltipComponent
+	public static class FoodHealthTooltipComponent implements ClientTooltipComponent
 	{
 		private final int heartsCount;
 		private final boolean lastHeartIsHalf;
@@ -72,38 +78,38 @@ public class FoodItemTooltips {
 		}
 
 		@Override
-		public int getWidth(TextRenderer textRenderer)
+		public int getWidth(Font font)
 		{
 			return heartsCount * 9;
 		}
 
 		@Override
-		public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext context)
+		public void renderImage(Font font, int x, int y, GuiGraphics context)
 		{
 			y += 2;
 			for (int i = 0; i < heartsCount - 1; i++) {
 				int textureX = x + i * 9;
-				context.drawGuiTexture(InGameHud.HeartType.CONTAINER.getTexture(false, false, false), textureX, y, 9, 9);
-				context.drawGuiTexture(InGameHud.HeartType.NORMAL.getTexture(false, false, false), textureX, y, 9, 9);
+				context.blitSprite(Gui.HeartType.CONTAINER.getSprite(false, false, false), textureX, y, 9, 9);
+				context.blitSprite(Gui.HeartType.NORMAL.getSprite(false, false, false), textureX, y, 9, 9);
 			}
 			int textureX = x + (heartsCount - 1) * 9;
-			context.drawGuiTexture(InGameHud.HeartType.CONTAINER.getTexture(false, lastHeartIsHalf, false), textureX, y, 9, 9);
-			context.drawGuiTexture(InGameHud.HeartType.NORMAL.getTexture(false, lastHeartIsHalf, false), textureX, y, 9, 9);
+			context.blitSprite(Gui.HeartType.CONTAINER.getSprite(false, lastHeartIsHalf, false), textureX, y, 9, 9);
+			context.blitSprite(Gui.HeartType.NORMAL.getSprite(false, lastHeartIsHalf, false), textureX, y, 9, 9);
 		}
 	}
 
-	private static void appendTooltip(ItemStack stack, Item.TooltipContext context, TooltipType tooltipType, List<Text> lines) {
-		FoodComponent foodComponent = stack.get(DataComponentTypes.FOOD);
-		if (foodComponent == null) {
+	private static void appendTooltip(ItemStack stack, Item.TooltipContext context, TooltipFlag tooltipType, List<Component> lines) {
+		FoodProperties foodProperties = stack.get(DataComponents.FOOD);
+		if (foodProperties == null) {
 			if (stack.getItem() != Items.CAKE) {
 				return;
 			}
-			foodComponent = Cake.FOOD_COMPONENT;
+			foodProperties = Cake.FOOD_PROPERTIES;
 		}
 		if (!YACLConfig.showFoodItemTooltips()) {
 			return;
 		}
-		int foodNutrition = YACLConfig.getFoodHealth(stack, foodComponent);
+		int foodNutrition = YACLConfig.getFoodHealth(stack, foodProperties);
 		if (foodNutrition <= 0) {
 			return;
 		}
@@ -111,28 +117,28 @@ public class FoodItemTooltips {
 		if (!YACLConfig.gradualHealthRegeneration()) {
 			return;
 		}
-		float regenerationRatio = foodNutrition / foodComponent.saturation();
+		float regenerationRatio = foodNutrition / foodProperties.saturation();
 		String regenerationRate;
-		Formatting formatting;
+		ChatFormatting formatting;
 		if (regenerationRatio <= 0.5F) {
 			regenerationRate = CONFIG_PREFIX + "super_fast";
-			formatting = Formatting.DARK_PURPLE;
+			formatting = ChatFormatting.DARK_PURPLE;
 		} else if (regenerationRatio <= 0.8F) {
 			regenerationRate = CONFIG_PREFIX + "very_fast";
-			formatting = Formatting.DARK_GREEN;
+			formatting = ChatFormatting.DARK_GREEN;
 		} else if (regenerationRatio <= 1.6F) {
 			regenerationRate = CONFIG_PREFIX + "fast";
-			formatting = Formatting.GREEN;
+			formatting = ChatFormatting.GREEN;
 		} else if (regenerationRatio <= 2.5F) {
 			regenerationRate = CONFIG_PREFIX + "slow";
-			formatting = Formatting.RED;
+			formatting = ChatFormatting.RED;
 		} else {
 			regenerationRate = CONFIG_PREFIX + "very_slow";
-			formatting = Formatting.DARK_RED;
+			formatting = ChatFormatting.DARK_RED;
 		}
 		lines.add(
-				Text.translatable(CONFIG_PREFIX + "template", Text.translatable(regenerationRate))
-						.setStyle(Style.EMPTY.withColor(formatting.getColorValue()))
+				Component.translatable(CONFIG_PREFIX + "template", Component.translatable(regenerationRate))
+						.setStyle(Style.EMPTY.withColor(formatting.getColor()))
 		);
 	}
 

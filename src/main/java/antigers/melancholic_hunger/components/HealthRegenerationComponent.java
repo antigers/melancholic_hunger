@@ -7,14 +7,14 @@ import antigers.melancholic_hunger.compat.farmers_delight.NourishmentEffectHandl
 import antigers.melancholic_hunger.config.YACLConfig;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.ItemStack;
 import net.fabricmc.api.EnvType;
-import net.minecraft.component.type.FoodComponent;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.server.network.ServerPlayerEntity;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 import org.ladysnake.cca.api.v3.util.CheckEnvironment;
@@ -28,7 +28,7 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
         private int ticksCounter = 0;
         private final int ticksToHeal;
 
-        ConsumedFood (FoodComponent foodComponent, int foodNutrition) {
+        ConsumedFood (FoodProperties foodComponent, int foodNutrition) {
             this.foodComponentId = foodComponent.hashCode();
             this.foodNutrition = foodNutrition;
             this.ticksToHeal = Math.max(
@@ -58,21 +58,21 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
 
     private final TypeToken<HashSet<ConsumedFood>> consumedFoodSetTypeToken = new TypeToken<>() {};
 
-    private final PlayerEntity player;
+    private final Player player;
     private HashSet<ConsumedFood> consumedFoods = new HashSet<>();
     private int consumedNutrition = 0;
     private final Gson gson = new Gson();
 
-    public HealthRegenerationComponent(PlayerEntity player) {
+    public HealthRegenerationComponent(Player player) {
         this.player = player;
     }
 
-    public static HealthRegenerationComponent get(PlayerEntity player) {
+    public static HealthRegenerationComponent get(Player player) {
         return PlayerComponents.HEALTH_REGENERATION.get(player);
     }
 
     @Override
-    public void readFromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.consumedNutrition = Math.max(tag.getInt("consumedNutrition"), 0);
         var consumedFoodsStr = tag.getString("consumedFoods");
         if (!consumedFoodsStr.isEmpty()) {
@@ -81,24 +81,24 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
     }
 
     @Override
-    public void writeToNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("consumedNutrition", this.consumedNutrition);
         tag.putString("consumedFoods", gson.toJson(this.consumedFoods));
     }
 
     @Override
-    public void writeSyncPacket(RegistryByteBuf buf, ServerPlayerEntity recipient) {
+    public void writeSyncPacket(RegistryFriendlyByteBuf buf, ServerPlayer recipient) {
         buf.writeInt(consumedNutrition);
     }
 
     @Override
     @CheckEnvironment(EnvType.CLIENT)
-    public void applySyncPacket(RegistryByteBuf buf) {
+    public void applySyncPacket(RegistryFriendlyByteBuf buf) {
         consumedNutrition = buf.readInt();
     }
 
     @Override
-    public boolean shouldSyncWith(ServerPlayerEntity player) {
+    public boolean shouldSyncWith(ServerPlayer player) {
         return player == this.player; // only sync with the provider itself
     }
 
@@ -151,7 +151,7 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
 
     public boolean canEat() {
         if (!YACLConfig.disableHunger()) {
-            return player.getHungerManager().isNotFull();
+            return player.getFoodData().needsFood();
         }
         if (!YACLConfig.gradualHealthRegeneration()) {
             return player.getHealth() < player.getMaxHealth();
@@ -159,8 +159,8 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
         return player.getHealth() + consumedNutrition < player.getMaxHealth();
     }
 
-    public void eat(ItemStack itemStack, FoodComponent foodComponent) {
-        if (!(player instanceof ServerPlayerEntity) || !YACLConfig.disableHunger()) {
+    public void eat(ItemStack itemStack, FoodProperties foodComponent) {
+        if (!(player instanceof ServerPlayer) || !YACLConfig.disableHunger()) {
             return;
         }
         var foodHealth = YACLConfig.getFoodHealth(itemStack, foodComponent);

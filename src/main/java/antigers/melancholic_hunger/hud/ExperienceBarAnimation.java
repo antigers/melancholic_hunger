@@ -1,7 +1,7 @@
 package antigers.melancholic_hunger.hud;
 
 import antigers.melancholic_hunger.config.YACLConfig;
-import net.minecraft.util.Util;
+import net.minecraft.Util;
 
 public class ExperienceBarAnimation {
     private static final int ANIMATION_TIME = 150;
@@ -32,7 +32,7 @@ public class ExperienceBarAnimation {
     }
 
     public void onGainExperience() {
-        var now = Util.getMeasuringTimeMs();
+        var now = Util.getMillis();
         drawUntil = now + 3000;
         beginIfNotAlready(now);
     }
@@ -44,7 +44,7 @@ public class ExperienceBarAnimation {
             currentOpacity = 1.0F;
             return;
         }
-        var now = Util.getMeasuringTimeMs();
+        var now = Util.getMillis();
         if (isExpBarDrawnConstantly) {
             drawUntil = 0;
             beginIfNotAlready(now);

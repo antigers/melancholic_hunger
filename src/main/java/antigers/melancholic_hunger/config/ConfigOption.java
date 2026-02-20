@@ -6,9 +6,9 @@ import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.OptionDescription;
 import dev.isxander.yacl3.api.OptionEventListener;
 import dev.isxander.yacl3.api.controller.ControllerBuilder;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -34,17 +34,17 @@ class ConfigOption<T, U> {
             return configOption.YACLOption.pendingValue().equals(requiredValue);
         }
 
-        Text getDependentOptionDescription() {
+        Component getDependentOptionDescription() {
             var value = configOption.YACLOption.pendingValue();
             if (value instanceof Boolean valueBool) {
                 return valueBool ?
-                        Text.translatable(CONFIG_PREFIX + "dependency_required_value_enabled") :
-                        Text.translatable(CONFIG_PREFIX + "dependency_required_value_not_enabled");
+                        Component.translatable(CONFIG_PREFIX + "dependency_required_value_enabled") :
+                        Component.translatable(CONFIG_PREFIX + "dependency_required_value_not_enabled");
             }
-            return Text.translatable(
+            return Component.translatable(
                     CONFIG_PREFIX + "dependency_required_value_not_set_to",
                     requiredValue == SprintingOption.LIMITED_BY_HEALTH
-                            ? Text.translatable(CONFIG_PREFIX + "sprinting_limited_by_health_option")
+                            ? Component.translatable(CONFIG_PREFIX + "sprinting_limited_by_health_option")
                             : requiredValue.toString()
             );
         }
@@ -78,9 +78,9 @@ class ConfigOption<T, U> {
     }
 
     public static boolean getPlayerHasPermission() {
-        var client = MinecraftClient.getInstance();
+        var client = Minecraft.getInstance();
         var player = client.player;
-        return client.isInSingleplayer() || player == null || player.hasPermissionLevel(2);
+        return client.isSingleplayer() || player == null || player.hasPermissions(2);
     }
 
     protected void setValueToDefault() {
@@ -137,28 +137,28 @@ class ConfigOption<T, U> {
 
     protected OptionDescription buildOptionDescription(T value) {
         var descriptionBuilder = OptionDescription.createBuilder().text(
-                Text.literal("\n"), Text.translatable(OPTION_CONFIG_PREFIX + name + ".description")
+                Component.literal("\n"), Component.translatable(OPTION_CONFIG_PREFIX + name + ".description")
         );
         if (InstalledMods.NOSTALGIC_TWEAKS && nostalgicTweaksRelated) {
             descriptionBuilder.text(
-                    Text.literal("\n"),
-                    Text.translatable(CONFIG_PREFIX + "nostalgic_tweaks_controlled_option")
+                    Component.literal("\n"),
+                    Component.translatable(CONFIG_PREFIX + "nostalgic_tweaks_controlled_option")
                             .setStyle(Style.EMPTY.withColor(9868950).withItalic(true))
             );
         }
         if (!playerHasPermission) {
             descriptionBuilder.text(
-                    Text.literal("\n"),
-                    Text.translatable(CONFIG_PREFIX + "op_privileges_required_option")
+                    Component.literal("\n"),
+                    Component.translatable(CONFIG_PREFIX + "op_privileges_required_option")
                             .setStyle(Style.EMPTY.withColor(16733525).withItalic(true))
             );
         }
         else if (dependency != null && !dependency.isPendingValueEqualsRequired()) {
             descriptionBuilder.text(
-                    Text.literal("\n"),
-                    Text.translatable(
+                    Component.literal("\n"),
+                    Component.translatable(
                             CONFIG_PREFIX + "dependency_required_option",
-                            Text.translatable(OPTION_CONFIG_PREFIX + dependency.configOption.name + ".name"),
+                            Component.translatable(OPTION_CONFIG_PREFIX + dependency.configOption.name + ".name"),
                             dependency.getDependentOptionDescription()
                     ).setStyle(Style.EMPTY.withColor(15118857).withItalic(true))
             );
@@ -215,7 +215,7 @@ class ConfigOption<T, U> {
 
     public Option<T> buildYACLOption(Function<Option<T>, ControllerBuilder<T>> controllerBuilder) {
         YACLOption = Option.<T>createBuilder()
-                .name(Text.translatable(OPTION_CONFIG_PREFIX + name + ".name"))
+                .name(Component.translatable(OPTION_CONFIG_PREFIX + name + ".name"))
                 .binding(defaultValue, getter, setter)
                 .controller(controllerBuilder)
                 .available(getOptionAvailability())

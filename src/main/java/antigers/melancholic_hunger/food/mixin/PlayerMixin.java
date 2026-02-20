@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(Player.class)
-public abstract class PlayerEntityMixin extends LivingEntity {
+public abstract class PlayerMixin extends LivingEntity {
     @Final @Shadow private Abilities abilities;
 
     @Shadow
@@ -24,7 +24,7 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     @Shadow
     public abstract Abilities getAbilities();
 
-    private PlayerEntityMixin(EntityType<? extends LivingEntity> entityType, Level world)
+    private PlayerMixin(EntityType<? extends LivingEntity> entityType, Level world)
     {
         super(entityType, world);
     }

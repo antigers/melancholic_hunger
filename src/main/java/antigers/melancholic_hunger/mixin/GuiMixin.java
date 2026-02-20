@@ -8,14 +8,12 @@ import antigers.melancholic_hunger.hud.ExperienceBarAnimation;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.*;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.MobEffectTextureManager;
 import net.minecraft.core.Holder;
@@ -25,7 +23,6 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -37,7 +34,7 @@ import antigers.melancholic_hunger.hud.RestoredHeartsDrawHelper;
 import antigers.melancholic_hunger.hud.ExperienceHudRenderer;
 
 @Mixin(Gui.class)
-public abstract class InGameHudMixin implements ExperienceHudRenderer {
+public abstract class GuiMixin implements ExperienceHudRenderer {
     @Shadow @Final private Minecraft minecraft;
     @Shadow private void renderExperienceLevel(GuiGraphics context, DeltaTracker tickCounter) {};
     @Shadow @Nullable protected abstract Player getCameraPlayer();
@@ -222,25 +219,14 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
 
     @Unique
     private static void melancholic_hunger$drawGuiTextureInversed(
-            GuiGraphics drawContext, ResourceLocation texture, int x, int y, int width, int height
+            GuiGraphics drawContext, ResourceLocation texture, int x1, int y1, int width, int height
     ) {
         TextureAtlasSprite sprite = Minecraft.getInstance().getGuiSprites().getSprite(texture);
-        RenderSystem.setShaderTexture(0, sprite.atlasLocation());
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-
-        Matrix4f matrix4f = drawContext.pose().last().pose();
-        Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder builder = tessellator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-
         float u1 = sprite.getU0(), u2 = sprite.getU1();
         float v1 = sprite.getV0(), v2 = sprite.getV1();
-
-        builder.addVertex(matrix4f, x, y + height, 0.0F).setUv(u2, v2);
-        builder.addVertex(matrix4f, x + width, y + height, 0.0F).setUv(u1, v2);
-        builder.addVertex(matrix4f, x + width, y, 0.0F).setUv(u1, v1);
-        builder.addVertex(matrix4f, x, y, 0.0F).setUv(u2, v1);
-
-        BufferUploader.drawWithShader(builder.buildOrThrow());
+        int x2 = x1 + width;
+        int y2 = y1 + height;
+        drawContext.innerBlit(sprite.atlasLocation(), x1, x2, y1, y2, 0, u2, u1, v1, v2);
     }
 
     @Unique
@@ -258,11 +244,11 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
      * Moves armor bar right and down because hunger and experience bars are disabled
      */
     @WrapOperation(
-        method="renderArmor",
-        at=@At(
-            value="INVOKE",
-            target="Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lnet/minecraft/resources/ResourceLocation;IIII)V"
-        )
+            method="renderArmor",
+            at=@At(
+                    value="INVOKE",
+                    target="Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lnet/minecraft/resources/ResourceLocation;IIII)V"
+            )
     )
     private static void melancholic_hunger$moveArmorBar(
             GuiGraphics drawContext, ResourceLocation texture, int x, int y, int width, int height, Operation<Void> original
@@ -316,11 +302,11 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
      * Draws amount of hearts that can be restored by eating currently held food item
      */
     @WrapOperation(
-        method="renderHearts",
-        at=@At(
-            value="INVOKE",
-            target="Lnet/minecraft/client/gui/Gui;renderHeart(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/gui/Gui$HeartType;IIZZZ)V"
-        )
+            method="renderHearts",
+            at=@At(
+                    value="INVOKE",
+                    target="Lnet/minecraft/client/gui/Gui;renderHeart(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/gui/Gui$HeartType;IIZZZ)V"
+            )
     )
     private void melancholic_hunger$drawRestoredHearts(
             Gui inGameHud, GuiGraphics drawContext, Gui.HeartType type, int x, int y, boolean hardcore,

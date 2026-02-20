@@ -36,11 +36,11 @@ public class YACLConfig {
     @SerialEntry(value = "serverOptions")
     private static ServerConfigData serverData = new ServerConfigData();
 
-    public static int getFoodHealth(ItemStack itemStack, FoodProperties foodComponent) {
+    public static int getFoodHealth(ItemStack itemStack, FoodProperties foodProperties) {
         if (InstalledMods.NOSTALGIC_TWEAKS && GameplayTweak.CUSTOM_FOOD_HEALTH.get().containsItem(itemStack)) {
             return GameplayTweak.CUSTOM_FOOD_HEALTH.get().valueFrom(itemStack);
         }
-        return foodComponent.nutrition();
+        return foodProperties.nutrition();
     }
 
     private static final ConfigClassHandler<YACLConfig> HANDLER = ConfigClassHandler.createBuilder(YACLConfig.class)

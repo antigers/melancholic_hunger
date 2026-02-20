@@ -21,7 +21,6 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLPaths;
 
@@ -38,11 +37,11 @@ public class YACLConfig {
     @SerialEntry(value = "serverOptions")
     private static ServerConfigData serverData = new ServerConfigData();
 
-    public static int getFoodHealth(ItemStack itemStack, FoodProperties foodComponent) {
+    public static int getFoodHealth(ItemStack itemStack, FoodProperties foodProperties) {
         if (InstalledMods.NOSTALGIC_TWEAKS && GameplayTweak.CUSTOM_FOOD_HEALTH.get().containsItem(itemStack)) {
             return GameplayTweak.CUSTOM_FOOD_HEALTH.get().valueFrom(itemStack);
         }
-        return foodComponent.getNutrition();
+        return foodProperties.getNutrition();
     }
 
     private static final ConfigClassHandler<YACLConfig> HANDLER = ConfigClassHandler.createBuilder(YACLConfig.class)

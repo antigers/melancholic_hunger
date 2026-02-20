@@ -17,10 +17,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LocalPlayer.class)
-public abstract class ClientPlayerEntityMixin extends AbstractClientPlayer {
+public abstract class LocalPlayerMixin extends AbstractClientPlayer {
     @Shadow @Final protected Minecraft minecraft;
 
-    public ClientPlayerEntityMixin(ClientLevel clientLevel, GameProfile profile) {
+    public LocalPlayerMixin(ClientLevel clientLevel, GameProfile profile) {
         super(clientLevel, profile);
     }
 

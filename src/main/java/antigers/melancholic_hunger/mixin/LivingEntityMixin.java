@@ -22,7 +22,7 @@ public abstract class LivingEntityMixin {
      * Replace hunger effect with poison effect. Decreases duration of the effect 2 times
      */
     @WrapMethod(
-        method="addEffect(Lnet/minecraft/world/effect/MobEffectInstance;Lnet/minecraft/world/entity/Entity;)Z"
+            method="addEffect(Lnet/minecraft/world/effect/MobEffectInstance;Lnet/minecraft/world/entity/Entity;)Z"
     )
     boolean melancholic_hunger$addStatusEffect(
             MobEffectInstance effect, Entity source, Operation<Boolean> original

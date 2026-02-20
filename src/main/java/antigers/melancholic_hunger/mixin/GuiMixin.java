@@ -30,7 +30,7 @@ import antigers.melancholic_hunger.hud.RestoredHeartsDrawHelper;
 import antigers.melancholic_hunger.hud.ExperienceHudRenderer;
 
 @Mixin(Gui.class)
-public abstract class InGameHudMixin implements ExperienceHudRenderer {
+public abstract class GuiMixin implements ExperienceHudRenderer {
     @Shadow @Final private Minecraft minecraft;
     @Shadow private void renderExperienceBar(GuiGraphics context, int x) {};
     @Shadow @Final private static ResourceLocation GUI_ICONS_LOCATION;
@@ -155,11 +155,11 @@ public abstract class InGameHudMixin implements ExperienceHudRenderer {
      * Draws amount of hearts that can be restored by eating currently held food item
      */
     @WrapOperation(
-        method="renderHearts",
-        at=@At(
-            value="INVOKE",
-            target="Lnet/minecraft/client/gui/Gui;renderHeart(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/gui/Gui$HeartType;IIIZZ)V"
-        )
+            method="renderHearts",
+            at=@At(
+                    value="INVOKE",
+                    target="Lnet/minecraft/client/gui/Gui;renderHeart(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/gui/Gui$HeartType;IIIZZ)V"
+            )
     )
     private void melancholic_hunger$drawRestoredHearts(
             Gui inGameHud, GuiGraphics drawContext, Gui.HeartType type, int x, int y, int yOffset, boolean renderHighlight,

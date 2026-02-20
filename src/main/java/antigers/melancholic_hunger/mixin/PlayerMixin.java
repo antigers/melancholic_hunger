@@ -19,10 +19,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Player.class)
-public abstract class PlayerEntityMixin extends LivingEntity {
+public abstract class PlayerMixin extends LivingEntity {
     @Final @Shadow private Abilities abilities;
 
-    private PlayerEntityMixin(EntityType<? extends LivingEntity> entityType, Level world)
+    private PlayerMixin(EntityType<? extends LivingEntity> entityType, Level world)
     {
         super(entityType, world);
     }
@@ -31,8 +31,8 @@ public abstract class PlayerEntityMixin extends LivingEntity {
      * Restores player's health after eating food
      */
     @Inject(
-        method = "eat",
-        at = @At("HEAD")
+            method = "eat",
+            at = @At("HEAD")
     )
     private void melancholic_hunger$playerEatFood(
             Level level, ItemStack itemStack, CallbackInfoReturnable<ItemStack> cir

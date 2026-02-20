@@ -12,10 +12,10 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(LocalPlayer.class)
-public abstract class ClientPlayerEntityMixin extends AbstractClientPlayer {
+public abstract class LocalPlayerMixin extends AbstractClientPlayer {
     @Shadow public int experienceDisplayStartTick;
 
-    public ClientPlayerEntityMixin(ClientLevel world, GameProfile profile) {
+    public LocalPlayerMixin(ClientLevel world, GameProfile profile) {
         super(world, profile);
     }
 

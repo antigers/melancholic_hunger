@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(LocatorBarRenderer.class)
-public class LocatorBarMixin {
+public class LocatorBarRendererMixin {
     @Unique DrawHudContext drawHudContext;
 
     /**

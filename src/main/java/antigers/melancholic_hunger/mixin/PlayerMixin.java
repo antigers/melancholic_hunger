@@ -15,9 +15,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(Player.class)
-public abstract class PlayerEntityMixin extends LivingEntity {
+public abstract class PlayerMixin extends LivingEntity {
     @Final @Shadow private Abilities abilities;
 
+<<<<<<< HEAD:src/main/java/antigers/melancholic_hunger/mixin/PlayerEntityMixin.java
     @Shadow
     public abstract FoodData getFoodData();
 
@@ -25,6 +26,9 @@ public abstract class PlayerEntityMixin extends LivingEntity {
     public abstract Abilities getAbilities();
 
     private PlayerEntityMixin(EntityType<? extends LivingEntity> entityType, Level world)
+=======
+    private PlayerMixin(EntityType<? extends LivingEntity> entityType, Level world)
+>>>>>>> 1.21.10:src/main/java/antigers/melancholic_hunger/mixin/PlayerMixin.java
     {
         super(entityType, world);
     }

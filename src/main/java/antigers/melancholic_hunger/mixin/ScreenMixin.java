@@ -16,8 +16,8 @@ public abstract class ScreenMixin extends AbstractContainerEventHandler {
     @Shadow protected Minecraft minecraft;
 
     @Inject(
-        method="renderTransparentBackground",
-        at=@At("TAIL")
+            method="renderTransparentBackground",
+            at=@At("TAIL")
     )
     public void melancholic_hunger$renderExperienceOnTopOfBackground(GuiGraphics guiGraphics, CallbackInfo callback) {
         ExperienceHudRenderer inGameHud = (ExperienceHudRenderer) this.minecraft.gui;

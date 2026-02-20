@@ -9,8 +9,8 @@
         "defaultRequire": 1
     },
     "client": [
-        "AbstractInventoryScreenMixin",
         "ComfortHealthOverlayMixin",
-        "NourishmentHungerOverlayMixin"
+        "NourishmentHungerOverlayMixin",
+        "EffectRenderingInventoryScreenMixin"
     ]
 }

@@ -1,7 +1,6 @@
 package antigers.melancholic_hunger.hud;
 
 import antigers.melancholic_hunger.InstalledMods;
-import antigers.melancholic_hunger.MelancholicHunger;
 import antigers.melancholic_hunger.config.SprintingOption;
 import antigers.melancholic_hunger.config.YACLConfig;
 import com.mojang.blaze3d.vertex.PoseStack;

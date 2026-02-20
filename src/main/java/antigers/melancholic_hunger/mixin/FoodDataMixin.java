@@ -9,14 +9,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(FoodData.class)
-public abstract class HungerManagerMixin {
+public abstract class FoodDataMixin {
     /**
      * Disables hunger manager from doing its logic
      */
     @Inject(
-        method = "tick",
-        at = @At("HEAD"),
-        cancellable = true
+            method = "tick",
+            at = @At("HEAD"),
+            cancellable = true
     )
     public void melancholic_hunger$disableHunger(Player player, CallbackInfo callback) {
         if (YACLConfig.disableHunger()) {

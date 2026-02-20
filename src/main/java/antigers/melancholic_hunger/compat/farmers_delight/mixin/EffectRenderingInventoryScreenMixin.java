@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(EffectRenderingInventoryScreen.class)
-public class AbstractInventoryScreenMixin {
+public class EffectRenderingInventoryScreenMixin {
 	@WrapOperation(
 			method="renderIcons",
 			at=@At(

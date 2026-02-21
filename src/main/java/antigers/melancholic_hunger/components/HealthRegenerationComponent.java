@@ -114,6 +114,12 @@ public class HealthRegenerationComponent implements INBTSerializable<CompoundTag
             }
             return;
         }
+        if (YACLConfig.stopRegenerationAtFullHealth() && player.getHealth() >= player.getMaxHealth()) {
+            consumedFoods.clear();
+            consumedNutrition = 0;
+            sync();
+            return;
+        }
         var digestingFoods = new HashSet<Integer>();
         boolean needsSync = false;
         float regenSpeedMultiplier = 1.0F;

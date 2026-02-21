@@ -43,6 +43,10 @@ repositories {
             includeGroup "maven.modrinth"
         }
     }
+	maven {
+		name = 'ParchmentMC'
+		url = 'https://maven.parchmentmc.org'
+	}
 	exclusiveContent {
 		forRepository {
 			maven {

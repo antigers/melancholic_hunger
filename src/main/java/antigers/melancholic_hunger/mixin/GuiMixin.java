@@ -388,19 +388,11 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
      * Moves armor bar right and down because hunger and experience bars are disabled
      */
     @WrapOperation(
-<<<<<<< HEAD:src/main/java/antigers/melancholic_hunger/mixin/InGameHudMixin.java
-        method="renderArmor",
-        at=@At(
-            value="INVOKE",
-            target="Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIII)V"
-        )
-=======
             method="renderArmor",
             at=@At(
                     value="INVOKE",
-                    target="Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/ResourceLocation;IIII)V"
+                    target="Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIII)V"
             )
->>>>>>> 1.21.10:src/main/java/antigers/melancholic_hunger/mixin/GuiMixin.java
     )
     private static void melancholic_hunger$moveArmorBar(
             GuiGraphics guiGraphics, RenderPipeline pipeline, Identifier texture, int x, int y, int width, int height,

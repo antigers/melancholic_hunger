@@ -55,6 +55,8 @@
     "screen.melancholic_hunger.config.button.set_all_food_stack_sizes_to_64.description": "Устанавливает 64 в качестве размера стопок для всех предметов еды (максимальный размер стопок)",
     "screen.melancholic_hunger.config.option.customFoodStackSizes.name": "Размеры стопок предметов еды",
     "screen.melancholic_hunger.config.option.customFoodStackSizes.description": "Позволяет установить нестандартный максимальный размер стопок для определённых предметов еды",
+    "screen.melancholic_hunger.config.option.farmersDelightFoodStackSizes.name": "Размеры стопок предметов еды из Farmer's Delight",
+    "screen.melancholic_hunger.config.option.farmersDelightFoodStackSizes.description": "Позволяет установить нестандартный максимальный размер стопок для предметов еды из мода Farmer's Delight",
     "screen.melancholic_hunger.config.option.hideExperienceBar.name": "Спрятать полоску опыта",
     "screen.melancholic_hunger.config.option.hideExperienceBar.description": "Позволяет убрать полоску опыта с экрана игрока",
     "screen.melancholic_hunger.config.option.showExperienceInInventory.name": "Показывать полоску опыта в инвентаре",

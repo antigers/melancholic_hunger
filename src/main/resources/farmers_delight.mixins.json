@@ -3,7 +3,8 @@
     "plugin": "antigers.melancholic_hunger.compat.farmers_delight.FarmersDelightMixinPlugin",
     "compatibilityLevel": "JAVA_17",
     "mixins": [
-        "ComfortEffectMixin"
+        "ComfortEffectMixin",
+        "PieBlockMixin"
     ],
     "injectors": {
         "defaultRequire": 1

@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -18,8 +19,8 @@ import java.util.function.Supplier;
  */
 public class ItemIntegerMapConfigOption extends ConfigOption<List<String>, Boolean> {
     private static String translationsLanguage = null;
-    private static final HashMap<String, String> translationsToIds = new HashMap<>();
-    private static final HashMap<String, List<String>> translationsToIdsLists = new HashMap<>();
+    private static final HashMap<String, Item> translationToItem = new HashMap<>();
+    private static final HashMap<String, List<Item>> translationToItemsList = new HashMap<>();
 
     private final Supplier<LinkedHashMap<String, Integer>> outerGetter;
     private final Consumer<LinkedHashMap<String, Integer>> outerSetter;
@@ -49,26 +50,29 @@ public class ItemIntegerMapConfigOption extends ConfigOption<List<String>, Boole
             return;
         }
         translationsLanguage = currentLanguage;
-        translationsToIds.clear();
-        translationsToIdsLists.clear();
+        translationToItem.clear();
+        translationToItemsList.clear();
         BuiltInRegistries.ITEM.iterator().forEachRemaining(
                 item -> {
                     String key = Component.translatable(item.getDescriptionId()).getString();
-                    String value = BuiltInRegistries.ITEM.getKey(item).toString();
-                    if (translationsToIds.containsKey(key)) {
-                        if (translationsToIdsLists.containsKey(key)) {
-                            translationsToIdsLists.get(key).add(value);
+                    if (translationToItem.containsKey(key)) {
+                        if (translationToItemsList.containsKey(key)) {
+                            translationToItemsList.get(key).add(item);
                         }
                         else {
-                            translationsToIdsLists.put(
-                                    key, new ArrayList<>(List.of(translationsToIds.get(key), value))
+                            translationToItemsList.put(
+                                    key, new ArrayList<>(List.of(translationToItem.get(key), item))
                             );
                         }
                     } else {
-                        translationsToIds.put(key, value);
+                        translationToItem.put(key, item);
                     }
                 }
         );
+    }
+
+    private static String getItemId(Item item) {
+        return BuiltInRegistries.ITEM.getKey(item).toString();
     }
 
     private static ArrayList<String> convertMapToListOfStrings(Map<String, Integer> map) {
@@ -80,9 +84,15 @@ public class ItemIntegerMapConfigOption extends ConfigOption<List<String>, Boole
         for (var entry : map.entrySet()) {
             ResourceLocation itemId = ResourceLocation.parse(entry.getKey());
             String translation = Component.translatable(BuiltInRegistries.ITEM.get(itemId).getDescriptionId()).getString();
-            if (translationsToIdsLists.containsKey(translation)) {
-                // adding id in parentheses if the translated name duplicates for multiple items
-                translation = String.format("%s (%s)", translation, itemId);
+            if (translationToItemsList.containsKey(translation)) {
+                // adding id in parentheses if the translated name duplicates for multiple food items
+                long count = translationToItemsList.get(translation).stream()
+                        .filter(item -> map.containsKey(getItemId(item)))
+                        .count();
+
+                if (count > 1) {
+                    translation = String.format("%s (%s)", translation, itemId);
+                }
             }
             result.add(String.format("%s: %d", translation, entry.getValue()));
         }
@@ -114,13 +124,21 @@ public class ItemIntegerMapConfigOption extends ConfigOption<List<String>, Boole
                 continue;
             }
             String key = splitLine[0].trim();
-            if (translationsToIdsLists.containsKey(key)) {
-                for (String translation : translationsToIdsLists.get(key)) {
-                    // saving the same size for each of the items that have the same translated name
-                    result.put(translation, value);
+            if (translationToItemsList.containsKey(key)) {
+                boolean hasFoodItem = false;
+                for (Item item : translationToItemsList.get(key)) {
+                    // saving the same size for each of the food items that have the same translated name
+                    if (item.getFoodProperties() != null) {
+                        result.put(getItemId(item), value);
+                        hasFoodItem = true;
+                    }
                 }
-            } else if (translationsToIds.containsKey(key)) {
-                result.put(translationsToIds.get(key), value);
+                if (!hasFoodItem) {
+                    // if there is no single food item, saving for every item with the matching translated name
+                    translationToItemsList.get(key).forEach(item -> result.put(getItemId(item), value));
+                }
+            } else if (translationToItem.containsKey(key)) {
+                result.put(getItemId(translationToItem.get(key)), value);
             }
         }
         return result;

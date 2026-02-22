@@ -298,7 +298,7 @@ public class YACLConfig {
 
         var result = new LinkedHashMap<String, Integer>();
         for (var entry : sizes.entrySet()) {
-            result.put(((DeferredHolder) entry.getKey()).getKey().location().toString(), entry.getValue());
+            result.put(((DeferredHolder) entry.getKey()).getId().toString(), entry.getValue());
         }
         return result;
     }

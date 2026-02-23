@@ -18,10 +18,12 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+//import vectorwing.farmersdelight.common.registry.ModItems;
 
 import javax.lang.model.type.NullType;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 public class YACLConfig {
     private static final String CONFIG_PREFIX = "screen.melancholic_hunger.config.";
@@ -125,14 +127,17 @@ public class YACLConfig {
 
     private static LinkedHashMap<String, Integer> getDefaultItemStackSizes() {
         var sizes = new LinkedHashMap<Item, Integer>();
+        // nutrition = 1. Total 64
         sizes.put(Items.BEETROOT, 64);
         sizes.put(Items.DRIED_KELP, 64);
 
+        // nutrition = 2. Total 64
         sizes.put(Items.COOKIE, 32);
         sizes.put(Items.GLOW_BERRIES, 32);
         sizes.put(Items.MELON_SLICE, 32);
         sizes.put(Items.SWEET_BERRIES, 32);
 
+        // 3 <= nutrition <= 4. Total 48 - 64
         sizes.put(Items.APPLE, 16);
         sizes.put(Items.ENCHANTED_GOLDEN_APPLE, 16);
         sizes.put(Items.GOLDEN_APPLE, 16);
@@ -143,7 +148,9 @@ public class YACLConfig {
         sizes.put(Items.GOLDEN_CARROT, 16);
         sizes.put(Items.CHORUS_FRUIT, 16);
 
+        // 5 <= nutrition <= 6. Total 40 - 48
         sizes.put(Items.BREAD, 8);
+        sizes.put(Items.BEETROOT_SOUP, 8);
         sizes.put(Items.COD, 8);
         sizes.put(Items.COOKED_COD, 8);
         sizes.put(Items.SALMON, 8);
@@ -157,16 +164,19 @@ public class YACLConfig {
         sizes.put(Items.RABBIT, 8);
         sizes.put(Items.COOKED_RABBIT, 8);
         sizes.put(Items.HONEY_BOTTLE, 8);
+        sizes.put(Items.MUSHROOM_STEW, 8);
 
-        sizes.put(Items.BEEF, 4);
-        sizes.put(Items.COOKED_BEEF, 4);
-        sizes.put(Items.PORKCHOP, 4);
-        sizes.put(Items.COOKED_PORKCHOP, 4);
-        sizes.put(Items.PUMPKIN_PIE, 4);
+        // nutrition = 8. Total 36
+        sizes.put(Items.BEEF, 6);
+        sizes.put(Items.COOKED_BEEF, 6);
+        sizes.put(Items.PORKCHOP, 6);
+        sizes.put(Items.COOKED_PORKCHOP, 6);
+        sizes.put(Items.PUMPKIN_PIE, 6);
 
-        sizes.put(Items.BEETROOT_SOUP, 1);
-        sizes.put(Items.MUSHROOM_STEW, 1);
-        sizes.put(Items.RABBIT_STEW, 1);
+        // nutrition = 10. Total 40
+        sizes.put(Items.RABBIT_STEW, 4);
+
+        // unstackable
         sizes.put(Items.SUSPICIOUS_STEW, 1);
 
         var result = new LinkedHashMap<String, Integer>();
@@ -179,6 +189,115 @@ public class YACLConfig {
     private static final ItemIntegerMapConfigOption CUSTOM_FOOD_STACK_SIZES = (ItemIntegerMapConfigOption) new ItemIntegerMapConfigOption(
             "customFoodStackSizes", getDefaultItemStackSizes(), true, true,
             () -> serverData.customFoodStackSizes, val -> serverData.customFoodStackSizes = val
+    ).addDependency(USE_CUSTOM_FOOD_STACK_SIZES, true);
+
+    private static LinkedHashMap<String, Integer> getFarmersDelightDefaultItemStackSizes() {
+        if (!InstalledMods.FARMERS_DELIGHT) {
+            return null;
+        }
+        var sizes = new LinkedHashMap<Supplier<Item>, Integer>();
+        // nutrition = 1. Total 64
+//        sizes.put(ModItems.CABBAGE_LEAF, 64);
+//        sizes.put(ModItems.TOMATO, 64);
+//
+//        // nutrition = 2. Total 64
+//        sizes.put(ModItems.CABBAGE, 32);
+//        sizes.put(ModItems.HONEY_COOKIE, 32);
+//        sizes.put(ModItems.ONION, 32);
+//        sizes.put(ModItems.PIE_CRUST, 32);
+//        sizes.put(ModItems.PUMPKIN_SLICE, 32);
+//        sizes.put(ModItems.RAW_PASTA, 32);
+//        sizes.put(ModItems.SWEET_BERRY_COOKIE, 32);
+//        sizes.put(ModItems.WHEAT_DOUGH, 32);
+//
+//        // nutrition = 3. Total 72
+//        sizes.put(ModItems.APPLE_PIE_SLICE, 24);
+//        sizes.put(ModItems.CAKE_SLICE, 24);
+//        sizes.put(ModItems.CHOCOLATE_PIE_SLICE, 24);
+//        sizes.put(ModItems.SWEET_BERRY_CHEESECAKE_SLICE, 24);
+//        sizes.put(ModItems.MELON_POPSICLE, 24);
+//        sizes.put(ModItems.CHICKEN_CUTS, 24);
+//        sizes.put(ModItems.COOKED_CHICKEN_CUTS, 24);
+//        sizes.put(ModItems.COD_SLICE, 24);
+//        sizes.put(ModItems.COOKED_COD_SLICE, 24);
+//        sizes.put(ModItems.MUTTON_CHOPS, 24);
+//        sizes.put(ModItems.COOKED_MUTTON_CHOPS, 24);
+//        sizes.put(ModItems.SALMON_SLICE, 24);
+//        sizes.put(ModItems.COOKED_SALMON_SLICE, 24);
+//
+//        // 4 <= nutrition <= 5. Total 64 - 80
+//        sizes.put(ModItems.MINCED_BEEF, 16);
+//        sizes.put(ModItems.BEEF_PATTY, 16);
+//        sizes.put(ModItems.BACON, 16);
+//        sizes.put(ModItems.COOKED_BACON, 16);
+//        sizes.put(ModItems.DOG_FOOD, 16);
+//        sizes.put(ModItems.FRIED_EGG, 16);
+//        sizes.put(ModItems.TOMATO_SAUCE, 16);
+//        sizes.put(ModItems.CABBAGE_ROLLS, 16);
+//        sizes.put(ModItems.NETHER_SALAD, 16);
+//
+//        // 6 <= nutrition <= 7. Total 72 - 84
+//        sizes.put(ModItems.COOKED_RICE, 12);
+//        sizes.put(ModItems.FRUIT_SALAD, 12);
+//        sizes.put(ModItems.KELP_ROLL_SLICE, 12);
+//        sizes.put(ModItems.MIXED_SALAD, 12);
+//        sizes.put(ModItems.COD_ROLL, 12);
+//        sizes.put(ModItems.GLOW_BERRY_CUSTARD, 12);
+//        sizes.put(ModItems.SALMON_ROLL, 12);
+//
+//        // 8 <= nutrition <= 10. Total 64 - 80
+//        sizes.put(ModItems.BARBECUE_STICK, 8);
+//        sizes.put(ModItems.BONE_BROTH, 8);
+//        sizes.put(ModItems.DUMPLINGS, 8);
+//        sizes.put(ModItems.EGG_SANDWICH, 8);
+//        sizes.put(ModItems.BACON_AND_EGGS, 8);
+//        sizes.put(ModItems.BACON_SANDWICH, 8);
+//        sizes.put(ModItems.CHICKEN_SANDWICH, 8);
+//        sizes.put(ModItems.MUTTON_WRAP, 8);
+//        sizes.put(ModItems.RATATOUILLE, 8);
+//        sizes.put(ModItems.HAM, 8);
+//        sizes.put(ModItems.SMOKED_HAM, 8);
+//        sizes.put(ModItems.STUFFED_POTATO, 8);
+//
+//        // 11 <= nutrition <= 12. Total 66 - 72
+//        sizes.put(ModItems.APPLE_PIE, 6);
+//        sizes.put(ModItems.BEEF_STEW, 6);
+//        sizes.put(ModItems.CHOCOLATE_PIE, 6);
+//        sizes.put(ModItems.FISH_STEW, 6);
+//        sizes.put(ModItems.HAMBURGER, 6);
+//        sizes.put(ModItems.KELP_ROLL, 6);
+//        sizes.put(ModItems.MUSHROOM_RICE, 6);
+//        sizes.put(ModItems.PASTA_WITH_MEATBALLS, 6);
+//        sizes.put(ModItems.PASTA_WITH_MUTTON_CHOP, 6);
+//        sizes.put(ModItems.STEAK_AND_POTATOES, 6);
+//        sizes.put(ModItems.SWEET_BERRY_CHEESECAKE, 6);
+//        sizes.put(ModItems.VEGETABLE_SOUP, 6);
+//
+//        // nutrition >= 14. Total 56
+//        sizes.put(ModItems.BAKED_COD_STEW, 4);
+//        sizes.put(ModItems.CHICKEN_SOUP, 4);
+//        sizes.put(ModItems.FRIED_RICE, 4);
+//        sizes.put(ModItems.GRILLED_SALMON, 4);
+//        sizes.put(ModItems.HONEY_GLAZED_HAM, 4);
+//        sizes.put(ModItems.NOODLE_SOUP, 4);
+//        sizes.put(ModItems.PUMPKIN_SOUP, 4);
+//        sizes.put(ModItems.ROASTED_MUTTON_CHOPS, 4);
+//        sizes.put(ModItems.ROAST_CHICKEN, 4);
+//        sizes.put(ModItems.SHEPHERDS_PIE, 4);
+//        sizes.put(ModItems.SQUID_INK_PASTA, 4);
+//        sizes.put(ModItems.STUFFED_PUMPKIN, 4);
+//        sizes.put(ModItems.VEGETABLE_NOODLES, 4);
+
+        var result = new LinkedHashMap<String, Integer>();
+        for (var entry : sizes.entrySet()) {
+            result.put(BuiltInRegistries.ITEM.getKey(entry.getKey().get()).toString(), entry.getValue());
+        }
+        return result;
+    }
+
+    private static final ItemIntegerMapConfigOption FARMERS_DELIGHT_FOOD_STACK_SIZES = (ItemIntegerMapConfigOption) new ItemIntegerMapConfigOption(
+            "farmersDelightFoodStackSizes", getFarmersDelightDefaultItemStackSizes(), false, true,
+            () -> serverData.farmersDelightFoodStackSizes, val -> serverData.farmersDelightFoodStackSizes = val
     ).addDependency(USE_CUSTOM_FOOD_STACK_SIZES, true);
 
     private static final ConfigOption<Boolean, NullType> HIDE_EXPERIENCE_BAR = new ConfigOption<>(
@@ -231,7 +350,7 @@ public class YACLConfig {
     private static final List<ConfigOption<?, ?>> ALL_OPTIONS = List.of(
             DISABLE_HUNGER, GRADUAL_HEALTH_REGENERATION, GRADUAL_HEALTH_REGENERATION_SPEED, STOP_REGENERATION_AT_FULL_HEALTH, HIDE_HUNGER_BAR,
             HUNGER_EFFECT, HIGHLIGHT_REGENERATED_HEARTS, INSTANT_EATING, SHOW_FOOD_ITEM_TOOLTIPS, USE_CUSTOM_FOOD_STACK_SIZES,
-            CUSTOM_FOOD_STACK_SIZES, SPRINTING, SPRINTING_HEALTH_LIMIT, HIGHLIGHT_RESTORED_HEARTS,
+            CUSTOM_FOOD_STACK_SIZES, FARMERS_DELIGHT_FOOD_STACK_SIZES, SPRINTING, SPRINTING_HEALTH_LIMIT, HIGHLIGHT_RESTORED_HEARTS,
             HIDE_EXPERIENCE_BAR, SHOW_EXPERIENCE_IN_INVENTORY, SHOW_EXPERIENCE_ON_SCREENS, SHOW_EXPERIENCE_ON_GAIN,
             ENABLE_EXPERIENCE_ANIMATION, RENDER_EXPERIENCE_OVER_BACKGROUND, HIDE_LOCATOR_BAR, NOURISHMENT_HEALTH_BOOST_COUNT,
             NOURISHMENT_REGEN_SPEED_MULTIPLIER
@@ -297,12 +416,27 @@ public class YACLConfig {
         stacks.replace(Items.DRIED_KELP.toString(), 9);
         stacks.replace(Items.HONEY_BOTTLE.toString(), 4);
         CUSTOM_FOOD_STACK_SIZES.updatePendingValue(stacks);
+
+        if (!InstalledMods.FARMERS_DELIGHT) {
+            return;
+        }
+        LinkedHashMap<String, Integer> farmersDelightStacks = getFarmersDelightDefaultItemStackSizes();
+        farmersDelightStacks.replaceAll((k, v) -> 1);
+        FARMERS_DELIGHT_FOOD_STACK_SIZES.updatePendingValue(farmersDelightStacks);
     }
 
     private static void setAllFoodStacksTo64(YACLScreen screen, ButtonOption button) {
         LinkedHashMap<String, Integer> stacks = getDefaultItemStackSizes();
         stacks.replaceAll((k, v) -> 64);
+        stacks.replace(Items.SUSPICIOUS_STEW.toString(), 1);
         CUSTOM_FOOD_STACK_SIZES.updatePendingValue(stacks);
+
+        if (!InstalledMods.FARMERS_DELIGHT) {
+            return;
+        }
+        LinkedHashMap<String, Integer> farmersDelightStacks = getFarmersDelightDefaultItemStackSizes();
+        farmersDelightStacks.replaceAll((k, v) -> 64);
+        FARMERS_DELIGHT_FOOD_STACK_SIZES.updatePendingValue(farmersDelightStacks);
     }
 
     private static ButtonOption createButtonOption(
@@ -336,7 +470,7 @@ public class YACLConfig {
     }
 
     private static ConfigCategory buildFoodItemsCategory() {
-        return ConfigCategory.createBuilder()
+        var builder = ConfigCategory.createBuilder()
                 .name(Component.translatable(CONFIG_PREFIX + "food_category_name"))
                 .tooltip(Component.translatable(CONFIG_PREFIX + "food_category_tooltip"))
                 .option(USE_CUSTOM_FOOD_STACK_SIZES.buildYACLOption(YACLConfig::createBooleanController))
@@ -348,8 +482,12 @@ public class YACLConfig {
                 .option(createButtonOption(
                         "set_all_food_stack_sizes_to_64", YACLConfig::setAllFoodStacksTo64,
                         new ConfigOption.ConfigOptionDependency<>(USE_CUSTOM_FOOD_STACK_SIZES, true)
-                ))
-                .build();
+                ));
+
+        if (InstalledMods.FARMERS_DELIGHT) {
+            builder.option(FARMERS_DELIGHT_FOOD_STACK_SIZES.buildYACLOption());
+        }
+        return builder.build();
     }
 
     private static ConfigCategory buildSprintingCategory() {
@@ -512,6 +650,7 @@ public class YACLConfig {
         SHOW_FOOD_ITEM_TOOLTIPS.setValue(newServerData.showFoodItemTooltips());
         USE_CUSTOM_FOOD_STACK_SIZES.setValue(newServerData.useCustomFoodStackSizes());
         CUSTOM_FOOD_STACK_SIZES.setValue(newServerData.customFoodStackSizes());
+        FARMERS_DELIGHT_FOOD_STACK_SIZES.setValue(newServerData.farmersDelightFoodStackSizes());
         SPRINTING.setValue(newServerData.sprinting());
         SPRINTING_HEALTH_LIMIT.setValue(newServerData.sprintingHealthLimit());
         NOURISHMENT_HEALTH_BOOST_COUNT.setValue(newServerData.nourishmentHealthBoostHeartsCount());
@@ -552,8 +691,14 @@ public class YACLConfig {
     }
     public static Integer getItemStackSize(ItemStack itemStack) {
         var itemId = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).toString();
-        if (serverData.useCustomFoodStackSizes && serverData.customFoodStackSizes.containsKey(itemId)) {
+        if (!serverData.useCustomFoodStackSizes) {
+            return null;
+        }
+        if (serverData.customFoodStackSizes.containsKey(itemId)) {
             return serverData.customFoodStackSizes.get(itemId);
+        }
+        if (InstalledMods.FARMERS_DELIGHT && serverData.farmersDelightFoodStackSizes.containsKey(itemId)) {
+            return serverData.farmersDelightFoodStackSizes.get(itemId);
         }
         return null;
     }

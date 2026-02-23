@@ -54,6 +54,8 @@
     "screen.melancholic_hunger.config.button.set_all_food_stack_sizes_to_64.description": "Updates values for all food stack sizes to 64 (full stack)",
     "screen.melancholic_hunger.config.option.customFoodStackSizes.name": "Custom food stack sizes",
     "screen.melancholic_hunger.config.option.customFoodStackSizes.description": "This option sets custom sizes for various food items",
+    "screen.melancholic_hunger.config.option.farmersDelightFoodStackSizes.name": "Farmer's Delight food stack sizes",
+    "screen.melancholic_hunger.config.option.farmersDelightFoodStackSizes.description": "This option sets custom sizes for food items from Farmer's Delight mod",
     "screen.melancholic_hunger.config.option.hideExperienceBar.name": "Hide experience bar",
     "screen.melancholic_hunger.config.option.hideExperienceBar.description": "If enabled, hides experience bar from the HUD",
     "screen.melancholic_hunger.config.option.showExperienceInInventory.name": "Show experience bar on inventory screen",

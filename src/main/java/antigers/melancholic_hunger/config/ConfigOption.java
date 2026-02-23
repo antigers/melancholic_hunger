@@ -224,7 +224,7 @@ class ConfigOption<T, U> {
     }
 
     public void forgetPendingValueIfServerOption() {
-        if (isServerOption) {
+        if (isServerOption && YACLOption != null) {
             YACLOption.forgetPendingValue();
         }
     }

@@ -30,8 +30,9 @@ public class HealthRegenerationComponent implements INBTSerializable<CompoundTag
         ConsumedFood (FoodProperties foodComponent, int foodNutrition) {
             this.foodComponentId = foodComponent.hashCode();
             this.foodNutrition = foodNutrition;
+            float ratio = Math.min(5.0F, foodNutrition / foodComponent.saturation());
             this.ticksToHeal = Math.max(
-                    1, (int)(foodNutrition * 20 / (foodComponent.saturation() * YACLConfig.gradualHealthRegenerationSpeed()))
+                    1, (int)(ratio * 20 / YACLConfig.gradualHealthRegenerationSpeed())
             );
         }
 

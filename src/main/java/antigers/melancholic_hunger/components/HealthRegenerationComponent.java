@@ -28,7 +28,7 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
         ConsumedFood (FoodProperties foodComponent, int foodNutrition) {
             this.foodComponentId = foodComponent.hashCode();
             this.foodNutrition = foodNutrition;
-            float saturationModifier = Math.max(0.1F, foodNutrition / foodComponent.getSaturationModifier());
+            float saturationModifier = Math.max(0.1F, foodComponent.getSaturationModifier());
             this.ticksToHeal = Math.max(
                     1, (int)(10 / (saturationModifier * YACLConfig.gradualHealthRegenerationSpeed()))
             );

@@ -42,8 +42,9 @@ public class HealthRegenerationComponent {
         ConsumedFood (FoodProperties foodComponent, int foodNutrition) {
             this.foodComponentId = foodComponent.hashCode();
             this.foodNutrition = foodNutrition;
+            float saturationModifier = Math.max(0.1F, foodComponent.getSaturationModifier());
             this.ticksToHeal = Math.max(
-                    1, (int)(10 / (foodComponent.getSaturationModifier() * YACLConfig.gradualHealthRegenerationSpeed()))
+                    1, (int)(10 / (saturationModifier * YACLConfig.gradualHealthRegenerationSpeed()))
             );
         }
 

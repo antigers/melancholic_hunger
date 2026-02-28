@@ -45,7 +45,7 @@ public class FoodItemTooltips {
 
 		public static FoodHealthTooltipComponent init(int foodNutrition) {
 			String text = "";
-			if (foodNutrition >= 20) {
+			if (foodNutrition > 20) {
 				text = "x%d".formatted(foodNutrition / 2);
 				if (foodNutrition % 2 > 0) {
 					text += ".5";

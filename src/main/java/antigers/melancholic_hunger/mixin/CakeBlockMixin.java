@@ -2,17 +2,15 @@ package antigers.melancholic_hunger.mixin;
 
 import antigers.melancholic_hunger.food.EdibleBlockFoods;
 import antigers.melancholic_hunger.components.HealthRegenerationComponent;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.InteractionResult;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.food.FoodData;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.CakeBlock;
-import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(CakeBlock.class)
 public class CakeBlockMixin {
@@ -20,7 +18,7 @@ public class CakeBlockMixin {
 	/**
 	 * Handles eating cake, because it doesn't work the same way as all other food
 	 */
-	@Inject(
+	@WrapOperation(
 			method="eat",
 			at=@At(
 					value="INVOKE",
@@ -28,8 +26,12 @@ public class CakeBlockMixin {
 			)
 	)
 	private static void melancholic_hunger$eatCake(
-			LevelAccessor level, BlockPos pos, BlockState state, Player player, CallbackInfoReturnable<InteractionResult> cir
+			FoodData foodData, int foodLevelModifier, float saturationLevelModifier, Operation<Void> original,
+			@Local(argsOnly = true) Player player
 	) {
-		HealthRegenerationComponent.get(player).eat(Items.CAKE.getDefaultInstance(), EdibleBlockFoods.CAKE_PROPERTIES);
+		boolean didConsume = HealthRegenerationComponent.get(player).eat(Items.CAKE.getDefaultInstance(), EdibleBlockFoods.CAKE_PROPERTIES);
+		if (!didConsume) {
+			original.call(foodData, foodLevelModifier, saturationLevelModifier);
+		}
 	}
 }

@@ -261,14 +261,14 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         }
         if (YACLConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen()) {
             if (InstalledMods.RAISED) {
-//                RaisedCompat.startHotbarTranslate(graphics);
+                RaisedCompat.startHotbarTranslate(graphics);
             }
             melancholic_hunger$renderExperienceBar(this.contextualInfoBar.getValue(), graphics);
             if (this.minecraft.player.experienceLevel > 0) {
                 melancholic_hunger$renderExperienceLevel(graphics, this.minecraft.font, this.minecraft.player.experienceLevel);
             }
             if (InstalledMods.RAISED) {
-//                RaisedCompat.endTranslate(graphics);
+                RaisedCompat.endTranslate(graphics);
             }
         }
     }

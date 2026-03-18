@@ -28,10 +28,10 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
         private int ticksCounter = 0;
         private final int ticksToHeal;
 
-        ConsumedFood (FoodProperties foodComponent, int foodNutrition) {
-            this.foodComponentId = foodComponent.hashCode();
+        ConsumedFood (int foodNutrition, float foodSaturation, int foodComponentId) {
+            this.foodComponentId = foodComponentId;
             this.foodNutrition = foodNutrition;
-            float ratio = Math.min(5.0F, foodNutrition / foodComponent.saturation());
+            float ratio = Math.min(5.0F, foodNutrition / foodSaturation);
             this.ticksToHeal = Math.max(
                     1, (int)(ratio * 20 / YACLConfig.gradualHealthRegenerationSpeed())
             );
@@ -166,19 +166,24 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
         return player.getHealth() + consumedNutrition < player.getMaxHealth();
     }
 
-    public void eat(ItemStack itemStack, FoodProperties foodComponent) {
-        if (!(player instanceof ServerPlayer) || !YACLConfig.disableHunger()) {
-            return;
-        }
-        var foodHealth = YACLConfig.getFoodHealth(itemStack, foodComponent);
+    public void eat(int foodHealth, float foodSaturation, int foodComponentId) {
         if (YACLConfig.gradualHealthRegeneration()) {
             consumedNutrition += foodHealth;
-            consumedFoods.add(new ConsumedFood(foodComponent, foodHealth));
+            consumedFoods.add(new ConsumedFood(foodHealth, foodSaturation, foodComponentId));
             sync();
         }
         else {
             player.heal(foodHealth);
         }
+    }
+
+    public boolean eat(ItemStack itemStack, FoodProperties foodComponent) {
+        if (!(player instanceof ServerPlayer) || !YACLConfig.disableHunger()) {
+            return false;
+        }
+        var foodHealth = YACLConfig.getFoodHealth(itemStack, foodComponent);
+        eat(foodHealth, foodComponent.saturation(), foodComponent.hashCode());
+        return true;
     }
 
     public int getConsumedNutrition() {

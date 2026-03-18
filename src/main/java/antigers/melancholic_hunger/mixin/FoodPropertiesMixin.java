@@ -1,16 +1,15 @@
 package antigers.melancholic_hunger.mixin;
 
-import antigers.melancholic_hunger.components.PlayerComponents;
-import net.minecraft.world.entity.LivingEntity;
+import antigers.melancholic_hunger.components.HealthRegenerationComponent;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.food.FoodData;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.Consumable;
-import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(FoodProperties.class)
 public class FoodPropertiesMixin {
@@ -18,7 +17,7 @@ public class FoodPropertiesMixin {
     /**
      * Restores player's health after eating food
      */
-    @Inject(
+    @WrapOperation(
             method = "onConsume",
             at = @At(
                     value = "INVOKE",
@@ -26,10 +25,12 @@ public class FoodPropertiesMixin {
             )
     )
     private void melancholic_hunger$playerEatFood(
-            Level world, LivingEntity user, ItemStack itemStack, Consumable consumable, CallbackInfo callback
+            FoodData foodData, FoodProperties foodProperties, Operation<Void> original, @Local Player player,
+            @Local(argsOnly = true) ItemStack itemStack
     ) {
-        if (user instanceof Player) {
-            PlayerComponents.HEALTH_REGENERATION.get(user).eat(itemStack, (FoodProperties) (Object) this);
+        boolean didConsume = HealthRegenerationComponent.get(player).eat(itemStack, foodProperties);
+        if (!didConsume) {
+            original.call(foodData, foodProperties);
         }
     }
 }

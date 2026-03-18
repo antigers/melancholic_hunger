@@ -2,11 +2,11 @@ package antigers.melancholic_hunger.hud;
 
 import antigers.melancholic_hunger.config.YACLConfig;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.render.state.GuiRenderState;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.state.gui.GuiRenderState;
 import org.joml.Matrix3x2fStack;
 
-public class DrawHudContext extends GuiGraphics {
+public class DrawHudContext extends GuiGraphicsExtractor {
     private final int offsetX;
     private final int healthBarY;
     private final int hudExperienceOffset;

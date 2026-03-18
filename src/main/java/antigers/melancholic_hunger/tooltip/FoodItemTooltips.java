@@ -5,7 +5,7 @@ import antigers.melancholic_hunger.food.EdibleBlockFoods;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTextTooltip;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.component.DataComponents;
@@ -96,22 +96,22 @@ public class FoodItemTooltips {
 		}
 
 		@Override
-		public void renderText(GuiGraphics guiGraphics, Font font, int x, int y) {
-			super.renderText(guiGraphics, font, x + 12, y + 2);
+		public void extractText(GuiGraphicsExtractor graphics, Font font, int x, int y) {
+			super.extractText(graphics, font, x + 12, y + 2);
 		}
 
 		@Override
-		public void renderImage(Font font, int x, int y, int width, int height, GuiGraphics context)
+		public void extractImage(Font font, int x, int y, int width, int height, GuiGraphicsExtractor graphics)
 		{
 			y += 2;
 			for (int i = 0; i < heartsCount - 1; i++) {
 				int textureX = x + i * 9;
-				context.blitSprite(RenderPipelines.GUI_TEXTURED, Gui.HeartType.CONTAINER.getSprite(false, false, false), textureX, y, 9, 9);
-				context.blitSprite(RenderPipelines.GUI_TEXTURED, Gui.HeartType.NORMAL.getSprite(false, false, false), textureX, y, 9, 9);
+				graphics.blitSprite(RenderPipelines.GUI_TEXTURED, Gui.HeartType.CONTAINER.getSprite(false, false, false), textureX, y, 9, 9);
+				graphics.blitSprite(RenderPipelines.GUI_TEXTURED, Gui.HeartType.NORMAL.getSprite(false, false, false), textureX, y, 9, 9);
 			}
 			int textureX = x + (heartsCount - 1) * 9;
-			context.blitSprite(RenderPipelines.GUI_TEXTURED, Gui.HeartType.CONTAINER.getSprite(false, lastHeartIsHalf, false), textureX, y, 9, 9);
-			context.blitSprite(RenderPipelines.GUI_TEXTURED, Gui.HeartType.NORMAL.getSprite(false, lastHeartIsHalf, false), textureX, y, 9, 9);
+			graphics.blitSprite(RenderPipelines.GUI_TEXTURED, Gui.HeartType.CONTAINER.getSprite(false, lastHeartIsHalf, false), textureX, y, 9, 9);
+			graphics.blitSprite(RenderPipelines.GUI_TEXTURED, Gui.HeartType.NORMAL.getSprite(false, lastHeartIsHalf, false), textureX, y, 9, 9);
 		}
 	}
 

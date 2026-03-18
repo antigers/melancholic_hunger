@@ -7,7 +7,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.food.FoodData;
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,11 +20,11 @@ public class HUDOverlaysMixin {
 			method="drawComfortOverlay",
 			at=@At(
 					value="INVOKE",
-					target="Lnet/minecraft/client/gui/GuiGraphics;blit(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIFFIIII)V"
+					target="Lnet/minecraft/client/gui/GuiGraphicsExtractor;blit(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIFFIIII)V"
 			)
 	)
 	private static void melancholic_hunger$drawComfortOverlay(
-			GuiGraphics graphics, RenderPipeline pipeline, Identifier atlas, int x, int y, float u, float v, int width, int height, int textureWidth, int textureHeight, Operation<Void> original
+			GuiGraphicsExtractor graphics, RenderPipeline pipeline, Identifier atlas, int x, int y, float u, float v, int width, int height, int textureWidth, int textureHeight, Operation<Void> original
 	) {
 		DrawHudContext drawHudContext = (DrawHudContext) graphics;
 		y = drawHudContext.getHelper().addShakingIfNeeded(drawHudContext.getHealthBarY());
@@ -33,7 +33,7 @@ public class HUDOverlaysMixin {
 
 	@WrapMethod(method="drawNourishmentOverlay")
 	private static void melancholic_hunger$drawNourishmentOverlay(
-			FoodData foodData, Minecraft minecraft, GuiGraphics graphics, int right, int top, boolean naturalHealing, Operation<Void> original
+			FoodData foodData, Minecraft minecraft, GuiGraphicsExtractor graphics, int right, int top, boolean naturalHealing, Operation<Void> original
 	) {
 		if (YACLConfig.disableHunger()) {
 			return;

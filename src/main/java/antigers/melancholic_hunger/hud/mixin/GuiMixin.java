@@ -283,22 +283,22 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
                     target="Lnet/minecraft/client/gui/GuiGraphicsExtractor;guiHeight()I"
             )
     )
-    private int melancholic_hunger$moveMountHealthBar(GuiGraphicsExtractor GuiGraphicsExtractor, Operation<Integer> original) {
+    private int melancholic_hunger$moveMountHealthBar(GuiGraphicsExtractor graphics, Operation<Integer> original) {
         if (this.minecraft.player.jumpableVehicle() == null) {
-            return original.call(GuiGraphicsExtractor) - melancholic_hunger$barAnimation.getCurrentPos() + 7;
+            return original.call(graphics) - melancholic_hunger$barAnimation.getCurrentPos() + 7;
         }
-        return original.call(GuiGraphicsExtractor);
+        return original.call(graphics);
     }
 
     @Unique
-    private DrawHudContext melancholic_hunger$getDrawHudContext(GuiGraphicsExtractor GuiGraphicsExtractor, Gui.ContextualInfo currentBarType) {
+    private DrawHudContext melancholic_hunger$getDrawHudContext(GuiGraphicsExtractor graphics, Gui.ContextualInfo currentBarType) {
         var drawRestoredHeartsHelper = new RestoredHeartsDrawHelper(this.getCameraPlayer(), this.random);
         boolean hasNonExperienceBar = currentBarType == Gui.ContextualInfo.JUMPABLE_VEHICLE || currentBarType == Gui.ContextualInfo.LOCATOR;
         int mountHealthHeartCount = this.getVehicleMaxHearts(this.getPlayerVehicleWithHealth());
         boolean hasMountHealth = mountHealthHeartCount > 0;
         int mountHealthRows = this.getVisibleVehicleHeartRows(mountHealthHeartCount);
         return new DrawHudContext(
-                this.minecraft, GuiGraphicsExtractor.pose(), GuiGraphicsExtractor.guiRenderState, GuiGraphicsExtractor.mouseX, GuiGraphicsExtractor.mouseY,
+                this.minecraft, graphics.pose(), graphics.guiRenderState, graphics.mouseX, graphics.mouseY,
                 drawRestoredHeartsHelper, hasNonExperienceBar ? 7 : melancholic_hunger$barAnimation.getCurrentPos(),
                 melancholic_hunger$barAnimation, hasMountHealth, mountHealthRows
         );
@@ -327,12 +327,12 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
      */
     @WrapMethod(method = "extractFood")
     private void melancholic_hunger$disableHungerBar(
-            GuiGraphicsExtractor GuiGraphicsExtractor, Player player, int yLineBase, int xRight, Operation<Void> original
+            GuiGraphicsExtractor graphics, Player player, int yLineBase, int xRight, Operation<Void> original
     ) {
-        DrawHudContext drawHudContext = (DrawHudContext) GuiGraphicsExtractor;
+        DrawHudContext drawHudContext = (DrawHudContext) graphics;
         if (!YACLConfig.hideHungerBar()) {
             // hunger bar is drawn at the same height as health bar
-            original.call(GuiGraphicsExtractor, player, drawHudContext.getHealthBarY(), xRight);
+            original.call(graphics, player, drawHudContext.getHealthBarY(), xRight);
         }
     }
 
@@ -341,16 +341,16 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
      */
     @WrapMethod(method="extractArmor")
     private static void melancholic_hunger$wrapRenderArmor(
-            GuiGraphicsExtractor GuiGraphicsExtractor, Player player, int yLineBase, int numHealthRows, int healthRowHeight, int xLeft, Operation<Void> original
+            GuiGraphicsExtractor graphics, Player player, int yLineBase, int numHealthRows, int healthRowHeight, int xLeft, Operation<Void> original
     ) {
-        DrawHudContext drawHudContext = (DrawHudContext) GuiGraphicsExtractor;
+        DrawHudContext drawHudContext = (DrawHudContext) graphics;
         drawHudContext.prepareArmorAndBubblesBarsDrawing(yLineBase - (numHealthRows - 1) * healthRowHeight);
-        original.call(GuiGraphicsExtractor, player, yLineBase, numHealthRows, healthRowHeight, xLeft);
+        original.call(graphics, player, yLineBase, numHealthRows, healthRowHeight, xLeft);
     }
 
     @Unique
     private static void melancholic_hunger$drawGuiTextureInversed(
-            GuiGraphicsExtractor GuiGraphicsExtractor, Identifier texture, int x1, int y1, int width, int height
+            GuiGraphicsExtractor graphics, Identifier texture, int x1, int y1, int width, int height
     ) {
         TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.GUI).getSprite(texture);
         float u1 = sprite.getU0(), u2 = sprite.getU1();
@@ -358,7 +358,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         int x2 = x1 + width;
         int y2 = y1 + height;
         // swapping u1 and u2 to rotate the texture along the vertical axis
-        GuiGraphicsExtractor.blit(sprite.atlasLocation(), x1, y1, x2, y2, u2, u1, v1, v2);
+        graphics.blit(sprite.atlasLocation(), x1, y1, x2, y2, u2, u1, v1, v2);
     }
 
     @Unique
@@ -383,16 +383,16 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
             )
     )
     private static void melancholic_hunger$moveArmorBar(
-            GuiGraphicsExtractor GuiGraphicsExtractor, RenderPipeline pipeline, Identifier texture, int x, int y, int width, int height,
+            GuiGraphicsExtractor graphics, RenderPipeline pipeline, Identifier texture, int x, int y, int width, int height,
             Operation<Void> original
     ) {
-        DrawHudContext drawHudContext = (DrawHudContext) GuiGraphicsExtractor;
+        DrawHudContext drawHudContext = (DrawHudContext) graphics;
         y = drawHudContext.getArmorBarY();
         if (YACLConfig.hideHungerBar() && !drawHudContext.getHasMountHealth()) {
             // move bar to the right and reverse render order from right to left
             x = drawHudContext.getMirroredX(x);
             if (!DrawHudContext.isDefaultArmorHudTexture) {
-                melancholic_hunger$drawGuiTextureInversed(GuiGraphicsExtractor, texture, x, y, width, height);
+                melancholic_hunger$drawGuiTextureInversed(graphics, texture, x, y, width, height);
                 return;
             }
             texture = melancholic_hunger$fixVanillaArmorTexture(texture, true);
@@ -400,7 +400,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         else if (DrawHudContext.isDefaultArmorHudTexture) {
             texture = melancholic_hunger$fixVanillaArmorTexture(texture, false);
         }
-        original.call(GuiGraphicsExtractor, pipeline, texture, x, y, width, height);
+        original.call(graphics, pipeline, texture, x, y, width, height);
     }
 
     /**
@@ -408,13 +408,13 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
      */
     @WrapMethod(method="extractHearts")
     private void melancholic_hunger$moveHealthBar(
-            GuiGraphicsExtractor GuiGraphicsExtractor, Player player, int xLeft, int yLineBase, int healthRowHeight, int heartOffsetIndex,
+            GuiGraphicsExtractor graphics, Player player, int xLeft, int yLineBase, int healthRowHeight, int heartOffsetIndex,
             float maxHealth, int currentHealth, int oldHealth, int absorption, boolean blink, Operation<Void> original
     ) {
-        DrawHudContext drawHudContext = (DrawHudContext) GuiGraphicsExtractor;
+        DrawHudContext drawHudContext = (DrawHudContext) graphics;
         original.call(
-                GuiGraphicsExtractor, player, xLeft, drawHudContext.getHealthBarY(), healthRowHeight, heartOffsetIndex,
-                maxHealth, currentHealth, oldHealth, absorption, blink
+                graphics, player, xLeft, drawHudContext.getHealthBarY(), healthRowHeight, heartOffsetIndex, maxHealth,
+                currentHealth, oldHealth, absorption, blink
         );
     }
 
@@ -440,15 +440,13 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
             )
     )
     private void melancholic_hunger$drawRestoredHearts(
-            Gui gui, GuiGraphicsExtractor GuiGraphicsExtractor, Gui.HeartType type, int x, int y, boolean hardcore,
+            Gui gui, GuiGraphicsExtractor graphics, Gui.HeartType type, int x, int y, boolean hardcore,
             boolean blinking, boolean half, Operation<Void> original
     ) {
-        DrawHudContext drawHudContext = (DrawHudContext) GuiGraphicsExtractor;
+        DrawHudContext drawHudContext = (DrawHudContext) graphics;
         RestoredHeartsDrawHelper restoredHeartsDrawHelper = drawHudContext.getHelper();
         if (type != Gui.HeartType.CONTAINER) {
-            original.call(
-                    gui, GuiGraphicsExtractor, type, x, restoredHeartsDrawHelper.getCurrentY(), hardcore, blinking, half
-            );
+            original.call(gui, graphics, type, x, restoredHeartsDrawHelper.getCurrentY(), hardcore, blinking, half);
             return;
         }
         y = restoredHeartsDrawHelper.updateCurrentY(y);
@@ -456,22 +454,22 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         RestoredHeartsDrawHelper.RestoredHeart firstHeart = res.getFirst();
         if (firstHeart != null) {
             // drawing container for correct background
-            original.call(gui, GuiGraphicsExtractor, Gui.HeartType.CONTAINER, x, y, hardcore, blinking, half);
+            original.call(gui, graphics, Gui.HeartType.CONTAINER, x, y, hardcore, blinking, half);
             melancholic_hunger$drawHeartWithColor(
-                    GuiGraphicsExtractor, firstHeart.heartType(), x, y, hardcore, blinking, firstHeart.isHalf(),
+                    graphics, firstHeart.heartType(), x, y, hardcore, blinking, firstHeart.isHalf(),
                     firstHeart.colorRed(), firstHeart.colorGreen(), firstHeart.colorBlue()
             );
             RestoredHeartsDrawHelper.RestoredHeart secondHeart = res.getSecond();
             if (secondHeart != null) {
                 // drawing second heart on top of the first
                 melancholic_hunger$drawHeartWithColor(
-                        GuiGraphicsExtractor, secondHeart.heartType(), x, y, hardcore, blinking, secondHeart.isHalf(),
+                        graphics, secondHeart.heartType(), x, y, hardcore, blinking, secondHeart.isHalf(),
                         secondHeart.colorRed(), secondHeart.colorGreen(), secondHeart.colorBlue()
                 );
             }
         }
         else {
-            original.call(gui, GuiGraphicsExtractor, type, x, y, hardcore, blinking, half);
+            original.call(gui, graphics, type, x, y, hardcore, blinking, half);
         }
         restoredHeartsDrawHelper.updateCurrentHeart();
     }
@@ -487,15 +485,15 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
             )
     )
     private void melancholic_hunger$moveBubblesBar(
-            GuiGraphicsExtractor GuiGraphicsExtractor, RenderPipeline pipeline, Identifier texture, int x, int y, int width, int height,
+            GuiGraphicsExtractor graphics, RenderPipeline pipeline, Identifier texture, int x, int y, int width, int height,
             Operation<Void> original
     ) {
-        DrawHudContext drawHudContext = (DrawHudContext) GuiGraphicsExtractor;
+        DrawHudContext drawHudContext = (DrawHudContext) graphics;
         if (YACLConfig.hideHungerBar() && !drawHudContext.getHasMountHealth()) {
             // move bar to the left and reverse render order from left to right
             x = drawHudContext.getMirroredX(x);
         }
-        original.call(GuiGraphicsExtractor, pipeline, texture, x, drawHudContext.getBubblesBarY(), width, height);
+        original.call(graphics, pipeline, texture, x, drawHudContext.getBubblesBarY(), width, height);
     }
 
     @WrapMethod(method="getMobEffectSprite")

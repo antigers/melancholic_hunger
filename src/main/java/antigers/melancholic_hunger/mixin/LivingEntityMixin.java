@@ -29,7 +29,7 @@ public abstract class LivingEntityMixin {
                     MobEffectInstance effect, Entity source, Operation<Boolean> original
     ) {
         if (!(((LivingEntity) (Object) this) instanceof Player)) {
-            return false;
+            return original.call(effect, source);
         }
         if (effect.getEffect() == MobEffects.HUNGER) {
             HungerEffectOption hungerEffect = YACLConfig.hungerEffect();

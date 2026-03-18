@@ -2,7 +2,7 @@ package antigers.melancholic_hunger.hud.mixin;
 
 import antigers.melancholic_hunger.hud.ExperienceHudRenderer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.screens.Screen;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,11 +16,11 @@ public abstract class ScreenMixin extends AbstractContainerEventHandler {
     @Shadow protected Minecraft minecraft;
 
     @Inject(
-            method="renderTransparentBackground",
+            method="extractTransparentBackground",
             at=@At("TAIL")
     )
-    public void melancholic_hunger$renderExperienceOnTopOfBackground(GuiGraphics guiGraphics, CallbackInfo callback) {
+    public void melancholic_hunger$renderExperienceOnTopOfBackground(GuiGraphicsExtractor graphics, CallbackInfo callback) {
         ExperienceHudRenderer gui = (ExperienceHudRenderer) this.minecraft.gui;
-        gui.melancholic_hunger$renderExperienceHudOverBackground(guiGraphics);
+        gui.melancholic_hunger$renderExperienceHudOverBackground(graphics);
     }
 }

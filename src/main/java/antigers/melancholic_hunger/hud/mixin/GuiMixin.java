@@ -32,6 +32,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.client.gui.GuiLayerManager;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -56,6 +57,8 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
     @Shadow private boolean willPrioritizeExperienceInfo() {return false;}
     @Shadow private boolean willPrioritizeJumpInfo() {return false;}
     @Shadow private Gui.ContextualInfo nextContextualInfoState() {return Gui.ContextualInfo.EMPTY;}
+    @Shadow public int leftHeight;
+    @Shadow public int rightHeight;
 
     @Unique private static final Identifier EXPERIENCE_BAR_BACKGROUND_TEXTURE = Identifier.withDefaultNamespace(
             "hud/experience_bar_background"
@@ -304,9 +307,15 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         );
     }
 
-    @WrapMethod(method = "extractRenderState")
+    @WrapOperation(
+            method="extractRenderState",
+            at=@At(
+                    value="INVOKE",
+                    target="Lnet/neoforged/neoforge/client/gui/GuiLayerManager;render(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V"
+            )
+    )
     private void melancholic_hunger$wrapRenderMainHud(
-            GuiGraphicsExtractor graphics, DeltaTracker tickCounter, Operation<Void> original
+            GuiLayerManager guiLayerManager, GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, Operation<Void> original
     ) {
         Gui.ContextualInfo currentBarType = this.nextContextualInfoState();
 
@@ -319,7 +328,13 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
 
         // Replaces default GuiGraphicsExtractor object with the custom DrawHudContext object
         var drawHudContext = melancholic_hunger$getDrawHudContext(graphics, currentBarType);
-        original.call(drawHudContext, tickCounter);
+
+        // setting up neoforge gui heights in accordance with experience bar offset
+        int experienceOffset = drawHudContext.getHudExperienceOffset() - 7;
+        leftHeight += experienceOffset;
+        rightHeight += experienceOffset;
+
+        original.call(guiLayerManager, drawHudContext, deltaTracker);
     }
 
     /**

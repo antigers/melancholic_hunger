@@ -19,11 +19,15 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ForgeGui.class)
 public class ForgeGuiMixin extends Gui {
 	@Shadow(remap = false)
 	public int leftHeight;
+	@Shadow(remap = false)
+	public int rightHeight;
 
 	@Unique private static final ResourceLocation VANILLA_ARMOR_EMPTY_TEXTURE = ResourceLocation.fromNamespaceAndPath(
 			"melancholic_hunger", "textures/gui/sprites/hud/armor_empty.png"
@@ -63,6 +67,21 @@ public class ForgeGuiMixin extends Gui {
 		original.call(drawHudContext, partialTick);
 	}
 
+	@Inject(
+			method="render",
+			at=@At(
+					value="INVOKE",
+					target="Lnet/minecraftforge/client/event/RenderGuiEvent$Pre;<init>(Lcom/mojang/blaze3d/platform/Window;Lnet/minecraft/client/gui/GuiGraphics;F)V"
+			)
+	)
+	private void melancholic_hunger$setupForgeGuiHeights(GuiGraphics guiGraphics, float partialTick, CallbackInfo ci) {
+		DrawHudContext drawHudContext = (DrawHudContext) guiGraphics;
+		// setting up forge gui heights in accordance with experience bar offset
+		int experienceOffset = drawHudContext.getHudExperienceOffset() - 7;
+		leftHeight += experienceOffset;
+		rightHeight += experienceOffset;
+	}
+
 	/**
 	 * Calculates positions of armor and bubbles bars
 	 */
@@ -71,7 +90,7 @@ public class ForgeGuiMixin extends Gui {
 			GuiGraphics guiGraphics, int x, int y, Operation<Void> original
 	) {
 		DrawHudContext drawHudContext = (DrawHudContext) guiGraphics;
-		drawHudContext.prepareArmorAndBubblesBarsDrawing(y - leftHeight + 10);
+		drawHudContext.prepareArmorAndBubblesBarsDrawing(y - leftHeight);
 		original.call(guiGraphics, x, y);
 	}
 

@@ -22,6 +22,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.client.gui.GuiLayerManager;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -46,6 +47,9 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
     @Shadow @Final private RandomSource random;
     @Shadow @Final private static ResourceLocation ARMOR_EMPTY_SPRITE;
     @Shadow @Final private static ResourceLocation ARMOR_HALF_SPRITE;
+    @Shadow public int leftHeight;
+    @Shadow public int rightHeight;
+
     @Unique private static final ResourceLocation VANILLA_ARMOR_EMPTY_TEXTURE = ResourceLocation.fromNamespaceAndPath(
             "melancholic_hunger", "hud/armor_empty"
     );
@@ -188,6 +192,24 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
                         ? 7 : melancholic_hunger$experienceBarAnimation.getCurrentPos(), hasMountHealth, mountHealthRows
         );
         original.call(drawHudContext, deltaTracker);
+    }
+
+    @WrapOperation(
+            method="render",
+            at=@At(
+                    value="INVOKE",
+                    target="Lnet/neoforged/neoforge/client/gui/GuiLayerManager;render(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"
+            )
+    )
+    private void melancholic_hunger$setupNeoForgeGuiHeights(
+            GuiLayerManager guiLayerManager, GuiGraphics guiGraphics, DeltaTracker deltaTracker, Operation<Void> original
+    ) {
+        DrawHudContext drawHudContext = (DrawHudContext) guiGraphics;
+        // setting up neoforge gui heights in accordance with experience bar offset
+        int experienceOffset = drawHudContext.getHudExperienceOffset() - 7;
+        leftHeight += experienceOffset;
+        rightHeight += experienceOffset;
+        original.call(guiLayerManager, guiGraphics, deltaTracker);
     }
 
     /**

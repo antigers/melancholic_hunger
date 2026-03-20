@@ -1,6 +1,6 @@
 package antigers.melancholic_hunger.hud;
 
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import net.minecraft.Util;
 
 public class ExperienceBarAnimation {
@@ -39,7 +39,7 @@ public class ExperienceBarAnimation {
 
     public void update(boolean isExpBarDrawnConstantly) {
         // this method is called on every frame
-        if (!YACLConfig.hideExperienceBar()) {
+        if (!MelancholicConfig.hideExperienceBar()) {
             currentPos = 7;
             currentOpacity = 1.0F;
             return;
@@ -57,7 +57,7 @@ public class ExperienceBarAnimation {
         if (!isRunning) {
             return;
         }
-        if (YACLConfig.enableExperienceAnimation()) {
+        if (MelancholicConfig.enableExperienceAnimation()) {
             var animationTime = now - startTime;
             if (animationTime < ANIMATION_TIME) {
                 currentOpacity = (float) animationTime / ANIMATION_TIME;

@@ -1,6 +1,6 @@
 package antigers.melancholic_hunger.hud;
 
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import net.minecraft.client.Minecraft;
 
 public class DrawHudContext {
@@ -36,15 +36,14 @@ public class DrawHudContext {
         return hudExperienceOffset;
     }
 
-    public void prepareArmorAndBubblesBarsDrawing(int healthBarHighestRowY) {
-        var aboveHealthY = healthBarHighestRowY - 3 - hudExperienceOffset;
+    public void prepareArmorAndBubblesBarsDrawing(int aboveHealthY) {
         if (hasMountHealth) {
             // drawing armor above all health rows
             armorBarY = aboveHealthY;
             // drawing bubbles above all mount health rows
             bubblesBarY = aboveHealthY - 10 * (mountHealthRows - 1);
         }
-        else if (!YACLConfig.hideHungerBar()) {
+        else if (!MelancholicConfig.hideHungerBar()) {
             // drawing armor above all health rows
             armorBarY = aboveHealthY;
             // drawing bubbles above the hunger bar

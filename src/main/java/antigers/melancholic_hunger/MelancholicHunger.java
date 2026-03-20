@@ -2,7 +2,7 @@ package antigers.melancholic_hunger;
 
 import antigers.melancholic_hunger.components.PlayerComponents;
 import antigers.melancholic_hunger.compat.farmers_delight.FarmersDelightCompatRegistrator;
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ConfigScreenHandler;
@@ -51,7 +51,7 @@ public class MelancholicHunger
 
 	private void commonSetup(final FMLCommonSetupEvent event)
 	{
-		YACLConfig.loadFromDisk();
+		MelancholicConfig.loadFromDisk();
 	}
 
 	// You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent

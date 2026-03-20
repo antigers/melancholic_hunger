@@ -1,6 +1,6 @@
 package antigers.melancholic_hunger.mixin;
 
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import antigers.melancholic_hunger.hud.ExperienceHudRenderer;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -38,17 +38,17 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
             )
     )
     private int melancholic_hunger$canPlayerSprint(FoodData instance, Operation<Integer> original) {
-        switch (YACLConfig.sprinting()) {
+        switch (MelancholicConfig.sprinting()) {
             case DISABLED -> {
                 return 0;
             }
             case LIMITED_BY_HEALTH -> {
-                if (this.getHealth() <= YACLConfig.sprintingHealthLimit()) {
+                if (this.getHealth() <= MelancholicConfig.sprintingHealthLimit()) {
                     return 0;
                 }
             }
         }
-        if (YACLConfig.disableHunger()) {
+        if (MelancholicConfig.disableHunger()) {
             return 10;
         }
         return original.call(instance);

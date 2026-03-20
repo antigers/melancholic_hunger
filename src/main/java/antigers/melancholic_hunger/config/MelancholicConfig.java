@@ -28,7 +28,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class YACLConfig {
+public class MelancholicConfig {
     private static final String CONFIG_PREFIX = "screen.melancholic_hunger.config.";
     private static final Path CONFIG_PATH = FMLPaths.CONFIGDIR.get().resolve("melancholic_hunger.json5");
     private static boolean isLoadedFromDisk = false;
@@ -177,10 +177,12 @@ public class YACLConfig {
             ).addValueDependency(GRADUAL_HEALTH_REGENERATION, true, true, false)
     );
 
-    private static final ConfigOption<Boolean, Boolean> STOP_REGENERATION_AT_FULL_HEALTH = new ConfigOption<Boolean, Boolean>(
-            "stopRegenerationAtFullHealth", false, false, true,
-            () -> serverData.stopRegenerationAtFullHealth, val -> serverData.stopRegenerationAtFullHealth = val
-    ).addDependency(GRADUAL_HEALTH_REGENERATION, true);
+    private static final ConfigOption<RegenerationAtFullHealthOption, Boolean> REGENERATION_AT_FULL_HEALTH = (
+            new ConfigOption<RegenerationAtFullHealthOption, Boolean>(
+                    "regenerationAtFullHealth", RegenerationAtFullHealthOption.CONTINUED, false, true,
+                    () -> serverData.regenerationAtFullHealth, val -> serverData.regenerationAtFullHealth = val
+            ).addDependency(GRADUAL_HEALTH_REGENERATION, true)
+    );
 
     private static final ConfigOption<Boolean, Boolean> INSTANT_EATING = new ConfigOption<>(
             "instantEating", false, true, true,
@@ -429,7 +431,7 @@ public class YACLConfig {
     ).addDependency(DISABLE_HUNGER, true);
 
     private static final List<ConfigOption<?, ?>> ALL_OPTIONS = List.of(
-            DISABLE_HUNGER, GRADUAL_HEALTH_REGENERATION, GRADUAL_HEALTH_REGENERATION_SPEED, STOP_REGENERATION_AT_FULL_HEALTH, HIDE_HUNGER_BAR,
+            DISABLE_HUNGER, GRADUAL_HEALTH_REGENERATION, GRADUAL_HEALTH_REGENERATION_SPEED, REGENERATION_AT_FULL_HEALTH, HIDE_HUNGER_BAR,
             HUNGER_EFFECT, HIGHLIGHT_REGENERATED_HEARTS, INSTANT_EATING, SHOW_FOOD_ITEM_TOOLTIPS, USE_CUSTOM_FOOD_STACK_SIZES,
             CUSTOM_FOOD_STACK_SIZES, FARMERS_DELIGHT_FOOD_STACK_SIZES, SPRINTING, SPRINTING_HEALTH_LIMIT, HIGHLIGHT_RESTORED_HEARTS,
             HIDE_EXPERIENCE_BAR, SHOW_EXPERIENCE_IN_INVENTORY, SHOW_EXPERIENCE_ON_SCREENS, SHOW_EXPERIENCE_ON_GAIN,
@@ -493,7 +495,7 @@ public class YACLConfig {
         HUNGER_EFFECT.setValue(newServerData.hungerEffect());
         GRADUAL_HEALTH_REGENERATION.setValue(newServerData.gradualHealthRegeneration());
         GRADUAL_HEALTH_REGENERATION_SPEED.setValue(newServerData.gradualHealthRegenerationSpeed());
-        STOP_REGENERATION_AT_FULL_HEALTH.setValue(newServerData.stopRegenerationAtFullHealth());
+        REGENERATION_AT_FULL_HEALTH.setValue(newServerData.regenerationAtFullHealth());
         INSTANT_EATING.setValue(newServerData.instantEating());
         SHOW_FOOD_ITEM_TOOLTIPS.setValue(newServerData.showFoodItemTooltips());
         USE_CUSTOM_FOOD_STACK_SIZES.setValue(newServerData.useCustomFoodStackSizes());
@@ -528,8 +530,8 @@ public class YACLConfig {
     public static float gradualHealthRegenerationSpeed() {
         return serverData.gradualHealthRegenerationSpeed;
     }
-    public static boolean stopRegenerationAtFullHealth() {
-        return serverData.stopRegenerationAtFullHealth;
+    public static RegenerationAtFullHealthOption regenerationAtFullHealth() {
+        return serverData.regenerationAtFullHealth;
     }
     public static boolean shouldInstantlyEat(Item item) {
         if (!serverData.instantEating) {

@@ -1,7 +1,7 @@
 package antigers.melancholic_hunger.components;
 
 import antigers.melancholic_hunger.config.ServerConfigData;
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import antigers.melancholic_hunger.utils.ClientOnlyHelper;
 import com.google.gson.Gson;
 import net.minecraft.network.FriendlyByteBuf;
@@ -19,7 +19,7 @@ public class ServerConfigComponent {
         ServerConfigData.ImmutableServerConfigData configData;
 
         public ConfigNetworkPacket() {
-            configData = YACLConfig.getServerData();
+            configData = MelancholicConfig.getServerData();
         }
 
         public ConfigNetworkPacket(ServerConfigData.ImmutableServerConfigData configData) {
@@ -64,7 +64,7 @@ public class ServerConfigComponent {
 
     private static void handleS2CPacket(ServerConfigData.ImmutableServerConfigData configData) {
         if (!ClientOnlyHelper.isInSingleplayer()) {
-            YACLConfig.setServerData(configData);
+            MelancholicConfig.setServerData(configData);
         }
     }
 
@@ -76,12 +76,12 @@ public class ServerConfigComponent {
             // only for operators
             return;
         }
-        boolean dataUpdated = YACLConfig.setServerData(configData);
+        boolean dataUpdated = MelancholicConfig.setServerData(configData);
         if (!dataUpdated) {
             return;
         }
         syncAllPlayersExceptOf(player.getId());
-        YACLConfig.saveToDisk();
+        MelancholicConfig.saveToDisk();
     }
 
     /**

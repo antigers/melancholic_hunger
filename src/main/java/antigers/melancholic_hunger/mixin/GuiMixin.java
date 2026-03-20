@@ -3,7 +3,7 @@ package antigers.melancholic_hunger.mixin;
 import antigers.melancholic_hunger.InstalledMods;
 import antigers.melancholic_hunger.compat.RaisedCompat;
 import antigers.melancholic_hunger.compat.farmers_delight.NourishmentEffectHandler;
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import antigers.melancholic_hunger.hud.ExperienceBarAnimation;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -147,8 +147,8 @@ public abstract class GuiMixin extends GuiComponent implements ExperienceHudRend
         }
         var currentScreen = this.minecraft.screen;
         return (
-                (YACLConfig.showExperienceInInventory() && currentScreen instanceof InventoryScreen) ||
-                (YACLConfig.showExperienceOnScreens() && (
+                (MelancholicConfig.showExperienceInInventory() && currentScreen instanceof InventoryScreen) ||
+                (MelancholicConfig.showExperienceOnScreens() && (
                         currentScreen instanceof FurnaceScreen || currentScreen instanceof BlastFurnaceScreen
                         || currentScreen instanceof SmokerScreen || currentScreen instanceof EnchantmentScreen
                         || currentScreen instanceof AnvilScreen || currentScreen instanceof GrindstoneScreen
@@ -157,7 +157,7 @@ public abstract class GuiMixin extends GuiComponent implements ExperienceHudRend
     }
 
     public void melancholic_hunger$renderExperienceHud(PoseStack poseStack) {
-        if (YACLConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen()) {
+        if (MelancholicConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen()) {
             if (InstalledMods.RAISED) {
                 RaisedCompat.startHotbarTranslate(poseStack);
             }
@@ -169,7 +169,7 @@ public abstract class GuiMixin extends GuiComponent implements ExperienceHudRend
     }
 
     public void melancholic_hunger$onAddExperience() {
-        if (YACLConfig.showExperienceOnGain()) {
+        if (MelancholicConfig.showExperienceOnGain()) {
             melancholic_hunger$experienceBarAnimation.onGainExperience();
         }
     }

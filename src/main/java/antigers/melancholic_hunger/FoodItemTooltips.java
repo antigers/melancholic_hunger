@@ -1,6 +1,6 @@
 package antigers.melancholic_hunger;
 
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Either;
@@ -103,16 +103,16 @@ public class FoodItemTooltips {
 			}
 			foodProperties = foodPropertiesOptional.get();
 		}
-		if (!YACLConfig.showFoodItemTooltips()) {
+		if (!MelancholicConfig.showFoodItemTooltips()) {
 			return;
 		}
-		int foodNutrition = YACLConfig.getFoodHealth(stack, foodProperties);
+		int foodNutrition = MelancholicConfig.getFoodHealth(stack, foodProperties);
 		if (foodNutrition <= 0) {
 			return;
 		}
 		List<Either<FormattedText, TooltipComponent>> lines = event.getTooltipElements();
 		lines.add(Either.right(new FoodHealthTooltipComponentType(foodNutrition)));
-		if (!YACLConfig.gradualHealthRegeneration()) {
+		if (!MelancholicConfig.gradualHealthRegeneration()) {
 			return;
 		}
 		float regenerationRatio = 0.5F / foodProperties.getSaturationModifier();

@@ -1,6 +1,6 @@
 package antigers.melancholic_hunger.mixin;
 
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import antigers.melancholic_hunger.hud.DrawHudContext;
 import antigers.melancholic_hunger.hud.ExperienceBarAnimation;
 import antigers.melancholic_hunger.hud.ExperienceHudRenderer;
@@ -21,11 +21,15 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ForgeGui.class)
 public class ForgeGuiMixin extends Gui {
 	@Shadow(remap = false)
 	public int leftHeight;
+	@Shadow(remap = false)
+	public int rightHeight;
 
 	@Unique private static final ResourceLocation VANILLA_ARMOR_EMPTY_TEXTURE = ResourceLocation.fromNamespaceAndPath(
 			"melancholic_hunger", "textures/gui/sprites/hud/armor_empty.png"
@@ -67,6 +71,21 @@ public class ForgeGuiMixin extends Gui {
 		original.call(poseStack, partialTick);
 	}
 
+	@Inject(
+			method="render",
+			at=@At(
+					value="INVOKE",
+					target="Lnet/minecraftforge/client/event/RenderGuiEvent$Pre;<init>(Lcom/mojang/blaze3d/platform/Window;Lcom/mojang/blaze3d/vertex/PoseStack;F)V"
+			)
+	)
+	private void melancholic_hunger$setupForgeGuiHeights(PoseStack poseStack, float partialTick, CallbackInfo ci) {
+		DrawHudContext drawHudContext = ((ExperienceHudRenderer) this).melancholic_hunger$getDrawHudContext();
+		// setting up forge gui heights in accordance with experience bar offset
+		int experienceOffset = drawHudContext.getHudExperienceOffset() - 7;
+		leftHeight += experienceOffset;
+		rightHeight += experienceOffset;
+	}
+
 	/**
 	 * Calculates positions of armor and bubbles bars
 	 */
@@ -93,7 +112,7 @@ public class ForgeGuiMixin extends Gui {
 		DrawHudContext drawHudContext = ((ExperienceHudRenderer) this).melancholic_hunger$getDrawHudContext();
 		ResourceLocation newArmorTexture = null;
 		y = drawHudContext.getArmorBarY();
-		if (YACLConfig.hideHungerBar() && !drawHudContext.getHasMountHealth()) {
+		if (MelancholicConfig.hideHungerBar() && !drawHudContext.getHasMountHealth()) {
 			// move bar to the right and reverse render order from right to left
 			x = drawHudContext.getMirroredX(x);
 			if (!DrawHudContext.isDefaultArmorHudTexture) {
@@ -154,7 +173,7 @@ public class ForgeGuiMixin extends Gui {
 	) {
 		// Move air bubbles on top of health rows
 		DrawHudContext drawHudContext = ((ExperienceHudRenderer) this).melancholic_hunger$getDrawHudContext();
-		if (YACLConfig.hideHungerBar() && !drawHudContext.getHasMountHealth()) {
+		if (MelancholicConfig.hideHungerBar() && !drawHudContext.getHasMountHealth()) {
 			// move bar to the left and reverse render order from left to right
 			x = drawHudContext.getMirroredX(x);
 		}
@@ -175,7 +194,7 @@ public class ForgeGuiMixin extends Gui {
 		// Move air bubbles on top of health rows
 		DrawHudContext drawHudContext = ((ExperienceHudRenderer) this).melancholic_hunger$getDrawHudContext();
 		// Disables hunger bar rendering or moves it down if experience bar is disabled
-		if (!YACLConfig.hideHungerBar()) {
+		if (!MelancholicConfig.hideHungerBar()) {
 			// hunger bar is drawn at the same height as health bar
 			y = drawHudContext.getHealthBarY();
 			original.call(forgeGui, poseStack, x, y, uOffset, vOffset, uWidth, vHeight);

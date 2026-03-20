@@ -1,7 +1,7 @@
 package antigers.melancholic_hunger.components;
 
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import antigers.melancholic_hunger.config.ServerConfigData;
-import antigers.melancholic_hunger.config.YACLConfig;
 import com.google.gson.Gson;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -40,14 +40,14 @@ public class ServerConfigComponent implements AutoSyncedComponent, C2SSelfMessag
     @Override
     @CheckEnvironment(EnvType.SERVER)
     public void writeSyncPacket(RegistryFriendlyByteBuf buf, ServerPlayer recipient) {
-        buf.writeUtf(gson.toJson(YACLConfig.getServerData()));
+        buf.writeUtf(gson.toJson(MelancholicConfig.getServerData()));
     }
 
     @Override
     @CheckEnvironment(EnvType.CLIENT)
     public void applySyncPacket(RegistryFriendlyByteBuf buf) {
         if (!Minecraft.getInstance().isSingleplayer() && buf.isReadable()) {
-            YACLConfig.setServerData(
+            MelancholicConfig.setServerData(
                     gson.fromJson(buf.readUtf(), ServerConfigData.ImmutableServerConfigData.class)
             );
         }
@@ -77,14 +77,14 @@ public class ServerConfigComponent implements AutoSyncedComponent, C2SSelfMessag
             // only for operators
             return;
         }
-        boolean dataUpdated = YACLConfig.setServerData(
+        boolean dataUpdated = MelancholicConfig.setServerData(
                 gson.fromJson(buf.readUtf(), ServerConfigData.ImmutableServerConfigData.class)
         );
         if (!dataUpdated) {
             return;
         }
         syncAllPlayersExceptOf(player.getId());
-        YACLConfig.saveToDisk();
+        MelancholicConfig.saveToDisk();
     }
 
     /**

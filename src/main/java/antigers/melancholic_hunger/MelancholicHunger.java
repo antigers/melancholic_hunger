@@ -1,7 +1,7 @@
 package antigers.melancholic_hunger;
 
 import antigers.melancholic_hunger.compat.farmers_delight.FarmersDelightCompatRegistrator;
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 
@@ -21,7 +21,7 @@ public class MelancholicHunger implements ModInitializer {
 	public void onInitialize() {
 		// This code runs as soon as Minecraft is in a mod-load-ready state.
 		// However, some things (like resources) may still be uninitialized.
-		YACLConfig.loadFromDisk();
+		MelancholicConfig.loadFromDisk();
 
 		// Disables hud_batching in Immediately Fast, because it breaks hearts rendering
 		if (FabricLoader.getInstance().getModContainer("immediatelyfast").isPresent()) {

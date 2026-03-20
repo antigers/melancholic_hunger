@@ -2,7 +2,7 @@ package antigers.melancholic_hunger.components;
 
 import antigers.melancholic_hunger.InstalledMods;
 import antigers.melancholic_hunger.config.ServerConfigData;
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import antigers.melancholic_hunger.nostalgic_tweaks.NostalgicTweaksConfigHandlerWriter;
 import antigers.melancholic_hunger.utils.ClientOnlyHelper;
 import com.google.gson.Gson;
@@ -24,7 +24,7 @@ public class ServerConfigComponent {
         ServerConfigData.ImmutableServerConfigData configData;
 
         public ConfigNetworkPacket() {
-            configData = YACLConfig.getServerData();
+            configData = MelancholicConfig.getServerData();
         }
 
         public ConfigNetworkPacket(ServerConfigData.ImmutableServerConfigData configData) {
@@ -69,12 +69,12 @@ public class ServerConfigComponent {
 
     private static void handleS2CPacket(ServerConfigData.ImmutableServerConfigData configData) {
         if (!ClientOnlyHelper.isInSingleplayer()) {
-            YACLConfig.setServerData(configData);
+            MelancholicConfig.setServerData(configData);
 
             if (InstalledMods.NOSTALGIC_TWEAKS) {
                 var configHandler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
                 // updating client config in NT (ONLY client config), so it's in sync with melancholic
-                configHandler.melancholic_hunger$writeConfigToNT(YACLConfig.getServerData(), YACLConfig.getClientData());
+                configHandler.melancholic_hunger$writeConfigToNT(MelancholicConfig.getServerData(), MelancholicConfig.getClientData());
             }
         }
     }
@@ -91,17 +91,17 @@ public class ServerConfigComponent {
             // only for operators
             return;
         }
-        boolean dataUpdated = YACLConfig.setServerData(configData);
+        boolean dataUpdated = MelancholicConfig.setServerData(configData);
         if (!dataUpdated) {
             return;
         }
         if (InstalledMods.NOSTALGIC_TWEAKS) {
             var configHandler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
-            configHandler.melancholic_hunger$writeConfigToNT(YACLConfig.getServerData(), null);
+            configHandler.melancholic_hunger$writeConfigToNT(MelancholicConfig.getServerData(), null);
             syncNostalgicTweaksToAllPlayers();
         }
         syncAllPlayersExceptOf(player.getId());
-        YACLConfig.saveToDisk();
+        MelancholicConfig.saveToDisk();
     }
 
     /**

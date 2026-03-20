@@ -1,6 +1,6 @@
 package antigers.melancholic_hunger.mixin;
 
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import antigers.melancholic_hunger.hud.DrawHudContext;
 import antigers.melancholic_hunger.hud.ExperienceBarAnimation;
 import antigers.melancholic_hunger.hud.ExperienceHudRenderer;
@@ -109,7 +109,7 @@ public class ForgeGuiMixin extends Gui {
 		ResourceLocation newArmorTexture = null;
 		y = drawHudContext.getArmorBarY();
 		if (
-				YACLConfig.hideHungerBar() &&
+				MelancholicConfig.hideHungerBar() &&
 						!drawHudContext.getShouldRenderStaminaInPlaceOfHunger() && !drawHudContext.getHasMountHealth()
 		) {
 			// move bar to the right and reverse render order from right to left
@@ -171,7 +171,7 @@ public class ForgeGuiMixin extends Gui {
 		DrawHudContext drawHudContext = (DrawHudContext) guiGraphics;
 		if (
 				!(drawHudContext.getShouldRenderStamina() && drawHudContext.getShouldRenderStaminaInPlaceOfHunger())
-						&& YACLConfig.hideHungerBar() && !drawHudContext.getHasMountHealth()
+						&& MelancholicConfig.hideHungerBar() && !drawHudContext.getHasMountHealth()
 		) {
 			// move bar to the left and reverse render order from left to right
 			x = drawHudContext.getMirroredX(x);
@@ -193,7 +193,7 @@ public class ForgeGuiMixin extends Gui {
 		// Move air bubbles on top of health rows
 		DrawHudContext drawHudContext = (DrawHudContext) guiGraphics;
 		// Disables hunger bar rendering or moves it down if experience bar is disabled
-		if (!YACLConfig.hideHungerBar()) {
+		if (!MelancholicConfig.hideHungerBar()) {
 			// hunger bar is drawn at the same height as health bar
 			y = drawHudContext.getHealthBarY();
 			original.call(guiGraphics, atlasLocation, x, y, uOffset, vOffset, uWidth, vHeight);

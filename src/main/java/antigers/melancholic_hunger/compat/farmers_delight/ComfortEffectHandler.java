@@ -1,12 +1,12 @@
 package antigers.melancholic_hunger.compat.farmers_delight;
 
 import antigers.melancholic_hunger.components.HealthRegenerationComponent;
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import net.minecraft.world.entity.player.Player;
 
 public class ComfortEffectHandler {
 	public static boolean shouldApply(Player player) {
-		if (!YACLConfig.disableHunger()) {
+		if (!MelancholicConfig.disableHunger()) {
 			// when hunger is disabled we use standard Farmer's Delight zero saturation check
 			return player.getFoodData().getSaturationLevel() <= 0.0F;
 		}

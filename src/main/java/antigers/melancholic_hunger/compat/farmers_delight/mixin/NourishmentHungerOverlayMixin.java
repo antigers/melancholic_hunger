@@ -1,6 +1,6 @@
 package antigers.melancholic_hunger.compat.farmers_delight.mixin;
 
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import antigers.melancholic_hunger.hud.DrawHudContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -16,7 +16,7 @@ public class NourishmentHungerOverlayMixin {
 	private static void melancholic_hunger$drawNourishmentOverlay(
 			FoodData foodData, Minecraft minecraft, GuiGraphics graphics, int right, int top, boolean naturalHealing, Operation<Void> original
 	) {
-		if (YACLConfig.disableHunger()) {
+		if (MelancholicConfig.disableHunger()) {
 			return;
 		}
 		original.call(foodData, minecraft, graphics, right, top, naturalHealing);

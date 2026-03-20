@@ -3,7 +3,7 @@ package antigers.melancholic_hunger.mixin;
 import antigers.melancholic_hunger.InstalledMods;
 import antigers.melancholic_hunger.compat.RaisedCompat;
 import antigers.melancholic_hunger.compat.farmers_delight.NourishmentEffectHandler;
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import antigers.melancholic_hunger.hud.*;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -75,7 +75,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
             currentBarType -> (currentBarType != Gui.ContextualInfo.EMPTY)
     );
     @Unique private final BarAnimation melancholic_hunger$expLevelAnimation = new BarAnimation(
-            currentBarType -> (!YACLConfig.hideExperienceBar())
+            currentBarType -> (!MelancholicConfig.hideExperienceBar())
     );
 
     /**
@@ -96,9 +96,9 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
     private boolean melancholic_hunger$shouldRenderExperience() {
         return (
                 // exp has been gained recently
-                (YACLConfig.showExperienceOnGain() && this.willPrioritizeExperienceInfo()) ||
+                (MelancholicConfig.showExperienceOnGain() && this.willPrioritizeExperienceInfo()) ||
                 // exp should be rendered while the current screen is open
-                (!YACLConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen())
+                (!MelancholicConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen())
         );
     }
 
@@ -135,7 +135,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
             GuiGraphics context, Font textRenderer, int level, Operation<Void> original
     ) {
         if (
-                !YACLConfig.hideExperienceBar() || melancholic_hunger$shouldRenderExperience()
+                !MelancholicConfig.hideExperienceBar() || melancholic_hunger$shouldRenderExperience()
                         // exp lvl disappearance animation is not finished yet
                         || melancholic_hunger$expLevelAnimation.shouldStillDrawExperience()
         ) {
@@ -199,7 +199,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
             )
     )
     private boolean melancholic_hunger$hideLocatorBar(ClientWaypointManager instance, Operation<Boolean> original) {
-        if (YACLConfig.hideLocatorBar()) {
+        if (MelancholicConfig.hideLocatorBar()) {
             return false;
         }
         return original.call(instance);
@@ -224,11 +224,11 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         ) {
             // making the exp bar to render in our special cases
             return Gui.ContextualInfo.EXPERIENCE;
-        } else if (barType == Gui.ContextualInfo.EXPERIENCE && YACLConfig.hideExperienceBar()) {
+        } else if (barType == Gui.ContextualInfo.EXPERIENCE && MelancholicConfig.hideExperienceBar()) {
             // making the exp bar to not render when it's set to be hidden in the config
             return Gui.ContextualInfo.EMPTY;
         } else if (
-                YACLConfig.renderExperienceOverBackground() &&
+                MelancholicConfig.renderExperienceOverBackground() &&
                         melancholic_hunger$needToRenderExperienceHudOnCurrentScreen()
         ) {
             // making any bar to not render when we have an exp bar rendered on top of everything
@@ -242,8 +242,8 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         // rendering only if some certain interface screen is open (inventory, enchantment table, etc.)
         var currentScreen = this.minecraft.screen;
         return (
-                (YACLConfig.showExperienceInInventory() && currentScreen instanceof InventoryScreen) ||
-                (YACLConfig.showExperienceOnScreens() && (
+                (MelancholicConfig.showExperienceInInventory() && currentScreen instanceof InventoryScreen) ||
+                (MelancholicConfig.showExperienceOnScreens() && (
                         currentScreen instanceof FurnaceScreen || currentScreen instanceof BlastFurnaceScreen
                         || currentScreen instanceof SmokerScreen || currentScreen instanceof EnchantmentScreen
                         || currentScreen instanceof AnvilScreen || currentScreen instanceof GrindstoneScreen
@@ -258,7 +258,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         if (!this.minecraft.gameMode.hasExperience()) {
             return;
         }
-        if (YACLConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen()) {
+        if (MelancholicConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen()) {
             if (InstalledMods.RAISED) {
                 RaisedCompat.startHotbarTranslate(guiGraphics);
             }
@@ -310,7 +310,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         Gui.ContextualInfo currentBarType = this.nextContextualInfoState();
 
         // updating the bar animations in the begging of every frame
-        boolean shouldDrawExperience = (YACLConfig.showExperienceOnGain() && this.willPrioritizeExperienceInfo()) ||
+        boolean shouldDrawExperience = (MelancholicConfig.showExperienceOnGain() && this.willPrioritizeExperienceInfo()) ||
                 melancholic_hunger$needToRenderExperienceHudOnCurrentScreen();
         Gui.ContextualInfo animationBarType = shouldDrawExperience ? Gui.ContextualInfo.EXPERIENCE : currentBarType;
         melancholic_hunger$barAnimation.update(animationBarType, shouldDrawExperience);
@@ -336,7 +336,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
             Operation<Void> original
     ) {
         DrawHudContext drawHudContext = (DrawHudContext) guiGraphics;
-        if (!YACLConfig.hideHungerBar()) {
+        if (!MelancholicConfig.hideHungerBar()) {
             // hunger bar is drawn at the same height as health bar
             original.call(instance, guiGraphics, player, drawHudContext.getHealthBarY(), right);
         }
@@ -400,7 +400,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
     ) {
         DrawHudContext drawHudContext = (DrawHudContext) guiGraphics;
         y = drawHudContext.getArmorBarY();
-        if (YACLConfig.hideHungerBar() && !drawHudContext.getHasMountHealth()) {
+        if (MelancholicConfig.hideHungerBar() && !drawHudContext.getHasMountHealth()) {
             // move bar to the right and reverse render order from right to left
             x = drawHudContext.getMirroredX(x);
             if (!DrawHudContext.isDefaultArmorHudTexture) {
@@ -510,7 +510,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
             Operation<Void> original
     ) {
         DrawHudContext drawHudContext = (DrawHudContext) guiGraphics;
-        if (YACLConfig.hideHungerBar() && !drawHudContext.getHasMountHealth()) {
+        if (MelancholicConfig.hideHungerBar() && !drawHudContext.getHasMountHealth()) {
             // move bar to the left and reverse render order from left to right
             x = drawHudContext.getMirroredX(x);
         }

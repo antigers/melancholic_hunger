@@ -3,12 +3,11 @@ package antigers.melancholic_hunger.mixin;
 import antigers.melancholic_hunger.InstalledMods;
 import antigers.melancholic_hunger.compat.RaisedCompat;
 import antigers.melancholic_hunger.compat.farmers_delight.NourishmentEffectHandler;
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import antigers.melancholic_hunger.hud.ExperienceBarAnimation;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -142,8 +141,8 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         }
         var currentScreen = this.minecraft.screen;
         return (
-                (YACLConfig.showExperienceInInventory() && currentScreen instanceof InventoryScreen) ||
-                (YACLConfig.showExperienceOnScreens() && (
+                (MelancholicConfig.showExperienceInInventory() && currentScreen instanceof InventoryScreen) ||
+                (MelancholicConfig.showExperienceOnScreens() && (
                         currentScreen instanceof FurnaceScreen || currentScreen instanceof BlastFurnaceScreen
                         || currentScreen instanceof SmokerScreen || currentScreen instanceof EnchantmentScreen
                         || currentScreen instanceof AnvilScreen || currentScreen instanceof GrindstoneScreen
@@ -152,7 +151,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
     }
 
     public void melancholic_hunger$renderExperienceHud(GuiGraphics drawContext) {
-        if (YACLConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen()) {
+        if (MelancholicConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen()) {
             if (InstalledMods.RAISED) {
                 RaisedCompat.startHotbarTranslate(drawContext);
             }
@@ -165,7 +164,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
     }
 
     public void melancholic_hunger$onAddExperience() {
-        if (YACLConfig.showExperienceOnGain()) {
+        if (MelancholicConfig.showExperienceOnGain()) {
             melancholic_hunger$experienceBarAnimation.onGainExperience();
         }
     }
@@ -220,7 +219,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
             GuiGraphics guiGraphics, Player player, int y, int x, Operation<Void> original
     ) {
         DrawHudContext drawHudContext = (DrawHudContext) guiGraphics;
-        if (!YACLConfig.hideHungerBar()) {
+        if (!MelancholicConfig.hideHungerBar()) {
             // hunger bar is drawn at the same height as health bar
             original.call(guiGraphics, player, drawHudContext.getHealthBarY(), x);
         }
@@ -278,7 +277,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         DrawHudContext drawHudContext = (DrawHudContext) drawContext;
         y = drawHudContext.getArmorBarY();
         if (
-                YACLConfig.hideHungerBar() &&
+                MelancholicConfig.hideHungerBar() &&
                         !drawHudContext.getShouldRenderStaminaInPlaceOfHunger() && !drawHudContext.getHasMountHealth()
         ) {
             // move bar to the right and reverse render order from right to left
@@ -383,7 +382,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         DrawHudContext drawHudContext = (DrawHudContext) drawContext;
         if (
                 !(drawHudContext.getShouldRenderStamina() && drawHudContext.getShouldRenderStaminaInPlaceOfHunger())
-                        && YACLConfig.hideHungerBar() && !drawHudContext.getHasMountHealth()
+                        && MelancholicConfig.hideHungerBar() && !drawHudContext.getHasMountHealth()
         ) {
             // move bar to the left and reverse render order from left to right
             x = drawHudContext.getMirroredX(x);

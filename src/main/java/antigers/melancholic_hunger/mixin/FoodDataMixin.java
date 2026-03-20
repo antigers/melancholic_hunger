@@ -1,7 +1,7 @@
 package antigers.melancholic_hunger.mixin;
 
 import antigers.melancholic_hunger.components.HealthRegenerationComponent;
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import net.minecraft.server.level.ServerPlayer;
@@ -30,14 +30,14 @@ public abstract class FoodDataMixin {
         if (melancholic_hunger$player == null) {
             melancholic_hunger$player = player;
         }
-        if (YACLConfig.disableHunger()) {
+        if (MelancholicConfig.disableHunger()) {
             callback.cancel();
         }
     }
 
     @WrapMethod(method = "add")
     private void melancholic_hunger$consumeFoodProperties(int foodLevel, float saturationLevel, Operation<Void> original) {
-        if (melancholic_hunger$player instanceof ServerPlayer && YACLConfig.disableHunger()) {
+        if (melancholic_hunger$player instanceof ServerPlayer && MelancholicConfig.disableHunger()) {
             HealthRegenerationComponent.get(melancholic_hunger$player).eat(foodLevel, saturationLevel, 0);
             return;
         }

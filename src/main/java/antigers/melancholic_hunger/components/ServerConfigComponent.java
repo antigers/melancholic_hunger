@@ -1,9 +1,8 @@
 package antigers.melancholic_hunger.components;
 
 import antigers.melancholic_hunger.InstalledMods;
-import antigers.melancholic_hunger.MelancholicHunger;
 import antigers.melancholic_hunger.config.ServerConfigData;
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import io.netty.buffer.ByteBuf;
 import antigers.melancholic_hunger.nostalgic_tweaks.NostalgicTweaksConfigHandlerWriter;
 import mod.adrenix.nostalgic.config.factory.ConfigBuilder;
@@ -31,11 +30,11 @@ public class ServerConfigComponent {
     );
 
     public static void syncAllPlayers() {
-        PacketDistributor.sendToAllPlayers(YACLConfig.getServerData());
+        PacketDistributor.sendToAllPlayers(MelancholicConfig.getServerData());
     }
 
     public static void syncAllPlayersExceptOf(int ignoredPlayerId) {
-        ServerConfigData.ImmutableServerConfigData data = YACLConfig.getServerData();
+        ServerConfigData.ImmutableServerConfigData data = MelancholicConfig.getServerData();
         for (var player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers()) {
             if (player.getId() == ignoredPlayerId) {
                 continue;
@@ -59,12 +58,12 @@ public class ServerConfigComponent {
                         (data, context) -> {
                             // this handler is client side
                             if (!Minecraft.getInstance().isSingleplayer()) {
-                                YACLConfig.setServerData(data);
+                                MelancholicConfig.setServerData(data);
                                 if (InstalledMods.NOSTALGIC_TWEAKS) {
                                     var handler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
                                     // updating client config in NT (ONLY client config), so it's in sync with melancholic
                                     handler.melancholic_hunger$writeConfigToNT(
-                                            YACLConfig.getServerData(), YACLConfig.getClientData()
+                                            MelancholicConfig.getServerData(), MelancholicConfig.getClientData()
                                     );
                                 }
                             }
@@ -75,17 +74,17 @@ public class ServerConfigComponent {
                                 // only for operators
                                 return;
                             }
-                            boolean dataUpdated = YACLConfig.setServerData(data);
+                            boolean dataUpdated = MelancholicConfig.setServerData(data);
                             if (!dataUpdated) {
                                 return;
                             }
                             if (InstalledMods.NOSTALGIC_TWEAKS) {
                                 var handler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
-                                handler.melancholic_hunger$writeConfigToNT(YACLConfig.getServerData(), null);
+                                handler.melancholic_hunger$writeConfigToNT(MelancholicConfig.getServerData(), null);
                                 syncNostalgicTweaksToAllPlayers();
                             }
                             syncAllPlayersExceptOf(context.player().getId());
-                            YACLConfig.saveToDisk();
+                            MelancholicConfig.saveToDisk();
                         }
                 )
         );
@@ -94,7 +93,7 @@ public class ServerConfigComponent {
     public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             // syncing config for the player at the moment when the player has connected
-            PacketDistributor.sendToPlayer(player, YACLConfig.getServerData());
+            PacketDistributor.sendToPlayer(player, MelancholicConfig.getServerData());
         }
     }
 

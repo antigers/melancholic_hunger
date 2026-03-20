@@ -1,7 +1,6 @@
 package antigers.melancholic_hunger;
 
-import antigers.melancholic_hunger.config.YACLConfig;
-import net.minecraft.client.Minecraft;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -9,7 +8,6 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.raphimc.immediatelyfast.ImmediatelyFast;
 
@@ -23,7 +21,7 @@ public class MelancholicHungerClient {
         // The config screen is accessed by going to the Mods screen > clicking on your mod > clicking on config.
         container.registerExtensionPoint(
                 IConfigScreenFactory.class,
-                (client, parent) -> YACLConfig.getYACLInstance().generateScreen(parent)
+                (client, parent) -> MelancholicConfig.getYACLInstance().generateScreen(parent)
         );
     }
 

@@ -2,7 +2,7 @@ package antigers.melancholic_hunger.hud;
 
 import antigers.melancholic_hunger.InstalledMods;
 import antigers.melancholic_hunger.config.SprintingOption;
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mod.adrenix.nostalgic.helper.gameplay.stamina.StaminaRenderer;
 import mod.adrenix.nostalgic.tweak.config.CandyTweak;
@@ -43,7 +43,7 @@ public class DrawHudContext extends GuiGraphics {
         this.hasMountHealth = hasMountHealth;
         this.mountHealthRows = mountHealthRows;
         playerHasArmor = client.player.getArmorValue() > 0;
-        boolean staminaIsEnabled = InstalledMods.NOSTALGIC_TWEAKS && YACLConfig.sprinting() != SprintingOption.DISABLED && GameplayTweak.STAMINA_SPRINT.get();
+        boolean staminaIsEnabled = InstalledMods.NOSTALGIC_TWEAKS && MelancholicConfig.sprinting() != SprintingOption.DISABLED && GameplayTweak.STAMINA_SPRINT.get();
         shouldRenderStamina = staminaIsEnabled && StaminaRenderer.isVisible();
         shouldRenderStaminaInPlaceOfHunger = staminaIsEnabled && !CandyTweak.HIDE_STAMINA_BAR.get() && !CandyTweak.HIDE_STAMINA_BAR_INACTIVE.get();
     }
@@ -64,7 +64,7 @@ public class DrawHudContext extends GuiGraphics {
             // drawing bubbles above all mount health rows
             bubblesBarY = aboveHealthY - 10 * (mountHealthRows - 1);
         }
-        else if (!YACLConfig.hideHungerBar()) {
+        else if (!MelancholicConfig.hideHungerBar()) {
             // drawing armor above all health rows
             armorBarY = aboveHealthY;
             if (shouldRenderStamina) {

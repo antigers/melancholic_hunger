@@ -12,7 +12,7 @@ public class ServerConfigData {
     public HungerEffectOption hungerEffect;
     public Boolean gradualHealthRegeneration;
     public Float gradualHealthRegenerationSpeed;
-    public Boolean stopRegenerationAtFullHealth;
+    public RegenerationAtFullHealthOption regenerationAtFullHealth;
     public Boolean useCustomFoodStackSizes;
     public LinkedHashMap<String, Integer> customFoodStackSizes;
     public LinkedHashMap<String, Integer> farmersDelightFoodStackSizes;
@@ -33,7 +33,7 @@ public class ServerConfigData {
             HungerEffectOption hungerEffect,
             Boolean gradualHealthRegeneration,
             Float gradualHealthRegenerationSpeed,
-            Boolean stopRegenerationAtFullHealth,
+            RegenerationAtFullHealthOption regenerationAtFullHealth,
             Boolean useCustomFoodStackSizes,
             LinkedHashMap<String, Integer> customFoodStackSizes,
             LinkedHashMap<String, Integer> farmersDelightFoodStackSizes,
@@ -61,7 +61,7 @@ public class ServerConfigData {
 
     public ImmutableServerConfigData getImmutable() {
         return new ImmutableServerConfigData(
-                disableHunger, hungerEffect, gradualHealthRegeneration, gradualHealthRegenerationSpeed, stopRegenerationAtFullHealth,
+                disableHunger, hungerEffect, gradualHealthRegeneration, gradualHealthRegenerationSpeed, regenerationAtFullHealth,
                 useCustomFoodStackSizes, customFoodStackSizes, farmersDelightFoodStackSizes, sprinting, sprintingHealthLimit, instantEating,
                 showFoodItemTooltips, nourishmentHealthBoostHeartsCount, nourishmentRegenSpeedMultiplier
         );

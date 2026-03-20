@@ -30,7 +30,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-public class YACLConfig {
+public class MelancholicConfig {
     private static final String CONFIG_PREFIX = "screen.melancholic_hunger.config.";
     private static boolean isLoadedFromDisk = false;
 
@@ -46,7 +46,7 @@ public class YACLConfig {
         return foodProperties.nutrition();
     }
 
-    private static final ConfigClassHandler<YACLConfig> HANDLER = ConfigClassHandler.createBuilder(YACLConfig.class)
+    private static final ConfigClassHandler<MelancholicConfig> HANDLER = ConfigClassHandler.createBuilder(MelancholicConfig.class)
             .id(ResourceLocation.fromNamespaceAndPath("melancholic_hunger", "config"))
             .serializer(config -> GsonConfigSerializerBuilder.create(config)
                     .setPath(FMLPaths.CONFIGDIR.get().resolve("melancholic_hunger.json5"))
@@ -99,10 +99,12 @@ public class YACLConfig {
             ).addValueDependency(GRADUAL_HEALTH_REGENERATION, true, true, false)
     );
 
-    private static final ConfigOption<Boolean, Boolean> STOP_REGENERATION_AT_FULL_HEALTH = new ConfigOption<Boolean, Boolean>(
-            "stopRegenerationAtFullHealth", false, false, true,
-            () -> serverData.stopRegenerationAtFullHealth, val -> serverData.stopRegenerationAtFullHealth = val
-    ).addDependency(GRADUAL_HEALTH_REGENERATION, true);
+    private static final ConfigOption<RegenerationAtFullHealthOption, Boolean> REGENERATION_AT_FULL_HEALTH = (
+            new ConfigOption<RegenerationAtFullHealthOption, Boolean>(
+                    "regenerationAtFullHealth", RegenerationAtFullHealthOption.CONTINUED, false, true,
+                    () -> serverData.regenerationAtFullHealth, val -> serverData.regenerationAtFullHealth = val
+            ).addDependency(GRADUAL_HEALTH_REGENERATION, true)
+    );
 
     private static final ConfigOption<Boolean, Boolean> INSTANT_EATING = new ConfigOption<>(
             "instantEating", false, true, true,
@@ -351,7 +353,7 @@ public class YACLConfig {
     ).addDependency(DISABLE_HUNGER, true);
 
     private static final List<ConfigOption<?, ?>> ALL_OPTIONS = List.of(
-            DISABLE_HUNGER, GRADUAL_HEALTH_REGENERATION, GRADUAL_HEALTH_REGENERATION_SPEED, STOP_REGENERATION_AT_FULL_HEALTH, HIDE_HUNGER_BAR,
+            DISABLE_HUNGER, GRADUAL_HEALTH_REGENERATION, GRADUAL_HEALTH_REGENERATION_SPEED, REGENERATION_AT_FULL_HEALTH, HIDE_HUNGER_BAR,
             HUNGER_EFFECT, HIGHLIGHT_REGENERATED_HEARTS, INSTANT_EATING, SHOW_FOOD_ITEM_TOOLTIPS, USE_CUSTOM_FOOD_STACK_SIZES,
             CUSTOM_FOOD_STACK_SIZES, FARMERS_DELIGHT_FOOD_STACK_SIZES, SPRINTING, SPRINTING_HEALTH_LIMIT, HIGHLIGHT_RESTORED_HEARTS,
             HIDE_EXPERIENCE_BAR, SHOW_EXPERIENCE_IN_INVENTORY, SHOW_EXPERIENCE_ON_SCREENS, SHOW_EXPERIENCE_ON_GAIN,
@@ -367,9 +369,9 @@ public class YACLConfig {
         var builder = ConfigCategory.createBuilder()
                 .name(Component.translatable(CONFIG_PREFIX + "hunger_category_name"))
                 .tooltip(Component.translatable(CONFIG_PREFIX + "hunger_category_tooltip"))
-                .option(DISABLE_HUNGER.buildYACLOption(YACLConfig::createBooleanController));
+                .option(DISABLE_HUNGER.buildYACLOption(MelancholicConfig::createBooleanController));
         if (InstalledMods.NOSTALGIC_TWEAKS) {
-            builder.option(HIDE_HUNGER_BAR.buildYACLOption(YACLConfig::createBooleanController));
+            builder.option(HIDE_HUNGER_BAR.buildYACLOption(MelancholicConfig::createBooleanController));
         }
         builder
                 .option(HUNGER_EFFECT.buildYACLOption(
@@ -391,15 +393,33 @@ public class YACLConfig {
                                         }
                                 )
                 ))
-                .option(HIGHLIGHT_RESTORED_HEARTS.buildYACLOption(YACLConfig::createBooleanController))
-                .option(GRADUAL_HEALTH_REGENERATION.buildYACLOption(YACLConfig::createBooleanController))
+                .option(HIGHLIGHT_RESTORED_HEARTS.buildYACLOption(MelancholicConfig::createBooleanController))
+                .option(GRADUAL_HEALTH_REGENERATION.buildYACLOption(MelancholicConfig::createBooleanController))
                 .option(GRADUAL_HEALTH_REGENERATION_SPEED.buildYACLOption(
                         option -> FloatSliderControllerBuilder.create(option).range(0.1F, 10.0F).step(0.1F)
                 ))
-                .option(STOP_REGENERATION_AT_FULL_HEALTH.buildYACLOption(YACLConfig::createBooleanController))
-                .option(HIGHLIGHT_REGENERATED_HEARTS.buildYACLOption(YACLConfig::createBooleanController))
-                .option(INSTANT_EATING.buildYACLOption(YACLConfig::createBooleanController))
-                .option(SHOW_FOOD_ITEM_TOOLTIPS.buildYACLOption(YACLConfig::createBooleanController));
+                .option(REGENERATION_AT_FULL_HEALTH.buildYACLOption(
+                        option -> EnumControllerBuilder.create(option).enumClass(RegenerationAtFullHealthOption.class)
+                                .formatValue(
+                                        value -> switch (value) {
+                                            case STOPPED ->
+                                                    Component.translatable(CONFIG_PREFIX + "regeneration_at_full_health_stopped_option")
+                                                            // red
+                                                            .setStyle(Style.EMPTY.withColor(16733525));
+                                            case CONTINUED ->
+                                                    Component.translatable(CONFIG_PREFIX + "regeneration_at_full_health_continued_option")
+                                                            // yellow
+                                                            .setStyle(Style.EMPTY.withColor(16777045));
+                                            case STORED ->
+                                                    Component.translatable(CONFIG_PREFIX + "regeneration_at_full_health_stored_option")
+                                                            // green
+                                                            .setStyle(Style.EMPTY.withColor(5635925));
+                                        }
+                                )
+                ))
+                .option(HIGHLIGHT_REGENERATED_HEARTS.buildYACLOption(MelancholicConfig::createBooleanController))
+                .option(INSTANT_EATING.buildYACLOption(MelancholicConfig::createBooleanController))
+                .option(SHOW_FOOD_ITEM_TOOLTIPS.buildYACLOption(MelancholicConfig::createBooleanController));
 
         return builder.build();
     }
@@ -476,14 +496,14 @@ public class YACLConfig {
         var builder = ConfigCategory.createBuilder()
                 .name(Component.translatable(CONFIG_PREFIX + "food_category_name"))
                 .tooltip(Component.translatable(CONFIG_PREFIX + "food_category_tooltip"))
-                .option(USE_CUSTOM_FOOD_STACK_SIZES.buildYACLOption(YACLConfig::createBooleanController))
+                .option(USE_CUSTOM_FOOD_STACK_SIZES.buildYACLOption(MelancholicConfig::createBooleanController))
                 .option(CUSTOM_FOOD_STACK_SIZES.buildYACLOption())
                 .option(createButtonOption(
-                        "set_all_food_stack_sizes_to_1", YACLConfig::setAllFoodStacksTo1,
+                        "set_all_food_stack_sizes_to_1", MelancholicConfig::setAllFoodStacksTo1,
                         new ConfigOption.ConfigOptionDependency<>(USE_CUSTOM_FOOD_STACK_SIZES, true)
                 ))
                 .option(createButtonOption(
-                        "set_all_food_stack_sizes_to_64", YACLConfig::setAllFoodStacksTo64,
+                        "set_all_food_stack_sizes_to_64", MelancholicConfig::setAllFoodStacksTo64,
                         new ConfigOption.ConfigOptionDependency<>(USE_CUSTOM_FOOD_STACK_SIZES, true)
                 ));
 
@@ -526,12 +546,12 @@ public class YACLConfig {
         return ConfigCategory.createBuilder()
                 .name(Component.translatable(CONFIG_PREFIX + "experience_category_name"))
                 .tooltip(Component.translatable(CONFIG_PREFIX + "experience_category_tooltip"))
-                .option(HIDE_EXPERIENCE_BAR.buildYACLOption(YACLConfig::createBooleanController))
-                .option(SHOW_EXPERIENCE_IN_INVENTORY.buildYACLOption(YACLConfig::createBooleanController))
-                .option(SHOW_EXPERIENCE_ON_SCREENS.buildYACLOption(YACLConfig::createBooleanController))
-                .option(SHOW_EXPERIENCE_ON_GAIN.buildYACLOption(YACLConfig::createBooleanController))
-                .option(ENABLE_EXPERIENCE_ANIMATION.buildYACLOption(YACLConfig::createBooleanController))
-                .option(RENDER_EXPERIENCE_OVER_BACKGROUND.buildYACLOption(YACLConfig::createBooleanController))
+                .option(HIDE_EXPERIENCE_BAR.buildYACLOption(MelancholicConfig::createBooleanController))
+                .option(SHOW_EXPERIENCE_IN_INVENTORY.buildYACLOption(MelancholicConfig::createBooleanController))
+                .option(SHOW_EXPERIENCE_ON_SCREENS.buildYACLOption(MelancholicConfig::createBooleanController))
+                .option(SHOW_EXPERIENCE_ON_GAIN.buildYACLOption(MelancholicConfig::createBooleanController))
+                .option(ENABLE_EXPERIENCE_ANIMATION.buildYACLOption(MelancholicConfig::createBooleanController))
+                .option(RENDER_EXPERIENCE_OVER_BACKGROUND.buildYACLOption(MelancholicConfig::createBooleanController))
                 .build();
     }
 
@@ -581,7 +601,7 @@ public class YACLConfig {
                     if (InstalledMods.NOSTALGIC_TWEAKS) {
                         var handler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
                         handler.melancholic_hunger$writeConfigToNT(
-                                YACLConfig.serverData.getImmutable(), YACLConfig.clientData.getImmutable()
+                                MelancholicConfig.serverData.getImmutable(), MelancholicConfig.clientData.getImmutable()
                         );
                         if (hasSingleplayerServer) {
                             ServerConfigComponent.syncNostalgicTweaksToAllPlayers();
@@ -657,7 +677,7 @@ public class YACLConfig {
         HUNGER_EFFECT.setValue(newServerData.hungerEffect());
         GRADUAL_HEALTH_REGENERATION.setValue(newServerData.gradualHealthRegeneration());
         GRADUAL_HEALTH_REGENERATION_SPEED.setValue(newServerData.gradualHealthRegenerationSpeed());
-        STOP_REGENERATION_AT_FULL_HEALTH.setValue(newServerData.stopRegenerationAtFullHealth());
+        REGENERATION_AT_FULL_HEALTH.setValue(newServerData.regenerationAtFullHealth());
         INSTANT_EATING.setValue(newServerData.instantEating());
         SHOW_FOOD_ITEM_TOOLTIPS.setValue(newServerData.showFoodItemTooltips());
         USE_CUSTOM_FOOD_STACK_SIZES.setValue(newServerData.useCustomFoodStackSizes());
@@ -692,8 +712,8 @@ public class YACLConfig {
     public static float gradualHealthRegenerationSpeed() {
         return serverData.gradualHealthRegenerationSpeed;
     }
-    public static boolean stopRegenerationAtFullHealth() {
-        return serverData.stopRegenerationAtFullHealth;
+    public static RegenerationAtFullHealthOption regenerationAtFullHealth() {
+        return serverData.regenerationAtFullHealth;
     }
     public static boolean shouldInstantlyEat(Item item) {
         if (!serverData.instantEating) {

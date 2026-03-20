@@ -1,6 +1,6 @@
 package antigers.melancholic_hunger.mixin;
 
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -30,17 +30,17 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
         if (this.isPassenger() || this.getAbilities().mayfly) {
             return true;
         }
-        switch (YACLConfig.sprinting()) {
+        switch (MelancholicConfig.sprinting()) {
             case DISABLED -> {
                 return false;
             }
             case LIMITED_BY_HEALTH -> {
-                if (this.getHealth() <= YACLConfig.sprintingHealthLimit()) {
+                if (this.getHealth() <= MelancholicConfig.sprintingHealthLimit()) {
                     return false;
                 }
             }
         }
-        if (YACLConfig.disableHunger()) {
+        if (MelancholicConfig.disableHunger()) {
             return true;
         }
         return (float)this.getFoodData().getFoodLevel() > 6.0F;

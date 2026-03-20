@@ -31,7 +31,7 @@ public abstract class ConfigHandlerMixin<T extends ConfigMeta> implements Nostal
             boolean disableHunger, boolean preventHungerEffect, boolean disableSprint, boolean oldFoodStacking,
             ItemMap<Integer> customFoodStacking, boolean instantEat
     ) {
-        var currentServerData = YACLConfig.getServerData();
+        var currentServerData = MelancholicConfig.getServerData();
         var serverData = new ServerConfigData();
         serverData.disableHunger = disableHunger;
         serverData.instantEating = instantEat;
@@ -69,8 +69,8 @@ public abstract class ConfigHandlerMixin<T extends ConfigMeta> implements Nostal
             }
             serverData.customFoodStackSizes = customFoodStackSizesHashMap;
         }
-        YACLConfig.setServerData(serverData.getImmutable());
-        YACLConfig.saveToDisk();
+        MelancholicConfig.setServerData(serverData.getImmutable());
+        MelancholicConfig.saveToDisk();
     }
 
     @Unique
@@ -91,7 +91,7 @@ public abstract class ConfigHandlerMixin<T extends ConfigMeta> implements Nostal
             var clientData = new ClientConfigData();
             clientData.hideHungerBar = clientConfig.eyeCandy.hideHungerBar;
             clientData.hideExperienceBar = clientConfig.eyeCandy.hideExperienceBar;
-            YACLConfig.setClientData(clientData.getImmutable());
+            MelancholicConfig.setClientData(clientData.getImmutable());
         }
         else if (this.loaded instanceof ServerConfig serverConfig) {
             var gameplayConfig = serverConfig.gameplay;

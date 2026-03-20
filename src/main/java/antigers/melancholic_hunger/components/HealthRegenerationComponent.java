@@ -4,7 +4,7 @@ import java.util.HashSet;
 
 import antigers.melancholic_hunger.InstalledMods;
 import antigers.melancholic_hunger.compat.farmers_delight.NourishmentEffectHandler;
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import net.minecraft.nbt.CompoundTag;
@@ -30,7 +30,7 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
             this.foodNutrition = foodNutrition;
             float saturationModifier = Math.max(0.1F, foodSaturationModifier);
             this.ticksToHeal = Math.max(
-                    1, (int)(10 / (saturationModifier * YACLConfig.gradualHealthRegenerationSpeed()))
+                    1, (int)(10 / (saturationModifier * MelancholicConfig.gradualHealthRegenerationSpeed()))
             );
         }
 
@@ -101,7 +101,7 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
 
     @Override
     public void serverTick() {
-        if (!YACLConfig.gradualHealthRegeneration()) {
+        if (!MelancholicConfig.gradualHealthRegeneration()) {
             return;
         }
         if (consumedFoods.isEmpty()) {
@@ -111,17 +111,25 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
             }
             return;
         }
-        if (YACLConfig.stopRegenerationAtFullHealth() && player.getHealth() >= player.getMaxHealth()) {
-            consumedFoods.clear();
-            consumedNutrition = 0;
-            sync();
-            return;
+        if (player.getHealth() >= player.getMaxHealth()) {
+            // player is at full health
+            switch (MelancholicConfig.regenerationAtFullHealth()) {
+                case STOPPED -> {
+                    consumedFoods.clear();
+                    consumedNutrition = 0;
+                    sync();
+                    return;
+                }
+                case STORED -> {
+                    return;
+                }
+            }
         }
         var digestingFoods = new HashSet<Integer>();
         boolean needsSync = false;
         float regenSpeedMultiplier = 1.0F;
         if (InstalledMods.FARMERS_DELIGHT && NourishmentEffectHandler.playerHasEffect(player)) {
-            regenSpeedMultiplier = YACLConfig.nourishmentRegenSpeedMultiplier();
+            regenSpeedMultiplier = MelancholicConfig.nourishmentRegenSpeedMultiplier();
         }
         for (var iterator = consumedFoods.iterator(); iterator.hasNext();) {
             var consumedFood = iterator.next();
@@ -153,17 +161,17 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
     }
 
     public boolean canEat() {
-        if (!YACLConfig.disableHunger()) {
+        if (!MelancholicConfig.disableHunger()) {
             return player.getFoodData().needsFood();
         }
-        if (!YACLConfig.gradualHealthRegeneration()) {
+        if (!MelancholicConfig.gradualHealthRegeneration()) {
             return player.getHealth() < player.getMaxHealth();
         }
         return player.getHealth() + consumedNutrition < player.getMaxHealth();
     }
 
     public void eat(int foodHealth, float foodSaturation, int foodComponentId) {
-        if (YACLConfig.gradualHealthRegeneration()) {
+        if (MelancholicConfig.gradualHealthRegeneration()) {
             consumedNutrition += foodHealth;
             consumedFoods.add(new ConsumedFood(foodHealth, foodSaturation, foodComponentId));
             sync();
@@ -174,16 +182,16 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
     }
 
     public boolean eat(ItemStack itemStack, FoodProperties foodComponent) {
-        if (!(player instanceof ServerPlayer) || !YACLConfig.disableHunger()) {
+        if (!(player instanceof ServerPlayer) || !MelancholicConfig.disableHunger()) {
             return false;
         }
-        var foodHealth = YACLConfig.getFoodHealth(itemStack, foodComponent);
+        var foodHealth = MelancholicConfig.getFoodHealth(itemStack, foodComponent);
         eat(foodHealth, foodComponent.getSaturationModifier(), foodComponent.hashCode());
         return true;
     }
 
     public int getConsumedNutrition() {
-        if (!YACLConfig.gradualHealthRegeneration()) {
+        if (!MelancholicConfig.gradualHealthRegeneration()) {
             return 0;
         }
         return consumedNutrition;

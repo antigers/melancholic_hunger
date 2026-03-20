@@ -1,8 +1,7 @@
 package antigers.melancholic_hunger.compat.farmers_delight;
 
 import antigers.melancholic_hunger.MelancholicHunger;
-import antigers.melancholic_hunger.config.YACLConfig;
-import net.minecraft.core.Holder;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -13,8 +12,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import vectorwing.farmersdelight.common.effect.NourishmentEffect;
 import vectorwing.farmersdelight.common.registry.ModEffects;
-
-import java.util.function.Supplier;
 
 public class NourishmentEffectHandler {
 	public static final MobEffect NOURISHMENT_HEALTH_BOOST = Registry.register(
@@ -34,10 +31,10 @@ public class NourishmentEffectHandler {
 
 	public static MobEffectInstance getEffectToApply(MobEffectInstance effect) {
 		MobEffect effectType = effect.getEffect();
-		if (effectType != ModEffects.NOURISHMENT.get() || !YACLConfig.disableHunger()) {
+		if (effectType != ModEffects.NOURISHMENT.get() || !MelancholicConfig.disableHunger()) {
 			return effect;
 		}
-		int nourishmentHealthBoostHeartsCount = YACLConfig.nourishmentHealthBoostHeartsCount();
+		int nourishmentHealthBoostHeartsCount = MelancholicConfig.nourishmentHealthBoostHeartsCount();
 		int amplifier;
 		if (nourishmentHealthBoostHeartsCount > 0) {
 			effectType = NOURISHMENT_HEALTH_BOOST;

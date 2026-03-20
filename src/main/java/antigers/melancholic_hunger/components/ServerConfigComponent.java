@@ -2,7 +2,7 @@ package antigers.melancholic_hunger.components;
 
 import antigers.melancholic_hunger.InstalledMods;
 import antigers.melancholic_hunger.config.ServerConfigData;
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import antigers.melancholic_hunger.nostalgic_tweaks.NostalgicTweaksConfigHandlerWriter;
 import com.google.gson.Gson;
 import net.fabricmc.api.EnvType;
@@ -34,7 +34,7 @@ public class ServerConfigComponent {
 
     private static FriendlyByteBuf createConfigDataBuf() {
         FriendlyByteBuf buff = PacketByteBufs.create();
-        buff.writeUtf(gson.toJson(YACLConfig.getServerData()));
+        buff.writeUtf(gson.toJson(MelancholicConfig.getServerData()));
         return buff;
     }
 
@@ -54,14 +54,14 @@ public class ServerConfigComponent {
 
     private static void handleS2CPacket(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender responseSender) {
         if (!client.isSingleplayer() && buf.isReadable()) {
-            YACLConfig.setServerData(
+            MelancholicConfig.setServerData(
                     gson.fromJson(buf.readUtf(), ServerConfigData.ImmutableServerConfigData.class)
             );
 
             if (InstalledMods.NOSTALGIC_TWEAKS) {
                 var configHandler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
                 // updating client config in NT (ONLY client config), so it's in sync with melancholic
-                configHandler.melancholic_hunger$writeConfigToNT(YACLConfig.getServerData(), YACLConfig.getClientData());
+                configHandler.melancholic_hunger$writeConfigToNT(MelancholicConfig.getServerData(), MelancholicConfig.getClientData());
             }
         }
     }
@@ -80,7 +80,7 @@ public class ServerConfigComponent {
             // only for operators
             return;
         }
-        boolean dataUpdated = YACLConfig.setServerData(
+        boolean dataUpdated = MelancholicConfig.setServerData(
                 gson.fromJson(buf.readUtf(), ServerConfigData.ImmutableServerConfigData.class)
         );
         if (!dataUpdated) {
@@ -88,11 +88,11 @@ public class ServerConfigComponent {
         }
         if (InstalledMods.NOSTALGIC_TWEAKS) {
             var configHandler = (NostalgicTweaksConfigHandlerWriter) ConfigBuilder.getHandler();
-            configHandler.melancholic_hunger$writeConfigToNT(YACLConfig.getServerData(), null);
+            configHandler.melancholic_hunger$writeConfigToNT(MelancholicConfig.getServerData(), null);
             syncNostalgicTweaksToAllPlayers();
         }
         syncAllPlayersExceptOf(player.getId());
-        YACLConfig.saveToDisk();
+        MelancholicConfig.saveToDisk();
     }
 
     /**

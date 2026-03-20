@@ -1,6 +1,6 @@
 package antigers.melancholic_hunger.hud;
 
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import net.minecraft.util.Util;
 import net.minecraft.client.gui.Gui;
 
@@ -53,7 +53,7 @@ public class BarAnimation {
         if (!isRunning) {
             this.currentBarType = currentBarType;
         }
-        if (YACLConfig.enableExperienceAnimation()) {
+        if (MelancholicConfig.enableExperienceAnimation()) {
             var animationTime = now - startTime;
             if (animationTime < ANIMATION_TIME) {
                 currentOpacity = (float) animationTime / ANIMATION_TIME;

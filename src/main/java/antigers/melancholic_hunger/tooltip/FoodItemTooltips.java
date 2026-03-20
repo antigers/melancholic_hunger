@@ -1,6 +1,6 @@
 package antigers.melancholic_hunger.tooltip;
 
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import antigers.melancholic_hunger.food.EdibleBlockFoods;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
@@ -124,15 +124,15 @@ public class FoodItemTooltips {
 			}
 			foodProperties = foodPropertiesOptional.get();
 		}
-		if (!YACLConfig.showFoodItemTooltips()) {
+		if (!MelancholicConfig.showFoodItemTooltips()) {
 			return;
 		}
-		int foodNutrition = YACLConfig.getFoodHealth(stack, foodProperties);
+		int foodNutrition = MelancholicConfig.getFoodHealth(stack, foodProperties);
 		if (foodNutrition <= 0) {
 			return;
 		}
 		lines.add(new FoodHealthTextComponent(foodNutrition));
-		if (!YACLConfig.gradualHealthRegeneration()) {
+		if (!MelancholicConfig.gradualHealthRegeneration()) {
 			return;
 		}
 		float regenerationRatio = foodNutrition / foodProperties.saturation();

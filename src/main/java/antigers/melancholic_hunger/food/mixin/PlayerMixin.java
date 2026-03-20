@@ -1,7 +1,7 @@
 package antigers.melancholic_hunger.food.mixin;
 
 import antigers.melancholic_hunger.components.HealthRegenerationComponent;
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import net.minecraft.world.entity.EntityType;
@@ -37,17 +37,17 @@ public abstract class PlayerMixin extends LivingEntity {
         if (this.getAbilities().mayfly) {
             return true;
         }
-        switch (YACLConfig.sprinting()) {
+        switch (MelancholicConfig.sprinting()) {
             case DISABLED -> {
                 return false;
             }
             case LIMITED_BY_HEALTH -> {
-                if (this.getHealth() <= YACLConfig.sprintingHealthLimit()) {
+                if (this.getHealth() <= MelancholicConfig.sprintingHealthLimit()) {
                     return false;
                 }
             }
         }
-        if (YACLConfig.disableHunger()) {
+        if (MelancholicConfig.disableHunger()) {
             return true;
         }
         return this.getFoodData().hasEnoughFood();

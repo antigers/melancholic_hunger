@@ -17,11 +17,11 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
 public class ConfigNetworkHandler {
 
     public static void syncAllPlayers() {
-        PacketDistributor.sendToAllPlayers(YACLConfig.getServerData());
+        PacketDistributor.sendToAllPlayers(MelancholicConfig.getServerData());
     }
 
     public static void syncAllPlayersExceptOf(int ignoredPlayerId) {
-        ServerConfigData.ImmutableServerConfigData data = YACLConfig.getServerData();
+        ServerConfigData.ImmutableServerConfigData data = MelancholicConfig.getServerData();
         for (var player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers()) {
             if (player.getId() == ignoredPlayerId) {
                 continue;
@@ -33,7 +33,7 @@ public class ConfigNetworkHandler {
 
     private static void handleS2CPacket(ServerConfigData.ImmutableServerConfigData data) {
         if (!Minecraft.getInstance().isSingleplayer()) {
-            YACLConfig.setServerData(data);
+            MelancholicConfig.setServerData(data);
         }
     }
 
@@ -42,12 +42,12 @@ public class ConfigNetworkHandler {
             // only for operators
             return;
         }
-        boolean dataUpdated = YACLConfig.setServerData(data);
+        boolean dataUpdated = MelancholicConfig.setServerData(data);
         if (!dataUpdated) {
             return;
         }
         syncAllPlayersExceptOf(player.getId());
-        YACLConfig.saveToDisk();
+        MelancholicConfig.saveToDisk();
     }
 
     /**
@@ -71,7 +71,7 @@ public class ConfigNetworkHandler {
     private static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (!ServerLifecycleHooks.getCurrentServer().isSingleplayer() && event.getEntity() instanceof ServerPlayer player) {
             // syncing config for the player at the moment when the player has connected
-            PacketDistributor.sendToPlayer(player, YACLConfig.getServerData());
+            PacketDistributor.sendToPlayer(player, MelancholicConfig.getServerData());
         }
     }
 

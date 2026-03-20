@@ -2,7 +2,7 @@ package antigers.melancholic_hunger;
 
 import antigers.melancholic_hunger.config.ConfigNetworkHandler;
 import antigers.melancholic_hunger.compat.farmers_delight.FarmersDelightCompatRegistrator;
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import antigers.melancholic_hunger.components.Components;
 
 import org.slf4j.Logger;
@@ -33,6 +33,6 @@ public class MelancholicHunger {
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
-        YACLConfig.loadFromDisk();
+        MelancholicConfig.loadFromDisk();
     }
 }

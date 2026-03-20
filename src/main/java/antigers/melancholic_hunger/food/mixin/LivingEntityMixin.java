@@ -3,7 +3,7 @@ package antigers.melancholic_hunger.food.mixin;
 import antigers.melancholic_hunger.InstalledMods;
 import antigers.melancholic_hunger.compat.farmers_delight.NourishmentEffectHandler;
 import antigers.melancholic_hunger.config.HungerEffectOption;
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -32,7 +32,7 @@ public abstract class LivingEntityMixin {
             return original.call(effect, source);
         }
         if (effect.getEffect() == MobEffects.HUNGER) {
-            HungerEffectOption hungerEffect = YACLConfig.hungerEffect();
+            HungerEffectOption hungerEffect = MelancholicConfig.hungerEffect();
             if (hungerEffect == HungerEffectOption.DISABLED) {
                 return false;
             }
@@ -61,7 +61,7 @@ public abstract class LivingEntityMixin {
     private int melancholic_hunger$setCurrentHandMaxUseTime(
             ItemStack stack, LivingEntity user, Operation<Integer> original
     ) {
-        if (YACLConfig.instantEating() && stack.get(DataComponents.FOOD) != null) {
+        if (MelancholicConfig.instantEating() && stack.get(DataComponents.FOOD) != null) {
             return 1;
         }
         return original.call(stack, user);

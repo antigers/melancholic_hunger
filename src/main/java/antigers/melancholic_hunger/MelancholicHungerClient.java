@@ -1,6 +1,6 @@
 package antigers.melancholic_hunger;
 
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import antigers.melancholic_hunger.tooltip.FoodItemTooltips;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -21,7 +21,7 @@ public class MelancholicHungerClient {
         // Do not forget to add translations for your config options to the en_us.json file.
         container.registerExtensionPoint(
                 IConfigScreenFactory.class,
-                (_, parent) -> YACLConfig.getYACLInstance().generateScreen(parent)
+                (_, parent) -> MelancholicConfig.getYACLInstance().generateScreen(parent)
         );
     }
 

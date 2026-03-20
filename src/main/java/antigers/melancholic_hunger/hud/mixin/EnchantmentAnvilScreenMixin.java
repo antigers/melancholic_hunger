@@ -1,6 +1,6 @@
 package antigers.melancholic_hunger.hud.mixin;
 
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.AnvilScreen;
@@ -27,7 +27,7 @@ public abstract class EnchantmentAnvilScreenMixin extends AbstractContainerScree
             )
     )
     private int melancholic_hunger$removeExpBarDisplay(int original) {
-        if (YACLConfig.hideExperienceBar()) {
+        if (MelancholicConfig.hideExperienceBar()) {
             // making so that the vanilla method of drawing exp bar on Enchantment and Anvil screens doesn't work
             // when the exp bar is hidden, because in that case we use our own "show on screens" feature
             return this.minecraft.player.experienceDisplayStartTick;

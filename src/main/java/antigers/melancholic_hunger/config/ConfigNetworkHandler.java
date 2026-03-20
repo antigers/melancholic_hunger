@@ -19,7 +19,7 @@ public class ConfigNetworkHandler {
     }
 
     public static void syncAllPlayersExceptOf(Integer ignoredPlayerId) {
-        ServerConfigData.ImmutableServerConfigData data = YACLConfig.getServerData();
+        ServerConfigData.ImmutableServerConfigData data = MelancholicConfig.getServerData();
         for (var player : SERVER_INSTANCE.getPlayerList().getPlayers()) {
             if (ignoredPlayerId != null && player.getId() == ignoredPlayerId) {
                 continue;
@@ -31,7 +31,7 @@ public class ConfigNetworkHandler {
 
     private static void handleS2CPacket(ServerConfigData.ImmutableServerConfigData data) {
         if (!Minecraft.getInstance().isSingleplayer()) {
-            YACLConfig.setServerData(data);
+            MelancholicConfig.setServerData(data);
         }
     }
 
@@ -40,12 +40,12 @@ public class ConfigNetworkHandler {
             // only for operators
             return;
         }
-        boolean dataUpdated = YACLConfig.setServerData(data);
+        boolean dataUpdated = MelancholicConfig.setServerData(data);
         if (!dataUpdated) {
             return;
         }
         syncAllPlayersExceptOf(player.getId());
-        YACLConfig.saveToDisk();
+        MelancholicConfig.saveToDisk();
     }
 
     /**
@@ -69,7 +69,7 @@ public class ConfigNetworkHandler {
         ServerLifecycleEvents.SERVER_STARTED.register(server -> SERVER_INSTANCE = server);
         // syncing server config to the player after they join the server
         ServerPlayConnectionEvents.JOIN.register(
-                (_, sender, _) -> sender.sendPacket(YACLConfig.getServerData())
+                (_, sender, _) -> sender.sendPacket(MelancholicConfig.getServerData())
         );
     }
 }

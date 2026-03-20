@@ -1,6 +1,6 @@
 package antigers.melancholic_hunger.hud;
 
-import antigers.melancholic_hunger.config.YACLConfig;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.state.gui.GuiRenderState;
@@ -52,7 +52,7 @@ public class DrawHudContext extends GuiGraphicsExtractor {
             // drawing bubbles above all mount health rows
             bubblesBarY = aboveHealthY - 10 * (mountHealthRows - 1);
         }
-        else if (YACLConfig.hideHungerBar()) {
+        else if (MelancholicConfig.hideHungerBar()) {
             // drawing armor in place of hunger bar (same height as health)
             armorBarY = healthBarY;
             // drawing bubbles above all health rows

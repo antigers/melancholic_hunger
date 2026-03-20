@@ -1,8 +1,8 @@
 package antigers.melancholic_hunger.hud;
 
 import antigers.melancholic_hunger.components.HealthRegenerationComponent;
+import antigers.melancholic_hunger.config.MelancholicConfig;
 import antigers.melancholic_hunger.config.SprintingOption;
-import antigers.melancholic_hunger.config.YACLConfig;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.util.Util;
 import net.minecraft.client.gui.Gui;
@@ -40,11 +40,11 @@ public class RestoredHeartsDrawHelper {
         }
         currentHeart = Mth.ceil(player.getMaxHealth());
         this.random = random;
-        sprintingHealthLimit = YACLConfig.sprinting() == SprintingOption.LIMITED_BY_HEALTH ? YACLConfig.sprintingHealthLimit() : 4;
-        highlightRegeneratedHearts = YACLConfig.highlightRegeneratedHearts();
-        highlightRestoredHearts = YACLConfig.highlightRestoredHearts();
+        sprintingHealthLimit = MelancholicConfig.sprinting() == SprintingOption.LIMITED_BY_HEALTH ? MelancholicConfig.sprintingHealthLimit() : 4;
+        highlightRegeneratedHearts = MelancholicConfig.highlightRegeneratedHearts();
+        highlightRestoredHearts = MelancholicConfig.highlightRestoredHearts();
         consumedNutrition = HealthRegenerationComponent.getConsumedNutrition(player);
-        heldFoodNutrition = foodComponent != null ? YACLConfig.getFoodHealth(heldItemStack, foodComponent) : 0;
+        heldFoodNutrition = foodComponent != null ? MelancholicConfig.getFoodHealth(heldItemStack, foodComponent) : 0;
         totalNutritionToDraw = highlightRegeneratedHearts ? consumedNutrition + heldFoodNutrition : heldFoodNutrition;
     }
 

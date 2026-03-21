@@ -7,11 +7,11 @@
         "defaultRequire": 1
     },
     "client": [
-        "MinecraftMixin",
-        "LocalPlayerMixin",
         "EnchantmentAnvilScreenMixin",
         "GuiMixin",
+        "LocalPlayerMixin",
         "LocatorBarRendererMixin",
+        "MinecraftMixin",
         "ScreenMixin"
     ]
 }

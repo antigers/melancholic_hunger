@@ -2,6 +2,7 @@ package antigers.melancholic_hunger.hud.mixin;
 
 import antigers.melancholic_hunger.InstalledMods;
 import antigers.melancholic_hunger.MelancholicHunger;
+import antigers.melancholic_hunger.ModLoader;
 import antigers.melancholic_hunger.compat.RaisedCompat;
 import antigers.melancholic_hunger.compat.farmers_delight.NourishmentEffectHandler;
 import antigers.melancholic_hunger.config.MelancholicConfig;
@@ -302,7 +303,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         int mountHealthRows = this.getVisibleVehicleHeartRows(mountHealthHeartCount);
         return new DrawHudContext(
                 this.minecraft, graphics.pose(), graphics.guiRenderState, graphics.mouseX, graphics.mouseY,
-                drawRestoredHeartsHelper, hasNonExperienceBar ? 7 : melancholic_hunger$barAnimation.getCurrentPos(),
+                drawRestoredHeartsHelper, hasNonExperienceBar ? 0 : melancholic_hunger$barAnimation.getCurrentPos() - 7,
                 melancholic_hunger$barAnimation, hasMountHealth, mountHealthRows
         );
     }
@@ -330,10 +331,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         var drawHudContext = melancholic_hunger$getDrawHudContext(graphics, currentBarType);
 
         // setting up neoforge gui heights in accordance with experience bar offset
-        int experienceOffset = drawHudContext.getHudExperienceOffset() - 7;
-        leftHeight += experienceOffset;
-        rightHeight += experienceOffset;
-
+        ModLoader.setHudOffset(drawHudContext.getHudExperienceOffset());
         original.call(guiLayerManager, drawHudContext, deltaTracker);
     }
 

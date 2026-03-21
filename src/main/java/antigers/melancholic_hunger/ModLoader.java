@@ -1,5 +1,7 @@
 package antigers.melancholic_hunger;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLLoader;
@@ -31,5 +33,11 @@ public class ModLoader {
 				.stream()
 				.map(ModInfo::getModId)
 				.anyMatch(id -> id.equals(modName));
+	}
+
+	public static void setHudOffset(int offset) {
+		Gui gui = Minecraft.getInstance().gui;
+		gui.leftHeight += offset;
+		gui.rightHeight += offset;
 	}
 }

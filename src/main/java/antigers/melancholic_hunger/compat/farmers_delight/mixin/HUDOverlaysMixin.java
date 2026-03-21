@@ -39,6 +39,6 @@ public class HUDOverlaysMixin {
 			return;
 		}
 		DrawHudContext drawHudContext = (DrawHudContext) graphics;
-		original.call(foodData, minecraft, graphics, right, top + 7 - drawHudContext.getHudExperienceOffset(), naturalHealing);
+		original.call(foodData, minecraft, graphics, right, top - drawHudContext.getHudExperienceOffset(), naturalHealing);
 	}
 }

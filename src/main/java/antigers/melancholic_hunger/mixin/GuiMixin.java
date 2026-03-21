@@ -1,6 +1,7 @@
 package antigers.melancholic_hunger.mixin;
 
 import antigers.melancholic_hunger.InstalledMods;
+import antigers.melancholic_hunger.MelancholicHunger;
 import antigers.melancholic_hunger.compat.RaisedCompat;
 import antigers.melancholic_hunger.compat.farmers_delight.NourishmentEffectHandler;
 import antigers.melancholic_hunger.config.MelancholicConfig;
@@ -298,7 +299,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         int mountHealthRows = this.getVisibleVehicleHeartRows(mountHealthHeartCount);
         return new DrawHudContext(
                 this.minecraft, guiGraphics.pose(), guiGraphics.guiRenderState, guiGraphics.mouseX, guiGraphics.mouseY,
-                drawRestoredHeartsHelper, hasNonExperienceBar ? 7 : melancholic_hunger$barAnimation.getCurrentPos(),
+                drawRestoredHeartsHelper, hasNonExperienceBar ? 0 : melancholic_hunger$barAnimation.getCurrentPos() - 7,
                 melancholic_hunger$barAnimation, hasMountHealth, mountHealthRows
         );
     }
@@ -318,27 +319,23 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
 
         // Replaces default GuiGraphics object with the custom DrawHudContext object
         var drawHudContext = melancholic_hunger$getDrawHudContext(guiGraphics, currentBarType);
+
+        // setting up fabric gui height in accordance with experience bar offset
+        MelancholicHunger.guiHeightOffset = drawHudContext.getHudExperienceOffset();
         original.call(drawHudContext, tickCounter);
     }
 
     /**
      * Disables hunger bar rendering or moves it down if experience bar is disabled
      */
-    @WrapOperation(
-            method = "renderPlayerHealth",
-            at = @At(
-                    value="INVOKE",
-                    target="Lnet/minecraft/client/gui/Gui;renderFood(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/entity/player/Player;II)V"
-            )
-    )
+    @WrapMethod(method = "renderFood")
     private void melancholic_hunger$disableHungerBar(
-            Gui instance, GuiGraphics guiGraphics, Player player, int top, int right,
-            Operation<Void> original
+            GuiGraphics guiGraphics, Player player, int y, int x, Operation<Void> original
     ) {
         DrawHudContext drawHudContext = (DrawHudContext) guiGraphics;
         if (!MelancholicConfig.hideHungerBar()) {
             // hunger bar is drawn at the same height as health bar
-            original.call(instance, guiGraphics, player, drawHudContext.getHealthBarY(), right);
+            original.call(guiGraphics, player, drawHudContext.getHealthBarY(), x);
         }
     }
 

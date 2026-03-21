@@ -1,6 +1,7 @@
 package antigers.melancholic_hunger.mixin;
 
 import antigers.melancholic_hunger.InstalledMods;
+import antigers.melancholic_hunger.MelancholicHunger;
 import antigers.melancholic_hunger.compat.RaisedCompat;
 import antigers.melancholic_hunger.compat.farmers_delight.NourishmentEffectHandler;
 import antigers.melancholic_hunger.config.MelancholicConfig;
@@ -290,22 +291,22 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
     }
 
     @Unique
-    private DrawHudContext melancholic_hunger$getDrawHudContext(GuiGraphics drawContext, Gui.ContextualInfo currentBarType) {
+    private DrawHudContext melancholic_hunger$getDrawHudContext(GuiGraphics guiGraphics, Gui.ContextualInfo currentBarType) {
         var drawRestoredHeartsHelper = new RestoredHeartsDrawHelper(this.getCameraPlayer(), this.random);
         boolean hasNonExperienceBar = currentBarType == Gui.ContextualInfo.JUMPABLE_VEHICLE || currentBarType == Gui.ContextualInfo.LOCATOR;
         int mountHealthHeartCount = this.getVehicleMaxHearts(this.getPlayerVehicleWithHealth());
         boolean hasMountHealth = mountHealthHeartCount > 0;
         int mountHealthRows = this.getVisibleVehicleHeartRows(mountHealthHeartCount);
         return new DrawHudContext(
-                this.minecraft, drawContext.pose(), drawContext.guiRenderState, drawRestoredHeartsHelper,
-                hasNonExperienceBar ? 7 : melancholic_hunger$barAnimation.getCurrentPos(),
+                this.minecraft, guiGraphics.pose(), guiGraphics.guiRenderState, drawRestoredHeartsHelper,
+                hasNonExperienceBar ? 0 : melancholic_hunger$barAnimation.getCurrentPos() - 7,
                 melancholic_hunger$barAnimation, hasMountHealth, mountHealthRows
         );
     }
 
     @WrapMethod(method = "renderHotbarAndDecorations")
     private void melancholic_hunger$wrapRenderMainHud(
-            GuiGraphics drawContext, DeltaTracker tickCounter, Operation<Void> original
+            GuiGraphics guiGraphics, DeltaTracker tickCounter, Operation<Void> original
     ) {
         Gui.ContextualInfo currentBarType = this.nextContextualInfoState();
 
@@ -317,28 +318,24 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         melancholic_hunger$expLevelAnimation.update(animationBarType, shouldDrawExperience);
 
         // Replaces default GuiGraphics object with the custom DrawHudContext object
-        var drawHudContext = melancholic_hunger$getDrawHudContext(drawContext, currentBarType);
+        var drawHudContext = melancholic_hunger$getDrawHudContext(guiGraphics, currentBarType);
+
+        // setting up fabric gui height in accordance with experience bar offset
+        MelancholicHunger.guiHeightOffset = drawHudContext.getHudExperienceOffset();
         original.call(drawHudContext, tickCounter);
     }
 
     /**
      * Disables hunger bar rendering or moves it down if experience bar is disabled
      */
-    @WrapOperation(
-            method = "renderPlayerHealth",
-            at = @At(
-                    value="INVOKE",
-                    target="Lnet/minecraft/client/gui/Gui;renderFood(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/entity/player/Player;II)V"
-            )
-    )
+    @WrapMethod(method = "renderFood")
     private void melancholic_hunger$disableHungerBar(
-            Gui instance, GuiGraphics drawContext, Player player, int top, int right,
-            Operation<Void> original
+            GuiGraphics guiGraphics, Player player, int y, int x, Operation<Void> original
     ) {
-        DrawHudContext drawHudContext = (DrawHudContext) drawContext;
+        DrawHudContext drawHudContext = (DrawHudContext) guiGraphics;
         if (!MelancholicConfig.hideHungerBar()) {
             // hunger bar is drawn at the same height as health bar
-            original.call(instance, drawContext, player, drawHudContext.getHealthBarY(), right);
+            original.call(guiGraphics, player, drawHudContext.getHealthBarY(), x);
         }
     }
 

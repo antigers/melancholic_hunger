@@ -29,7 +29,7 @@ public class DrawHudContext extends GuiGraphics {
         // fixing offset for odd window width value because vanilla code does integer division by 2 when
         // calculating the x coordinate
         offsetX = windowWidth - ((windowWidth % 2 == 0) ? 9 : 10);
-        healthBarY = this.guiHeight() - 32 - hudExperienceOffset;
+        healthBarY = this.guiHeight() - 39 - hudExperienceOffset;
         this.hudExperienceOffset = hudExperienceOffset;
         this.hasMountHealth = hasMountHealth;
         this.mountHealthRows = mountHealthRows;
@@ -45,7 +45,7 @@ public class DrawHudContext extends GuiGraphics {
     }
 
     public void prepareArmorAndBubblesBarsDrawing(int healthBarHighestRowY) {
-        var aboveHealthY = healthBarHighestRowY - 3 - hudExperienceOffset;
+        var aboveHealthY = healthBarHighestRowY - 10 - hudExperienceOffset;
         if (hasMountHealth) {
             // drawing armor above all health rows
             armorBarY = aboveHealthY;

@@ -2,6 +2,7 @@ package antigers.melancholic_hunger.hud.mixin;
 
 import antigers.melancholic_hunger.InstalledMods;
 import antigers.melancholic_hunger.MelancholicHunger;
+import antigers.melancholic_hunger.ModLoader;
 import antigers.melancholic_hunger.compat.RaisedCompat;
 import antigers.melancholic_hunger.compat.farmers_delight.NourishmentEffectHandler;
 import antigers.melancholic_hunger.config.MelancholicConfig;
@@ -299,7 +300,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         int mountHealthRows = this.getVisibleVehicleHeartRows(mountHealthHeartCount);
         return new DrawHudContext(
                 this.minecraft, graphics.pose(), graphics.guiRenderState, graphics.mouseX, graphics.mouseY,
-                drawRestoredHeartsHelper, hasNonExperienceBar ? 7 : melancholic_hunger$barAnimation.getCurrentPos(),
+                drawRestoredHeartsHelper, hasNonExperienceBar ? 0 : melancholic_hunger$barAnimation.getCurrentPos() - 7,
                 melancholic_hunger$barAnimation, hasMountHealth, mountHealthRows
         );
     }
@@ -319,6 +320,9 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
 
         // Replaces default GuiGraphicsExtractor object with the custom DrawHudContext object
         var drawHudContext = melancholic_hunger$getDrawHudContext(graphics, currentBarType);
+
+        // setting up fabric gui height in accordance with experience bar offset
+        ModLoader.setHudOffset(drawHudContext.getHudExperienceOffset());
         original.call(drawHudContext, tickCounter);
     }
 

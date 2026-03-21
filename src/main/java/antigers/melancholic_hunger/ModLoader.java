@@ -6,6 +6,8 @@ import net.fabricmc.loader.api.FabricLoader;
 import java.nio.file.Path;
 
 public class ModLoader {
+	private static int hudOffset = 0;
+
 	public static boolean isClientside() {
 		return FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT;
 	}
@@ -24,5 +26,13 @@ public class ModLoader {
 
 	public static boolean isModLoading(String modName) {
 		return isModLoaded(modName);
+	}
+
+	public static void setHudOffset(int offset) {
+		hudOffset = offset;
+	}
+
+	public static int getHudOffset() {
+		return hudOffset;
 	}
 }

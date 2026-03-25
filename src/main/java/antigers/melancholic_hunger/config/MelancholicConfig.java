@@ -363,14 +363,11 @@ public class MelancholicConfig {
     }
 
     private static ConfigCategory buildHungerCategory() {
-        var builder = ConfigCategory.createBuilder()
+        return ConfigCategory.createBuilder()
                 .name(Component.translatable(CONFIG_PREFIX + "hunger_category_name"))
                 .tooltip(Component.translatable(CONFIG_PREFIX + "hunger_category_tooltip"))
-                .option(DISABLE_HUNGER.buildYACLOption(MelancholicConfig::createBooleanController));
-        if (InstalledMods.NOSTALGIC_TWEAKS) {
-            builder.option(HIDE_HUNGER_BAR.buildYACLOption(MelancholicConfig::createBooleanController));
-        }
-        builder
+                .option(DISABLE_HUNGER.buildYACLOption(MelancholicConfig::createBooleanController))
+                .optionIf(InstalledMods.NOSTALGIC_TWEAKS, () -> HIDE_HUNGER_BAR.buildYACLOption(MelancholicConfig::createBooleanController))
                 .option(HUNGER_EFFECT.buildYACLOption(
                         option -> EnumControllerBuilder.create(option).enumClass(HungerEffectOption.class)
                                 .formatValue(
@@ -416,9 +413,8 @@ public class MelancholicConfig {
                 ))
                 .option(HIGHLIGHT_REGENERATED_HEARTS.buildYACLOption(MelancholicConfig::createBooleanController))
                 .option(INSTANT_EATING.buildYACLOption(MelancholicConfig::createBooleanController))
-                .option(SHOW_FOOD_ITEM_TOOLTIPS.buildYACLOption(MelancholicConfig::createBooleanController));
-
-        return builder.build();
+                .option(SHOW_FOOD_ITEM_TOOLTIPS.buildYACLOption(MelancholicConfig::createBooleanController))
+                .build();
     }
 
     private static void setAllFoodStacksTo1(YACLScreen screen, ButtonOption button) {
@@ -490,7 +486,7 @@ public class MelancholicConfig {
     }
 
     private static ConfigCategory buildFoodItemsCategory() {
-        var builder = ConfigCategory.createBuilder()
+        return ConfigCategory.createBuilder()
                 .name(Component.translatable(CONFIG_PREFIX + "food_category_name"))
                 .tooltip(Component.translatable(CONFIG_PREFIX + "food_category_tooltip"))
                 .option(USE_CUSTOM_FOOD_STACK_SIZES.buildYACLOption(MelancholicConfig::createBooleanController))
@@ -502,12 +498,9 @@ public class MelancholicConfig {
                 .option(createButtonOption(
                         "set_all_food_stack_sizes_to_64", MelancholicConfig::setAllFoodStacksTo64,
                         new ConfigOption.ConfigOptionDependency<>(USE_CUSTOM_FOOD_STACK_SIZES, true)
-                ));
-
-        if (InstalledMods.FARMERS_DELIGHT) {
-            builder.option(FARMERS_DELIGHT_FOOD_STACK_SIZES.buildYACLOption());
-        }
-        return builder.build();
+                ))
+                .optionIf(InstalledMods.FARMERS_DELIGHT, FARMERS_DELIGHT_FOOD_STACK_SIZES::buildYACLOption)
+                .build();
     }
 
     private static ConfigCategory buildSprintingCategory() {
@@ -567,13 +560,13 @@ public class MelancholicConfig {
     }
 
     public static YetAnotherConfigLib getYACLInstance() {
-        return YetAnotherConfigLib.create(HANDLER, (_, _, builder) -> {
-            builder
+        return YetAnotherConfigLib.create(HANDLER, (_, _, builder) -> builder
                 .title(Component.translatable(CONFIG_PREFIX + "title"))
                 .category(buildHungerCategory())
                 .category(buildFoodItemsCategory())
                 .category(buildSprintingCategory())
                 .category(buildExperienceCategory())
+                .categoryIf(InstalledMods.FARMERS_DELIGHT, MelancholicConfig::buildFarmersDelightCategory)
                 .save(() -> {
                     var client = Minecraft.getInstance();
                     boolean isSinglePlayer = client.isSingleplayer();
@@ -594,12 +587,8 @@ public class MelancholicConfig {
                         // sending config to the server if in multiplayer
                         ConfigNetworkHandler.sendToServer(serverData.getImmutable());
                     }
-                });
-            if (InstalledMods.FARMERS_DELIGHT) {
-                builder.category(buildFarmersDelightCategory());
-            }
-            return builder;
-        });
+                })
+        );
     }
 
     private static void updateCurrentScreen() {

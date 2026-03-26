@@ -58,8 +58,6 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
     @Shadow private boolean willPrioritizeExperienceInfo() {return false;}
     @Shadow private boolean willPrioritizeJumpInfo() {return false;}
     @Shadow private Gui.ContextualInfo nextContextualInfoState() {return Gui.ContextualInfo.EMPTY;}
-    @Shadow public int leftHeight;
-    @Shadow public int rightHeight;
 
     @Unique private static final Identifier EXPERIENCE_BAR_BACKGROUND_TEXTURE = Identifier.withDefaultNamespace(
             "hud/experience_bar_background"

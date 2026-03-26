@@ -45,7 +45,7 @@ public class DrawHudContext extends GuiGraphicsExtractor {
     }
 
     public void prepareArmorAndBubblesBarsDrawing(int healthBarHighestRowY) {
-        var aboveHealthY = healthBarHighestRowY - 10 - hudExperienceOffset;
+        var aboveHealthY = healthBarHighestRowY - 10;
         if (hasMountHealth) {
             // drawing armor above all health rows
             armorBarY = aboveHealthY;

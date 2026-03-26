@@ -5,7 +5,7 @@
     "mixins": [
         "FoodPropertiesMixin",
         "FoodDataMixin",
-        "ItemInstanceMixin",
+        "ItemStackMixin",
         "LivingEntityMixin",
         "PlayerMixin",
         "CakeBlockMixin"

@@ -200,15 +200,4 @@ public class ForgeGuiMixin extends Gui {
 		}
 		drawHudContext.renderStamina();
 	}
-
-	/**
-	 * Moves mount health bar according to the exp bar animation position if there is no mount jump bar
-	 */
-	@WrapMethod(method="renderHealthMount", remap=false)
-	private void melancholic_hunger$moveMountHealthBar(int x, int y, GuiGraphics guiGraphics, Operation<Void> original) {
-		if (this.minecraft.player.jumpableVehicle() == null) {
-			y -= ((ExperienceHudRenderer)this).melancholic_hunger$getExperienceBarAnimation().getCurrentPos() - 7;
-		}
-		original.call(x, y, guiGraphics);
-	}
 }

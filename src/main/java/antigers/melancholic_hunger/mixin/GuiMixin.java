@@ -89,23 +89,6 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
     }
 
     /**
-     * Moves mount health bar according to the exp bar animation position if there is no mount jump bar
-     */
-    @WrapOperation(
-            method="renderVehicleHealth",
-            at=@At(
-                    value="INVOKE",
-                    target="Lnet/minecraft/client/gui/GuiGraphics;guiHeight()I"
-            )
-    )
-    private int melancholic_hunger$moveMountHealthBar(GuiGraphics drawContext, Operation<Integer> original) {
-        if (this.minecraft.player.jumpableVehicle() == null) {
-            return original.call(drawContext) - melancholic_hunger$experienceBarAnimation.getCurrentPos() + 7;
-        }
-        return original.call(drawContext);
-    }
-
-    /**
      * Sets opacity of the experience bar according to the animation
      */
     @WrapMethod(

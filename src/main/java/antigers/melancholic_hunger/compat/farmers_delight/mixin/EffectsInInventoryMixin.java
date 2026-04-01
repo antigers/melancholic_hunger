@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(EffectsInInventory.class)
 public class EffectsInInventoryMixin {
 	@WrapOperation(
-			method="renderEffects",
+			method="extractEffects",
 			at=@At(
 					value="INVOKE",
 					target="Lnet/minecraft/client/gui/Gui;getMobEffectSprite(Lnet/minecraft/core/Holder;)Lnet/minecraft/resources/Identifier;"

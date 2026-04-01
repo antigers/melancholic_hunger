@@ -18,7 +18,7 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-//import vectorwing.farmersdelight.common.registry.ModItems;
+import vectorwing.farmersdelight.common.registry.ModItems;
 
 import javax.lang.model.type.NullType;
 import java.util.*;
@@ -199,96 +199,96 @@ public class MelancholicConfig {
         }
         var sizes = new LinkedHashMap<Supplier<Item>, Integer>();
         // nutrition = 1. Total 64
-//        sizes.put(ModItems.CABBAGE_LEAF, 64);
-//        sizes.put(ModItems.TOMATO, 64);
-//
-//        // nutrition = 2. Total 64
-//        sizes.put(ModItems.CABBAGE, 32);
-//        sizes.put(ModItems.HONEY_COOKIE, 32);
-//        sizes.put(ModItems.ONION, 32);
-//        sizes.put(ModItems.PIE_CRUST, 32);
-//        sizes.put(ModItems.PUMPKIN_SLICE, 32);
-//        sizes.put(ModItems.RAW_PASTA, 32);
-//        sizes.put(ModItems.SWEET_BERRY_COOKIE, 32);
-//        sizes.put(ModItems.WHEAT_DOUGH, 32);
-//
-//        // nutrition = 3. Total 72
-//        sizes.put(ModItems.APPLE_PIE_SLICE, 24);
-//        sizes.put(ModItems.CAKE_SLICE, 24);
-//        sizes.put(ModItems.CHOCOLATE_PIE_SLICE, 24);
-//        sizes.put(ModItems.SWEET_BERRY_CHEESECAKE_SLICE, 24);
-//        sizes.put(ModItems.MELON_POPSICLE, 24);
-//        sizes.put(ModItems.CHICKEN_CUTS, 24);
-//        sizes.put(ModItems.COOKED_CHICKEN_CUTS, 24);
-//        sizes.put(ModItems.COD_SLICE, 24);
-//        sizes.put(ModItems.COOKED_COD_SLICE, 24);
-//        sizes.put(ModItems.MUTTON_CHOPS, 24);
-//        sizes.put(ModItems.COOKED_MUTTON_CHOPS, 24);
-//        sizes.put(ModItems.SALMON_SLICE, 24);
-//        sizes.put(ModItems.COOKED_SALMON_SLICE, 24);
-//
-//        // 4 <= nutrition <= 5. Total 64 - 80
-//        sizes.put(ModItems.MINCED_BEEF, 16);
-//        sizes.put(ModItems.BEEF_PATTY, 16);
-//        sizes.put(ModItems.BACON, 16);
-//        sizes.put(ModItems.COOKED_BACON, 16);
-//        sizes.put(ModItems.DOG_FOOD, 16);
-//        sizes.put(ModItems.FRIED_EGG, 16);
-//        sizes.put(ModItems.TOMATO_SAUCE, 16);
-//        sizes.put(ModItems.CABBAGE_ROLLS, 16);
-//        sizes.put(ModItems.NETHER_SALAD, 16);
-//
-//        // 6 <= nutrition <= 7. Total 72 - 84
-//        sizes.put(ModItems.COOKED_RICE, 12);
-//        sizes.put(ModItems.FRUIT_SALAD, 12);
-//        sizes.put(ModItems.KELP_ROLL_SLICE, 12);
-//        sizes.put(ModItems.MIXED_SALAD, 12);
-//        sizes.put(ModItems.COD_ROLL, 12);
-//        sizes.put(ModItems.GLOW_BERRY_CUSTARD, 12);
-//        sizes.put(ModItems.SALMON_ROLL, 12);
-//
-//        // 8 <= nutrition <= 10. Total 64 - 80
-//        sizes.put(ModItems.BARBECUE_STICK, 8);
-//        sizes.put(ModItems.BONE_BROTH, 8);
-//        sizes.put(ModItems.DUMPLINGS, 8);
-//        sizes.put(ModItems.EGG_SANDWICH, 8);
-//        sizes.put(ModItems.BACON_AND_EGGS, 8);
-//        sizes.put(ModItems.BACON_SANDWICH, 8);
-//        sizes.put(ModItems.CHICKEN_SANDWICH, 8);
-//        sizes.put(ModItems.MUTTON_WRAP, 8);
-//        sizes.put(ModItems.RATATOUILLE, 8);
-//        sizes.put(ModItems.HAM, 8);
-//        sizes.put(ModItems.SMOKED_HAM, 8);
-//        sizes.put(ModItems.STUFFED_POTATO, 8);
-//
-//        // 11 <= nutrition <= 12. Total 66 - 72
-//        sizes.put(ModItems.APPLE_PIE, 6);
-//        sizes.put(ModItems.BEEF_STEW, 6);
-//        sizes.put(ModItems.CHOCOLATE_PIE, 6);
-//        sizes.put(ModItems.FISH_STEW, 6);
-//        sizes.put(ModItems.HAMBURGER, 6);
-//        sizes.put(ModItems.KELP_ROLL, 6);
-//        sizes.put(ModItems.MUSHROOM_RICE, 6);
-//        sizes.put(ModItems.PASTA_WITH_MEATBALLS, 6);
-//        sizes.put(ModItems.PASTA_WITH_MUTTON_CHOP, 6);
-//        sizes.put(ModItems.STEAK_AND_POTATOES, 6);
-//        sizes.put(ModItems.SWEET_BERRY_CHEESECAKE, 6);
-//        sizes.put(ModItems.VEGETABLE_SOUP, 6);
-//
-//        // nutrition >= 14. Total 56
-//        sizes.put(ModItems.BAKED_COD_STEW, 4);
-//        sizes.put(ModItems.CHICKEN_SOUP, 4);
-//        sizes.put(ModItems.FRIED_RICE, 4);
-//        sizes.put(ModItems.GRILLED_SALMON, 4);
-//        sizes.put(ModItems.HONEY_GLAZED_HAM, 4);
-//        sizes.put(ModItems.NOODLE_SOUP, 4);
-//        sizes.put(ModItems.PUMPKIN_SOUP, 4);
-//        sizes.put(ModItems.ROASTED_MUTTON_CHOPS, 4);
-//        sizes.put(ModItems.ROAST_CHICKEN, 4);
-//        sizes.put(ModItems.SHEPHERDS_PIE, 4);
-//        sizes.put(ModItems.SQUID_INK_PASTA, 4);
-//        sizes.put(ModItems.STUFFED_PUMPKIN, 4);
-//        sizes.put(ModItems.VEGETABLE_NOODLES, 4);
+        sizes.put(ModItems.CABBAGE_LEAF, 64);
+        sizes.put(ModItems.TOMATO, 64);
+
+        // nutrition = 2. Total 64
+        sizes.put(ModItems.CABBAGE, 32);
+        sizes.put(ModItems.HONEY_COOKIE, 32);
+        sizes.put(ModItems.ONION, 32);
+        sizes.put(ModItems.PIE_CRUST, 32);
+        sizes.put(ModItems.PUMPKIN_SLICE, 32);
+        sizes.put(ModItems.RAW_PASTA, 32);
+        sizes.put(ModItems.SWEET_BERRY_COOKIE, 32);
+        sizes.put(ModItems.WHEAT_DOUGH, 32);
+
+        // nutrition = 3. Total 72
+        sizes.put(ModItems.APPLE_PIE_SLICE, 24);
+        sizes.put(ModItems.CAKE_SLICE, 24);
+        sizes.put(ModItems.CHOCOLATE_PIE_SLICE, 24);
+        sizes.put(ModItems.SWEET_BERRY_CHEESECAKE_SLICE, 24);
+        sizes.put(ModItems.MELON_POPSICLE, 24);
+        sizes.put(ModItems.CHICKEN_CUTS, 24);
+        sizes.put(ModItems.COOKED_CHICKEN_CUTS, 24);
+        sizes.put(ModItems.COD_SLICE, 24);
+        sizes.put(ModItems.COOKED_COD_SLICE, 24);
+        sizes.put(ModItems.MUTTON_CHOPS, 24);
+        sizes.put(ModItems.COOKED_MUTTON_CHOPS, 24);
+        sizes.put(ModItems.SALMON_SLICE, 24);
+        sizes.put(ModItems.COOKED_SALMON_SLICE, 24);
+
+        // 4 <= nutrition <= 5. Total 64 - 80
+        sizes.put(ModItems.MINCED_BEEF, 16);
+        sizes.put(ModItems.BEEF_PATTY, 16);
+        sizes.put(ModItems.BACON, 16);
+        sizes.put(ModItems.COOKED_BACON, 16);
+        sizes.put(ModItems.DOG_FOOD, 16);
+        sizes.put(ModItems.FRIED_EGG, 16);
+        sizes.put(ModItems.TOMATO_SAUCE, 16);
+        sizes.put(ModItems.CABBAGE_ROLLS, 16);
+        sizes.put(ModItems.NETHER_SALAD, 16);
+
+        // 6 <= nutrition <= 7. Total 72 - 84
+        sizes.put(ModItems.COOKED_RICE, 12);
+        sizes.put(ModItems.FRUIT_SALAD, 12);
+        sizes.put(ModItems.KELP_ROLL_SLICE, 12);
+        sizes.put(ModItems.MIXED_SALAD, 12);
+        sizes.put(ModItems.COD_ROLL, 12);
+        sizes.put(ModItems.GLOW_BERRY_CUSTARD, 12);
+        sizes.put(ModItems.SALMON_ROLL, 12);
+
+        // 8 <= nutrition <= 10. Total 64 - 80
+        sizes.put(ModItems.BARBECUE_STICK, 8);
+        sizes.put(ModItems.BONE_BROTH, 8);
+        sizes.put(ModItems.DUMPLINGS, 8);
+        sizes.put(ModItems.EGG_SANDWICH, 8);
+        sizes.put(ModItems.BACON_AND_EGGS, 8);
+        sizes.put(ModItems.BACON_SANDWICH, 8);
+        sizes.put(ModItems.CHICKEN_SANDWICH, 8);
+        sizes.put(ModItems.MUTTON_WRAP, 8);
+        sizes.put(ModItems.RATATOUILLE, 8);
+        sizes.put(ModItems.HAM, 8);
+        sizes.put(ModItems.SMOKED_HAM, 8);
+        sizes.put(ModItems.STUFFED_POTATO, 8);
+
+        // 11 <= nutrition <= 12. Total 66 - 72
+        sizes.put(ModItems.APPLE_PIE, 6);
+        sizes.put(ModItems.BEEF_STEW, 6);
+        sizes.put(ModItems.CHOCOLATE_PIE, 6);
+        sizes.put(ModItems.FISH_STEW, 6);
+        sizes.put(ModItems.HAMBURGER, 6);
+        sizes.put(ModItems.KELP_ROLL, 6);
+        sizes.put(ModItems.MUSHROOM_RICE, 6);
+        sizes.put(ModItems.PASTA_WITH_MEATBALLS, 6);
+        sizes.put(ModItems.PASTA_WITH_MUTTON_CHOP, 6);
+        sizes.put(ModItems.STEAK_AND_POTATOES, 6);
+        sizes.put(ModItems.SWEET_BERRY_CHEESECAKE, 6);
+        sizes.put(ModItems.VEGETABLE_SOUP, 6);
+
+        // nutrition >= 14. Total 56
+        sizes.put(ModItems.BAKED_COD_STEW, 4);
+        sizes.put(ModItems.CHICKEN_SOUP, 4);
+        sizes.put(ModItems.FRIED_RICE, 4);
+        sizes.put(ModItems.GRILLED_SALMON, 4);
+        sizes.put(ModItems.HONEY_GLAZED_HAM, 4);
+        sizes.put(ModItems.NOODLE_SOUP, 4);
+        sizes.put(ModItems.PUMPKIN_SOUP, 4);
+        sizes.put(ModItems.ROASTED_MUTTON_CHOPS, 4);
+        sizes.put(ModItems.ROAST_CHICKEN, 4);
+        sizes.put(ModItems.SHEPHERDS_PIE, 4);
+        sizes.put(ModItems.SQUID_INK_PASTA, 4);
+        sizes.put(ModItems.STUFFED_PUMPKIN, 4);
+        sizes.put(ModItems.VEGETABLE_NOODLES, 4);
 
         var result = new LinkedHashMap<String, Integer>();
         for (var entry : sizes.entrySet()) {
@@ -363,14 +363,11 @@ public class MelancholicConfig {
     }
 
     private static ConfigCategory buildHungerCategory() {
-        var builder = ConfigCategory.createBuilder()
+        return ConfigCategory.createBuilder()
                 .name(Component.translatable(CONFIG_PREFIX + "hunger_category_name"))
                 .tooltip(Component.translatable(CONFIG_PREFIX + "hunger_category_tooltip"))
-                .option(DISABLE_HUNGER.buildYACLOption(MelancholicConfig::createBooleanController));
-        if (InstalledMods.NOSTALGIC_TWEAKS) {
-            builder.option(HIDE_HUNGER_BAR.buildYACLOption(MelancholicConfig::createBooleanController));
-        }
-        builder
+                .option(DISABLE_HUNGER.buildYACLOption(MelancholicConfig::createBooleanController))
+                .optionIf(InstalledMods.NOSTALGIC_TWEAKS, () -> HIDE_HUNGER_BAR.buildYACLOption(MelancholicConfig::createBooleanController))
                 .option(HUNGER_EFFECT.buildYACLOption(
                         option -> EnumControllerBuilder.create(option).enumClass(HungerEffectOption.class)
                                 .formatValue(
@@ -416,9 +413,8 @@ public class MelancholicConfig {
                 ))
                 .option(HIGHLIGHT_REGENERATED_HEARTS.buildYACLOption(MelancholicConfig::createBooleanController))
                 .option(INSTANT_EATING.buildYACLOption(MelancholicConfig::createBooleanController))
-                .option(SHOW_FOOD_ITEM_TOOLTIPS.buildYACLOption(MelancholicConfig::createBooleanController));
-
-        return builder.build();
+                .option(SHOW_FOOD_ITEM_TOOLTIPS.buildYACLOption(MelancholicConfig::createBooleanController))
+                .build();
     }
 
     private static void setAllFoodStacksTo1(YACLScreen screen, ButtonOption button) {
@@ -490,7 +486,7 @@ public class MelancholicConfig {
     }
 
     private static ConfigCategory buildFoodItemsCategory() {
-        var builder = ConfigCategory.createBuilder()
+        return ConfigCategory.createBuilder()
                 .name(Component.translatable(CONFIG_PREFIX + "food_category_name"))
                 .tooltip(Component.translatable(CONFIG_PREFIX + "food_category_tooltip"))
                 .option(USE_CUSTOM_FOOD_STACK_SIZES.buildYACLOption(MelancholicConfig::createBooleanController))
@@ -502,12 +498,9 @@ public class MelancholicConfig {
                 .option(createButtonOption(
                         "set_all_food_stack_sizes_to_64", MelancholicConfig::setAllFoodStacksTo64,
                         new ConfigOption.ConfigOptionDependency<>(USE_CUSTOM_FOOD_STACK_SIZES, true)
-                ));
-
-        if (InstalledMods.FARMERS_DELIGHT) {
-            builder.option(FARMERS_DELIGHT_FOOD_STACK_SIZES.buildYACLOption());
-        }
-        return builder.build();
+                ))
+                .optionIf(InstalledMods.FARMERS_DELIGHT, FARMERS_DELIGHT_FOOD_STACK_SIZES::buildYACLOption)
+                .build();
     }
 
     private static ConfigCategory buildSprintingCategory() {
@@ -567,13 +560,13 @@ public class MelancholicConfig {
     }
 
     public static YetAnotherConfigLib getYACLInstance() {
-        return YetAnotherConfigLib.create(HANDLER, (_, _, builder) -> {
-            builder
+        return YetAnotherConfigLib.create(HANDLER, (_, _, builder) -> builder
                 .title(Component.translatable(CONFIG_PREFIX + "title"))
                 .category(buildHungerCategory())
                 .category(buildFoodItemsCategory())
                 .category(buildSprintingCategory())
                 .category(buildExperienceCategory())
+                .categoryIf(InstalledMods.FARMERS_DELIGHT, MelancholicConfig::buildFarmersDelightCategory)
                 .save(() -> {
                     var client = Minecraft.getInstance();
                     boolean isSinglePlayer = client.isSingleplayer();
@@ -594,12 +587,8 @@ public class MelancholicConfig {
                         // sending config to the server if in multiplayer
                         ConfigNetworkHandler.sendToServer(serverData.getImmutable());
                     }
-                });
-            if (InstalledMods.FARMERS_DELIGHT) {
-                builder.category(buildFarmersDelightCategory());
-            }
-            return builder;
-        });
+                })
+        );
     }
 
     private static void updateCurrentScreen() {

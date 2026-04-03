@@ -71,8 +71,8 @@ dependencies {
 	// Nostalgic Tweaks compatibility
 	//	modImplementation "maven.modrinth:nostalgic-tweaks:${project.nostalgic_tweaks_version}"
 
-    //Raised compatibility
-	compileOnly "maven.modrinth:raised:${project.raised_version}"
+    // Raised compatibility
+	implementation "maven.modrinth:raised:${project.raised_version}"
 
 	// Manningham Mills (Farmer's Delight dependency)
 	implementation("com.github.Chocohead:Fabric-ASM:${manningham_mills_version}") {

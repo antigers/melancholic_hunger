@@ -11,8 +11,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 
+import java.awt.*;
+
 public class RestoredHeartsDrawHelper {
-    public record RestoredHeart(Gui.HeartType heartType, boolean isHalf, int colorRed, int colorGreen, int colorBlue) {}
+    public record RestoredHeart(Gui.HeartType heartType, boolean isHalf, Color color) {}
 
     private final int playerHealth;
     private int currentHeart;
@@ -25,11 +27,11 @@ public class RestoredHeartsDrawHelper {
     private final int sprintingHealthLimit;
     private final boolean highlightRegeneratedHearts;
     private final boolean highlightRestoredHearts;
-    private final int regeneratingHeartColor;
+    private final Color restoredHeartsOverlayColor;
+    private final Color regeneratingHeartColor;
     private final Gui.HeartType heartType;
 
     public RestoredHeartsDrawHelper(Player player, RandomSource random) {
-        regeneratingHeartColor = calculateBlinkingColor();
         heartType = Gui.HeartType.forPlayer(player);
         playerHealth = Mth.ceil(player.getHealth());
         absorption = Mth.ceil(player.getAbsorptionAmount());
@@ -41,19 +43,34 @@ public class RestoredHeartsDrawHelper {
         currentHeart = Mth.ceil(player.getMaxHealth());
         this.random = random;
         sprintingHealthLimit = MelancholicConfig.sprinting() == SprintingOption.LIMITED_BY_HEALTH ? MelancholicConfig.sprintingHealthLimit() : 4;
-        highlightRegeneratedHearts = MelancholicConfig.highlightRegeneratedHearts();
-        highlightRestoredHearts = MelancholicConfig.highlightRestoredHearts();
-        consumedNutrition = PlayerComponents.HEALTH_REGENERATION.get(player).getConsumedNutrition();
+        boolean disableHunger = MelancholicConfig.disableHunger();
+        highlightRegeneratedHearts = disableHunger && MelancholicConfig.highlightRegeneratedHearts();
+        if (highlightRegeneratedHearts) {
+            Color regeneratedHeartsOverlayColor = MelancholicConfig.regeneratedHeartsOverlayColor();
+            regeneratingHeartColor = new Color(
+                    regeneratedHeartsOverlayColor.getRed(), regeneratedHeartsOverlayColor.getGreen(), regeneratedHeartsOverlayColor.getBlue(),
+                    (int)Math.floor(calculateRegeneratingHeartOpacity() * 255F)
+            );
+        }
+        else {
+            regeneratingHeartColor = null;
+        }
+        highlightRestoredHearts = disableHunger && MelancholicConfig.highlightRestoredHearts();
+        restoredHeartsOverlayColor = highlightRestoredHearts ? MelancholicConfig.restoredHeartsOverlayColor() : null;
+        consumedNutrition = disableHunger ? PlayerComponents.HEALTH_REGENERATION.get(player).getConsumedNutrition() : 0;
         heldFoodNutrition = foodComponent != null ? MelancholicConfig.getFoodHealth(heldItemStack, foodComponent) : 0;
         totalNutritionToDraw = highlightRegeneratedHearts ? consumedNutrition + heldFoodNutrition : heldFoodNutrition;
     }
 
-    private int calculateBlinkingColor() {
-        return (int)Mth.abs(
-                Mth.sin(
-                        (float)(Util.getMillis() % 1500L) / 1500.0F * (float)(Math.PI * 2)
-                ) * 155F
-        ) + 50;
+    private float calculateRegeneratingHeartOpacity() {
+        float minOpacity = MelancholicConfig.regeneratedHeartsOpacityMin();
+        float amplitude = MelancholicConfig.regeneratedHeartsOpacityMax() - minOpacity;
+        int period = MelancholicConfig.regeneratedHeartsBlinkingPeriod();
+		return Mth.abs(
+				Mth.sin(
+						(float)(Util.getMillis() % period) / (float)period * (float)(Math.PI * 2)
+				) * amplitude
+		) + minOpacity;
     }
 
     public Pair<RestoredHeart, RestoredHeart> heartsToDraw() {
@@ -64,11 +81,11 @@ public class RestoredHeartsDrawHelper {
         if (highlightRegeneratedHearts && consumedNutrition > 0 && heartsDiff <= consumedNutrition) {
             // this heart is regenerating
             boolean isHalf = heartsDiff == consumedNutrition;
-            var regeneratingHeart = new RestoredHeart(heartType, isHalf, regeneratingHeartColor, regeneratingHeartColor, regeneratingHeartColor);
+            var regeneratingHeart = new RestoredHeart(heartType, isHalf, regeneratingHeartColor);
             if (isHalf && highlightRestoredHearts && heldFoodNutrition > 0) {
                 // the left half of this heart is regenerating and the second half can be restored by held food
                 return new Pair<>(
-                        new RestoredHeart(Gui.HeartType.NORMAL, false, 120, 70, 70),
+                        new RestoredHeart(Gui.HeartType.NORMAL, false, restoredHeartsOverlayColor),
                         regeneratingHeart
                 );
             }
@@ -78,7 +95,7 @@ public class RestoredHeartsDrawHelper {
             // this heart can be restored by held food
             return new Pair<>(
                     new RestoredHeart(
-                            Gui.HeartType.NORMAL, heartsDiff == totalNutritionToDraw, 120, 70, 70
+                            Gui.HeartType.NORMAL, heartsDiff == totalNutritionToDraw, restoredHeartsOverlayColor
                     ),
                     null
             );

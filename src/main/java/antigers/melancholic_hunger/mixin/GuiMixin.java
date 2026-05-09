@@ -1,6 +1,7 @@
 package antigers.melancholic_hunger.mixin;
 
 import antigers.melancholic_hunger.InstalledMods;
+import antigers.melancholic_hunger.MelancholicHunger;
 import antigers.melancholic_hunger.compat.RaisedCompat;
 import antigers.melancholic_hunger.compat.farmers_delight.NourishmentEffectHandler;
 import antigers.melancholic_hunger.config.MelancholicConfig;
@@ -33,6 +34,8 @@ import antigers.melancholic_hunger.hud.RestoredHeartsDrawHelper;
 import antigers.melancholic_hunger.hud.ExperienceHudRenderer;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.awt.*;
+
 @Mixin(Gui.class)
 public abstract class GuiMixin implements ExperienceHudRenderer {
     @Shadow @Final private Minecraft minecraft;
@@ -47,13 +50,13 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
     @Shadow @Final private static ResourceLocation ARMOR_EMPTY_SPRITE;
     @Shadow @Final private static ResourceLocation ARMOR_HALF_SPRITE;
     @Unique private static final ResourceLocation VANILLA_ARMOR_EMPTY_TEXTURE = ResourceLocation.fromNamespaceAndPath(
-            "melancholic_hunger", "hud/armor_empty"
+            MelancholicHunger.MOD_ID, "hud/armor_empty"
     );
     @Unique private static final ResourceLocation VANILLA_ARMOR_HALF_TEXTURE = ResourceLocation.fromNamespaceAndPath(
-            "melancholic_hunger", "hud/armor_half"
+            MelancholicHunger.MOD_ID, "hud/armor_half"
     );
     @Unique private static final ResourceLocation VANILLA_ARMOR_HALF_TEXTURE_INVERSED = ResourceLocation.fromNamespaceAndPath(
-            "melancholic_hunger", "hud/armor_half_inversed"
+            MelancholicHunger.MOD_ID, "hud/armor_half_inversed"
     );
     @Unique private final ExperienceBarAnimation melancholic_hunger$experienceBarAnimation = new ExperienceBarAnimation();
 
@@ -133,7 +136,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
     @Unique
     public boolean melancholic_hunger$needToRenderExperienceHudOnCurrentScreen() {
         // rendering only if some certain interface screen is open (inventory, enchantment table, etc.)
-        if (!this.isExperienceBarVisible()) {
+        if (!this.isExperienceBarVisible() || !MelancholicConfig.hideExperienceBar()) {
             return false;
         }
         var currentScreen = this.minecraft.screen;
@@ -315,12 +318,11 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
 
     @Unique
     private void melancholic_hunger$drawHeartWithColor(
-            GuiGraphics context, Gui.HeartType type, int x, int y, boolean hardcore, boolean blinking,
-            boolean half, int colorRed, int colorGreen, int colorBlue
+            GuiGraphics context, Gui.HeartType type, int x, int y, boolean hardcore, boolean blinking, boolean half, Color color
     ) {
-        context.setColor(colorRed / 255F, colorGreen / 255F, colorBlue / 255F, 1.0F);
-        context.blitSprite(type.getSprite(hardcore, half, blinking), x, y, 9, 9);
-        context.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+        TextureAtlasSprite sprite = minecraft.getGuiSprites().getSprite(type.getSprite(hardcore, half, blinking));
+        float[] components = color.getRGBComponents(null);
+        context.blit(x, y, 0, 9, 9, sprite, components[0], components[1], components[2], components[3]);
     }
 
     /**
@@ -352,15 +354,13 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
             // drawing container for correct background
             original.call(inGameHud, drawContext, Gui.HeartType.CONTAINER, x, y, hardcore, blinking, half);
             melancholic_hunger$drawHeartWithColor(
-                    drawContext, firstHeart.heartType(), x, y, hardcore, blinking, firstHeart.isHalf(),
-                    firstHeart.colorRed(), firstHeart.colorGreen(), firstHeart.colorBlue()
+                    drawContext, firstHeart.heartType(), x, y, hardcore, blinking, firstHeart.isHalf(), firstHeart.color()
             );
             RestoredHeartsDrawHelper.RestoredHeart secondHeart = res.getSecond();
             if (secondHeart != null) {
                 // drawing second heart on top of the first
                 melancholic_hunger$drawHeartWithColor(
-                        drawContext, secondHeart.heartType(), x, y, hardcore, blinking, secondHeart.isHalf(),
-                        secondHeart.colorRed(), secondHeart.colorGreen(), secondHeart.colorBlue()
+                        drawContext, secondHeart.heartType(), x, y, hardcore, blinking, secondHeart.isHalf(), secondHeart.color()
                 );
             }
         }

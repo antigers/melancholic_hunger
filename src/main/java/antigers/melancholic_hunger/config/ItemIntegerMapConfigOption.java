@@ -153,7 +153,6 @@ public class ItemIntegerMapConfigOption extends ConfigOption<List<String>, Boole
         if (outerGetter.get() == null) {
             setValueToDefault();
         }
-        updateValueAccordingToDependency();
     }
 
     public void setValue(LinkedHashMap<String, Integer> value) {
@@ -161,7 +160,6 @@ public class ItemIntegerMapConfigOption extends ConfigOption<List<String>, Boole
             return;
         }
         outerSetter.accept(value);
-        updateDependents();
     }
 
     public ListOption<String> buildYACLOption() {

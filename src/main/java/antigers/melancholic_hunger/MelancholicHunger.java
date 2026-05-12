@@ -1,12 +1,11 @@
 package antigers.melancholic_hunger;
 
-import antigers.melancholic_hunger.components.PlayerComponents;
 import antigers.melancholic_hunger.compat.farmers_delight.FarmersDelightCompatRegistrator;
+import antigers.melancholic_hunger.components.PlayerComponents;
 import antigers.melancholic_hunger.config.MelancholicConfig;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ConfigScreenHandler;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
@@ -32,9 +31,6 @@ public class MelancholicHunger
 
 		// Register the commonSetup method for modloading
 		modEventBus.addListener(this::commonSetup);
-
-		// Register ourselves for server and other game events we are interested in
-		MinecraftForge.EVENT_BUS.register(this);
 
 		// Register YACL config screen
 		context.registerExtensionPoint(

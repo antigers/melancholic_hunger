@@ -5,8 +5,8 @@ import antigers.melancholic_hunger.food.EdibleBlockFoods;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.Hud;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTextTooltip;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.component.DataComponents;
@@ -105,12 +105,12 @@ public class FoodItemTooltips {
 			y += 2;
 			for (int i = 0; i < heartsCount - 1; i++) {
 				int textureX = x + i * 9;
-				graphics.blitSprite(RenderPipelines.GUI_TEXTURED, Gui.HeartType.CONTAINER.getSprite(false, false, false), textureX, y, 9, 9);
-				graphics.blitSprite(RenderPipelines.GUI_TEXTURED, Gui.HeartType.NORMAL.getSprite(false, false, false), textureX, y, 9, 9);
+				graphics.blitSprite(RenderPipelines.GUI_TEXTURED, Hud.HeartType.CONTAINER.getSprite(false, false, false), textureX, y, 9, 9);
+				graphics.blitSprite(RenderPipelines.GUI_TEXTURED, Hud.HeartType.NORMAL.getSprite(false, false, false), textureX, y, 9, 9);
 			}
 			int textureX = x + (heartsCount - 1) * 9;
-			graphics.blitSprite(RenderPipelines.GUI_TEXTURED, Gui.HeartType.CONTAINER.getSprite(false, lastHeartIsHalf, false), textureX, y, 9, 9);
-			graphics.blitSprite(RenderPipelines.GUI_TEXTURED, Gui.HeartType.NORMAL.getSprite(false, lastHeartIsHalf, false), textureX, y, 9, 9);
+			graphics.blitSprite(RenderPipelines.GUI_TEXTURED, Hud.HeartType.CONTAINER.getSprite(false, lastHeartIsHalf, false), textureX, y, 9, 9);
+			graphics.blitSprite(RenderPipelines.GUI_TEXTURED, Hud.HeartType.NORMAL.getSprite(false, lastHeartIsHalf, false), textureX, y, 9, 9);
 		}
 	}
 
@@ -155,7 +155,7 @@ public class FoodItemTooltips {
 		}
 		lines.add(
 				Component.translatable(CONFIG_PREFIX + "template", Component.translatable(regenerationRate))
-						.setStyle(Style.EMPTY.withColor(formatting.getColor()))
+						.withStyle(formatting)
 		);
 	}
 

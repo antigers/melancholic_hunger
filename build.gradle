@@ -72,7 +72,7 @@ dependencies {
 	//	modImplementation "maven.modrinth:nostalgic-tweaks:${project.nostalgic_tweaks_version}"
 
     // Raised compatibility
-	implementation "maven.modrinth:raised:${project.raised_version}"
+	compileOnly "maven.modrinth:raised:${project.raised_version}"
 
 	// Manningham Mills (Farmer's Delight dependency)
 	implementation("com.github.Chocohead:Fabric-ASM:${manningham_mills_version}") {
@@ -80,7 +80,7 @@ dependencies {
 	}
 
 	// Farmer's Delight compatibility
-	implementation "maven.modrinth:farmers-delight-refabricated:${project.farmers_delight_version}"
+	compileOnly "maven.modrinth:farmers-delight-refabricated:${project.farmers_delight_version}"
 }
 
 processResources {

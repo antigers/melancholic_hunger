@@ -81,7 +81,7 @@ class ConfigOption<T, U> {
     public static boolean getPlayerHasPermission() {
         var client = Minecraft.getInstance();
         var player = client.player;
-        return client.isSingleplayer() || player == null || player.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.GAMEMASTERS));
+        return client.hasSingleplayerServer() || player == null || player.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.GAMEMASTERS));
     }
 
     protected void setValueToDefault() {

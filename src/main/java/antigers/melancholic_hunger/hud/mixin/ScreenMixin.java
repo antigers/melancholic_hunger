@@ -20,7 +20,7 @@ public abstract class ScreenMixin extends AbstractContainerEventHandler {
             at=@At("TAIL")
     )
     public void melancholic_hunger$renderExperienceOnTopOfBackground(GuiGraphicsExtractor graphics, CallbackInfo callback) {
-        ExperienceHudRenderer gui = (ExperienceHudRenderer) this.minecraft.gui;
+        ExperienceHudRenderer gui = (ExperienceHudRenderer) this.minecraft.gui.hud;
         gui.melancholic_hunger$renderExperienceHudOverBackground(graphics);
     }
 }

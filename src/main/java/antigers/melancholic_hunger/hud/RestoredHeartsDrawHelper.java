@@ -4,6 +4,7 @@ import antigers.melancholic_hunger.components.HealthRegenerationComponent;
 import antigers.melancholic_hunger.config.MelancholicConfig;
 import antigers.melancholic_hunger.config.SprintingOption;
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.client.gui.Hud;
 import net.minecraft.util.Util;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.core.component.DataComponents;
@@ -12,7 +13,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 
 public class RestoredHeartsDrawHelper {
-    public record RestoredHeart(Gui.HeartType heartType, boolean isHalf, int colorRed, int colorGreen, int colorBlue) {}
+    public record RestoredHeart(Hud.HeartType heartType, boolean isHalf, int colorRed, int colorGreen, int colorBlue) {}
 
     private final int playerHealth;
     private int currentHeart;
@@ -26,11 +27,11 @@ public class RestoredHeartsDrawHelper {
     private final boolean highlightRegeneratedHearts;
     private final boolean highlightRestoredHearts;
     private final int regeneratingHeartColor;
-    private final Gui.HeartType heartType;
+    private final Hud.HeartType heartType;
 
     public RestoredHeartsDrawHelper(Player player, RandomSource random) {
         regeneratingHeartColor = calculateBlinkingColor();
-        heartType = Gui.HeartType.forPlayer(player);
+        heartType = Hud.HeartType.forPlayer(player);
         playerHealth = Mth.ceil(player.getHealth());
         absorption = Mth.ceil(player.getAbsorptionAmount());
         var heldItemStack = player.getMainHandItem();
@@ -68,7 +69,7 @@ public class RestoredHeartsDrawHelper {
             if (isHalf && highlightRestoredHearts && heldFoodNutrition > 0) {
                 // the left half of this heart is regenerating and the second half can be restored by held food
                 return new Pair<>(
-                        new RestoredHeart(Gui.HeartType.NORMAL, false, 120, 70, 70),
+                        new RestoredHeart(Hud.HeartType.NORMAL, false, 120, 70, 70),
                         regeneratingHeart
                 );
             }
@@ -78,7 +79,7 @@ public class RestoredHeartsDrawHelper {
             // this heart can be restored by held food
             return new Pair<>(
                     new RestoredHeart(
-                            Gui.HeartType.NORMAL, heartsDiff == totalNutritionToDraw, 120, 70, 70
+                            Hud.HeartType.NORMAL, heartsDiff == totalNutritionToDraw, 120, 70, 70
                     ),
                     null
             );

@@ -8,13 +8,13 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.contextualbar.LocatorBarRenderer;
+import net.minecraft.client.gui.contextualbar.LocatorBar;
 import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Mixin(LocatorBarRenderer.class)
+@Mixin(LocatorBar.class)
 public class LocatorBarRendererMixin {
     @Unique DrawHudContext drawHudContext;
 
@@ -58,7 +58,7 @@ public class LocatorBarRendererMixin {
             method="extractRenderState",
             at= @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/contextualbar/LocatorBarRenderer;top(Lcom/mojang/blaze3d/platform/Window;)I"
+                    target = "Lnet/minecraft/client/gui/contextualbar/LocatorBar;top(Lcom/mojang/blaze3d/platform/Window;)I"
             )
     )
     private int melancholic_hunger$renderAddonsModifyValueOfY(int original) {

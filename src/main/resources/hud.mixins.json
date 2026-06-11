@@ -10,7 +10,7 @@
     },
     "client": [
         "EnchantmentAnvilScreenMixin",
-        "GuiMixin",
+        "HudMixin",
         "LocalPlayerMixin",
         "LocatorBarRendererMixin",
         "MinecraftMixin",

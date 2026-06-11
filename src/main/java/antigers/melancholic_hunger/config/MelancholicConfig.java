@@ -569,14 +569,13 @@ public class MelancholicConfig {
                 .categoryIf(InstalledMods.FARMERS_DELIGHT, MelancholicConfig::buildFarmersDelightCategory)
                 .save(() -> {
                     var client = Minecraft.getInstance();
-                    boolean isSinglePlayer = client.isSingleplayer();
                     boolean hasSingleplayerServer = client.hasSingleplayerServer();
                     var player = client.player;
                     if (!InstalledMods.NOSTALGIC_TWEAKS) {
                         // hideHungerBar option is hidden when NT is not installed, so we have to correct its value
                         clientData.hideHungerBar = serverData.disableHunger;
                     }
-                    if (isSinglePlayer || player == null || hasSingleplayerServer) {
+                    if (hasSingleplayerServer || player == null) {
                         // writing config file if in singleplayer or if on title screen
                         HANDLER.save();
                         if (hasSingleplayerServer) {
@@ -595,7 +594,7 @@ public class MelancholicConfig {
         if (ModLoader.isServerside()) {
             return;
         }
-        if (Minecraft.getInstance().screen instanceof YACLScreen) {
+        if (Minecraft.getInstance().gui.screen() instanceof YACLScreen) {
             ALL_OPTIONS.forEach(ConfigOption::forgetPendingValueIfServerOption);
         }
     }

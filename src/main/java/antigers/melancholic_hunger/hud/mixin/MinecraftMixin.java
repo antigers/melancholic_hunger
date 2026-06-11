@@ -1,6 +1,7 @@
 package antigers.melancholic_hunger.hud.mixin;
 
 import antigers.melancholic_hunger.hud.DrawHudContext;
+import net.minecraft.client.GameLoadCookie;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackType;
@@ -33,7 +34,7 @@ public abstract class MinecraftMixin {
             method="onResourceLoadFinished",
             at=@At("RETURN")
     )
-    private void melancholic_hunger$onFinishedLoading(Minecraft.GameLoadCookie loadingContext, CallbackInfo ci) {
+    private void melancholic_hunger$onFinishedLoading(GameLoadCookie loadingContext, CallbackInfo ci) {
         if (!this.isGameLoadFinished()) {
             return;
         }

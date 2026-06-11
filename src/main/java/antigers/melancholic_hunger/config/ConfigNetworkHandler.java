@@ -30,7 +30,7 @@ public class ConfigNetworkHandler {
     }
 
     private static void handleS2CPacket(ServerConfigData.ImmutableServerConfigData data) {
-        if (!Minecraft.getInstance().isSingleplayer()) {
+        if (!Minecraft.getInstance().hasSingleplayerServer()) {
             MelancholicConfig.setServerData(data);
         }
     }

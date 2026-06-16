@@ -34,7 +34,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 public class MelancholicConfig {
-    public static final String CONFIG_PREFIX = "screen.melancholic_hunger.config.";
+    private static final String CONFIG_PREFIX = "screen.melancholic_hunger.config.";
     private static boolean isLoadedFromDisk = false;
 
     @SerialEntry(value = "clientOptions")
@@ -111,8 +111,13 @@ public class MelancholicConfig {
             () -> clientData.highlightRestoredHearts, val -> clientData.highlightRestoredHearts = val
     ).addDependency(DISABLE_HUNGER, true);
 
+    private static final ConfigOption<HeartTextureOption, Boolean> RESTORED_HEARTS_TEXTURE = new ConfigOption<HeartTextureOption, Boolean>(
+            "restoredHeartsTexture", HeartTextureOption.BLINKING, false, false,
+            () -> clientData.restoredHeartsTexture, val -> clientData.restoredHeartsTexture = val
+    ).addDependency(HIGHLIGHT_RESTORED_HEARTS, true);
+
     private static final ConfigOption<Color, Boolean> RESTORED_HEARTS_OVERLAY_COLOR = new ConfigOption<Color, Boolean>(
-            "restoredHeartsOverlayColor", new Color(180, 0, 0, 150), false, false,
+            "restoredHeartsOverlayColor", new Color(120, 0, 20), false, false,
             () -> clientData.restoredHeartsOverlayColor, val -> clientData.restoredHeartsOverlayColor = val
     ).addDependency(HIGHLIGHT_RESTORED_HEARTS, true);
 
@@ -121,8 +126,13 @@ public class MelancholicConfig {
             () -> clientData.highlightRegeneratedHearts, val -> clientData.highlightRegeneratedHearts = val
     ).addDependency(GRADUAL_HEALTH_REGENERATION, true);
 
+    private static final ConfigOption<HeartTextureOption, Boolean> REGENERATED_HEARTS_TEXTURE = new ConfigOption<HeartTextureOption, Boolean>(
+            "regeneratedHeartsTexture", HeartTextureOption.BLINKING, false, false,
+            () -> clientData.regeneratedHeartsTexture, val -> clientData.regeneratedHeartsTexture = val
+    ).addDependency(HIGHLIGHT_REGENERATED_HEARTS, true);
+
     private static final ConfigOption<Color, Boolean> REGENERATED_HEARTS_OVERLAY_COLOR = new ConfigOption<Color, Boolean>(
-            "regeneratedHeartsOverlayColor", new Color(255, 0, 0), false, false,
+            "regeneratedHeartsOverlayColor", new Color(255, 135, 135), false, false,
             () -> clientData.regeneratedHeartsOverlayColor, val -> clientData.regeneratedHeartsOverlayColor = val
     ).addDependency(HIGHLIGHT_REGENERATED_HEARTS, true);
 
@@ -132,7 +142,7 @@ public class MelancholicConfig {
     ).addDependency(HIGHLIGHT_REGENERATED_HEARTS, true);
 
     private static final ConfigOption<Float, Boolean> REGENERATED_HEARTS_OPACITY_MAX = new ConfigOption<Float, Boolean>(
-            "regeneratedHeartsOpacityMax", 0.7F, false, false,
+            "regeneratedHeartsOpacityMax", 1F, false, false,
             () -> clientData.regeneratedHeartsOpacityMax, val -> clientData.regeneratedHeartsOpacityMax = val
     ).addDependency(HIGHLIGHT_REGENERATED_HEARTS, true);
 
@@ -387,11 +397,12 @@ public class MelancholicConfig {
 
     private static final List<ConfigOption<?, ?>> ALL_OPTIONS = List.of(
             DISABLE_HUNGER, GRADUAL_HEALTH_REGENERATION, GRADUAL_HEALTH_REGENERATION_SPEED, SATURATION_BASED_REGENERATION, REGENERATION_AT_FULL_HEALTH, HIDE_HUNGER_BAR,
-            HUNGER_EFFECT, HUNGER_REPLACEMENT_EFFECT, HUNGER_REPLACEMENT_DURATION_MULTIPLIER, HIGHLIGHT_REGENERATED_HEARTS, REGENERATED_HEARTS_OVERLAY_COLOR,
-            REGENERATED_HEARTS_OPACITY_MIN, REGENERATED_HEARTS_OPACITY_MAX, REGENERATED_HEARTS_BLINK_PERIOD, INSTANT_EATING, SHOW_FOOD_ITEM_TOOLTIPS,
-            USE_CUSTOM_FOOD_STACK_SIZES, CUSTOM_FOOD_STACK_SIZES, FARMERS_DELIGHT_FOOD_STACK_SIZES, SPRINTING, SPRINTING_HEALTH_LIMIT, HIGHLIGHT_RESTORED_HEARTS,
-            RESTORED_HEARTS_OVERLAY_COLOR, HIDE_EXPERIENCE_BAR, SHOW_EXPERIENCE_IN_INVENTORY, SHOW_EXPERIENCE_ON_SCREENS, SHOW_EXPERIENCE_ON_GAIN,
-            ENABLE_EXPERIENCE_ANIMATION, EXPERIENCE_ANIMATION_DURATION, RENDER_EXPERIENCE_OVER_BACKGROUND, NOURISHMENT_HEALTH_BOOST_COUNT, NOURISHMENT_REGEN_SPEED_MULTIPLIER
+            HUNGER_EFFECT, HUNGER_REPLACEMENT_EFFECT, HUNGER_REPLACEMENT_DURATION_MULTIPLIER, HIGHLIGHT_REGENERATED_HEARTS, REGENERATED_HEARTS_TEXTURE,
+            REGENERATED_HEARTS_OVERLAY_COLOR, REGENERATED_HEARTS_OPACITY_MIN, REGENERATED_HEARTS_OPACITY_MAX, REGENERATED_HEARTS_BLINK_PERIOD, INSTANT_EATING,
+            SHOW_FOOD_ITEM_TOOLTIPS, USE_CUSTOM_FOOD_STACK_SIZES, CUSTOM_FOOD_STACK_SIZES, FARMERS_DELIGHT_FOOD_STACK_SIZES, SPRINTING, SPRINTING_HEALTH_LIMIT,
+            HIGHLIGHT_RESTORED_HEARTS, RESTORED_HEARTS_TEXTURE, RESTORED_HEARTS_OVERLAY_COLOR, HIDE_EXPERIENCE_BAR, SHOW_EXPERIENCE_IN_INVENTORY, SHOW_EXPERIENCE_ON_SCREENS,
+            SHOW_EXPERIENCE_ON_GAIN, ENABLE_EXPERIENCE_ANIMATION, EXPERIENCE_ANIMATION_DURATION, RENDER_EXPERIENCE_OVER_BACKGROUND, NOURISHMENT_HEALTH_BOOST_COUNT,
+            NOURISHMENT_REGEN_SPEED_MULTIPLIER
     );
 
     private static BooleanControllerBuilder createBooleanController(Option<Boolean> option) {
@@ -402,6 +413,20 @@ public class MelancholicConfig {
         return FloatSliderControllerBuilder.create(option).range(0.0F, 1.0F).step(0.01F).formatValue(
                 value -> Component.literal(String.format("%,.2f", value).replaceAll("[\u00a0\u202F]", " "))
         );
+    }
+
+    private static EnumControllerBuilder<HeartTextureOption> createHeartTextureController(Option<HeartTextureOption> option) {
+        return EnumControllerBuilder.create(option).enumClass(HeartTextureOption.class)
+                .formatValue(
+                        value -> switch (value) {
+                            case SINGLE_COLOR ->
+                                    Component.translatable(CONFIG_PREFIX + "restoredHeartsTexture_single_color_option");
+                            case ORIGINAL ->
+                                    Component.translatable(CONFIG_PREFIX + "restoredHeartsTexture_original_option");
+                            case BLINKING ->
+                                    Component.translatable(CONFIG_PREFIX + "restoredHeartsTexture_blinking_option");
+                        }
+                );
     }
 
     private static ConfigCategory buildGameMechanicsCategory() {
@@ -517,13 +542,15 @@ public class MelancholicConfig {
                         .name(Component.translatable(CONFIG_PREFIX + "hud_restored_health_group_name"))
                         .description(OptionDescription.of(Component.translatable(CONFIG_PREFIX + "hud_restored_health_group_description")))
                         .option(HIGHLIGHT_RESTORED_HEARTS.buildYACLOption(MelancholicConfig::createBooleanController))
-                        .option(RESTORED_HEARTS_OVERLAY_COLOR.buildYACLOption(option -> ColorControllerBuilder.create(option).allowAlpha(true)))
+                        .option(RESTORED_HEARTS_TEXTURE.buildYACLOption(MelancholicConfig::createHeartTextureController))
+                        .option(RESTORED_HEARTS_OVERLAY_COLOR.buildYACLOption(option -> ColorControllerBuilder.create(option).allowAlpha(false)))
                         .build())
 
                 .group(OptionGroup.createBuilder()
                         .name(Component.translatable(CONFIG_PREFIX + "hud_regenerated_health_group_name"))
                         .description(OptionDescription.of(Component.translatable(CONFIG_PREFIX + "hud_regenerated_health_group_description")))
                         .option(HIGHLIGHT_REGENERATED_HEARTS.buildYACLOption(MelancholicConfig::createBooleanController))
+                        .option(REGENERATED_HEARTS_TEXTURE.buildYACLOption(MelancholicConfig::createHeartTextureController))
                         .option(REGENERATED_HEARTS_OVERLAY_COLOR.buildYACLOption(option -> ColorControllerBuilder.create(option).allowAlpha(false)))
                         .option(REGENERATED_HEARTS_OPACITY_MIN.buildYACLOption(MelancholicConfig::createTwoDigitsFloatController))
                         .option(REGENERATED_HEARTS_OPACITY_MAX.buildYACLOption(MelancholicConfig::createTwoDigitsFloatController))
@@ -715,11 +742,13 @@ public class MelancholicConfig {
     public static void setClientData(ClientConfigData.ImmutableClientConfigData newClientData) {
         HIDE_HUNGER_BAR.setValue(newClientData.hideHungerBar());
         HIGHLIGHT_REGENERATED_HEARTS.setValue(newClientData.highlightRegeneratedHearts());
+        REGENERATED_HEARTS_TEXTURE.setValue(newClientData.regeneratedHeartsTexture());
         REGENERATED_HEARTS_OVERLAY_COLOR.setValue(newClientData.regeneratedHeartsOverlayColor());
         REGENERATED_HEARTS_OPACITY_MIN.setValue(newClientData.regeneratedHeartsOpacityMin());
         REGENERATED_HEARTS_OPACITY_MAX.setValue(newClientData.regeneratedHeartsOpacityMax());
         REGENERATED_HEARTS_BLINK_PERIOD.setValue(newClientData.regeneratedHeartsBlinkingPeriod());
         HIGHLIGHT_RESTORED_HEARTS.setValue(newClientData.highlightRestoredHearts());
+        RESTORED_HEARTS_TEXTURE.setValue(newClientData.restoredHeartsTexture());
         RESTORED_HEARTS_OVERLAY_COLOR.setValue(newClientData.restoredHeartsOverlayColor());
         HIDE_EXPERIENCE_BAR.setValue(newClientData.hideExperienceBar());
         SHOW_EXPERIENCE_IN_INVENTORY.setValue(newClientData.showExperienceInInventory());
@@ -773,6 +802,9 @@ public class MelancholicConfig {
     public static boolean highlightRegeneratedHearts() {
         return clientData.highlightRegeneratedHearts;
     }
+    public static HeartTextureOption regeneratedHeartsTexture() {
+        return clientData.regeneratedHeartsTexture;
+    }
     public static Color regeneratedHeartsOverlayColor() {
         return clientData.regeneratedHeartsOverlayColor;
     }
@@ -787,6 +819,9 @@ public class MelancholicConfig {
     }
     public static boolean highlightRestoredHearts() {
         return clientData.highlightRestoredHearts;
+    }
+    public static HeartTextureOption restoredHeartsTexture() {
+        return clientData.restoredHeartsTexture;
     }
     public static Color restoredHeartsOverlayColor() {
         return clientData.restoredHeartsOverlayColor;

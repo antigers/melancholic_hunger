@@ -34,8 +34,6 @@ import antigers.melancholic_hunger.hud.RestoredHeartsDrawHelper;
 import antigers.melancholic_hunger.hud.ExperienceHudRenderer;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.awt.*;
-
 @Mixin(Gui.class)
 public abstract class GuiMixin implements ExperienceHudRenderer {
     @Shadow @Final private Minecraft minecraft;
@@ -318,11 +316,17 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
 
     @Unique
     private void melancholic_hunger$drawHeartWithColor(
-            GuiGraphics context, Gui.HeartType type, int x, int y, boolean hardcore, boolean blinking, boolean half, Color color
+			GuiGraphics context, RestoredHeartsDrawHelper.RenderedHeart renderedHeart, int x, int y
     ) {
-        TextureAtlasSprite sprite = minecraft.getGuiSprites().getSprite(type.getSprite(hardcore, half, blinking));
-        float[] components = color.getRGBComponents(null);
-        context.blit(x, y, 0, 9, 9, sprite, components[0], components[1], components[2], components[3]);
+        float[] colorComponents = renderedHeart.color().getRGBComponents(null);
+        if (renderedHeart.isAtlasTexture()) {
+            TextureAtlasSprite sprite = minecraft.getGuiSprites().getSprite(renderedHeart.texture());
+            context.blit(x, y, 0, 9, 9, sprite, colorComponents[0], colorComponents[1], colorComponents[2], colorComponents[3]);
+            return;
+        }
+        context.innerBlit(
+                renderedHeart.texture(), x, x + 9, y, y + 9, 0, 0, 1, 0, 1,
+                colorComponents[0], colorComponents[1], colorComponents[2], colorComponents[3]);
     }
 
     /**
@@ -349,19 +353,15 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         }
         y = restoredHeartsDrawHelper.updateCurrentY(y);
         var res = restoredHeartsDrawHelper.heartsToDraw();
-        RestoredHeartsDrawHelper.RestoredHeart firstHeart = res.getFirst();
+        RestoredHeartsDrawHelper.RenderedHeart firstHeart = res.getFirst();
         if (firstHeart != null) {
             // drawing container for correct background
             original.call(inGameHud, drawContext, Gui.HeartType.CONTAINER, x, y, hardcore, blinking, half);
-            melancholic_hunger$drawHeartWithColor(
-                    drawContext, firstHeart.heartType(), x, y, hardcore, blinking, firstHeart.isHalf(), firstHeart.color()
-            );
-            RestoredHeartsDrawHelper.RestoredHeart secondHeart = res.getSecond();
+            melancholic_hunger$drawHeartWithColor(drawContext, firstHeart, x, y);
+            RestoredHeartsDrawHelper.RenderedHeart secondHeart = res.getSecond();
             if (secondHeart != null) {
                 // drawing second heart on top of the first
-                melancholic_hunger$drawHeartWithColor(
-                        drawContext, secondHeart.heartType(), x, y, hardcore, blinking, secondHeart.isHalf(), secondHeart.color()
-                );
+                melancholic_hunger$drawHeartWithColor(drawContext, secondHeart, x, y);
             }
         }
         else {

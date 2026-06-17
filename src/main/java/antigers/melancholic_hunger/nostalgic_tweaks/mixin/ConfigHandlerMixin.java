@@ -42,7 +42,7 @@ public abstract class ConfigHandlerMixin<T extends ConfigMeta> implements Nostal
             serverData.hungerEffect = currentServerData.hungerEffect();
         }
         else if (disableHunger) {
-            serverData.hungerEffect = HungerEffectOption.REPLACED_WITH_POISON;
+            serverData.hungerEffect = HungerEffectOption.REPLACED_WITH_OTHER;
         }
         else {
             serverData.hungerEffect = HungerEffectOption.VANILLA;

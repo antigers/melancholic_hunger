@@ -30,10 +30,15 @@ public class HealthRegenerationComponent implements INBTSerializable<CompoundTag
         ConsumedFood (int foodNutrition, float foodSaturation, int foodComponentId) {
             this.foodComponentId = foodComponentId;
             this.foodNutrition = foodNutrition;
-            float ratio = Math.min(5.0F, foodNutrition / foodSaturation);
-            this.ticksToHeal = Math.max(
-                    1, (int)(ratio * 20 / MelancholicConfig.gradualHealthRegenerationSpeed())
-            );
+            if (MelancholicConfig.saturationBasedRegeneration()) {
+                float ratio = Math.min(5.0F, foodNutrition / foodSaturation);
+                this.ticksToHeal = Math.max(
+                        1, (int) (ratio * 20 / MelancholicConfig.gradualHealthRegenerationSpeed())
+                );
+            }
+            else {
+                this.ticksToHeal = (int) (20 / MelancholicConfig.gradualHealthRegenerationSpeed());
+            }
         }
 
         int getFoodComponentId() {
@@ -105,7 +110,7 @@ public class HealthRegenerationComponent implements INBTSerializable<CompoundTag
     }
 
     private void serverTick() {
-        if (!MelancholicConfig.gradualHealthRegeneration()) {
+        if (!MelancholicConfig.disableHunger() || !MelancholicConfig.gradualHealthRegeneration()) {
             return;
         }
         if (consumedFoods.isEmpty()) {

@@ -4,8 +4,6 @@ import antigers.melancholic_hunger.config.MelancholicConfig;
 import net.minecraft.Util;
 
 public class ExperienceBarAnimation {
-    private static final int ANIMATION_TIME = 150;
-
     private long startTime;
     private boolean isRunning = false;
     private boolean reverse = true;
@@ -32,7 +30,7 @@ public class ExperienceBarAnimation {
     }
 
     public void onGainExperience() {
-        var now = Util.getMillis();
+        long now = Util.getMillis();
         drawUntil = now + 3000;
         beginIfNotAlready(now);
     }
@@ -44,7 +42,7 @@ public class ExperienceBarAnimation {
             currentOpacity = 1.0F;
             return;
         }
-        var now = Util.getMillis();
+        long now = Util.getMillis();
         if (isExpBarDrawnConstantly) {
             drawUntil = 0;
             beginIfNotAlready(now);
@@ -58,9 +56,10 @@ public class ExperienceBarAnimation {
             return;
         }
         if (MelancholicConfig.enableExperienceAnimation()) {
-            var animationTime = now - startTime;
-            if (animationTime < ANIMATION_TIME) {
-                currentOpacity = (float) animationTime / ANIMATION_TIME;
+            long animationTime = now - startTime;
+            int animationDuration = MelancholicConfig.experienceAnimationDuration();
+            if (animationTime < animationDuration) {
+                currentOpacity = (float) animationTime / animationDuration;
                 currentPos = (int) (currentOpacity * 7);
             }
             else {

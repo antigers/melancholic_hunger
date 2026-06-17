@@ -6,4 +6,5 @@ accessible class net/minecraft/client/gui/Hud$ContextualInfo
 
 accessible field net/minecraft/client/gui/GuiGraphicsExtractor mouseX I
 accessible field net/minecraft/client/gui/GuiGraphicsExtractor mouseY I
+accessible method net/minecraft/client/gui/GuiGraphicsExtractor innerBlit (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIIIFFFFI)V
 accessible method net/minecraft/client/gui/GuiGraphicsExtractor <init> (Lnet/minecraft/client/Minecraft;Lorg/joml/Matrix3x2fStack;Lnet/minecraft/client/renderer/state/gui/GuiRenderState;II)V

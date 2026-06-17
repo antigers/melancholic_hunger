@@ -7,8 +7,6 @@ import net.minecraft.util.Util;
 import java.util.function.Predicate;
 
 public class BarAnimation {
-    private static final int ANIMATION_TIME = 150;
-
     private long startTime;
     private boolean isRunning = false;
     private boolean reverse = true;
@@ -54,9 +52,10 @@ public class BarAnimation {
             this.currentBarType = currentBarType;
         }
         if (MelancholicConfig.enableExperienceAnimation()) {
-            var animationTime = now - startTime;
-            if (animationTime < ANIMATION_TIME) {
-                currentOpacity = (float) animationTime / ANIMATION_TIME;
+            long animationTime = now - startTime;
+            int animationDuration = MelancholicConfig.experienceAnimationDuration();
+            if (animationTime < animationDuration) {
+                currentOpacity = (float) animationTime / animationDuration;
                 currentPos = (int) (currentOpacity * 7);
             }
             else {

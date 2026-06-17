@@ -8,6 +8,7 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -31,14 +32,16 @@ public abstract class LivingEntityMixin {
         if (!(((LivingEntity) (Object) this) instanceof Player)) {
             return original.call(effect, source);
         }
-        if (effect.getEffect() == MobEffects.HUNGER) {
+        if (effect.getEffect() == MobEffects.HUNGER && MelancholicConfig.disableHunger()) {
             HungerEffectOption hungerEffect = MelancholicConfig.hungerEffect();
             if (hungerEffect == HungerEffectOption.DISABLED) {
                 return false;
             }
-            else if (hungerEffect == HungerEffectOption.REPLACED_WITH_POISON) {
+            else if (hungerEffect == HungerEffectOption.REPLACED_WITH_OTHER) {
                 effect = new MobEffectInstance(
-                        MobEffects.POISON, effect.getDuration() / 2, effect.getAmplifier()
+                        MelancholicConfig.hungerReplacementEffect(),
+                        (int) (effect.getDuration() * MelancholicConfig.hungerReplacementDurationMultiplier()),
+                        effect.getAmplifier()
                 );
             }
         }

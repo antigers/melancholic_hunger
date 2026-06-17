@@ -101,7 +101,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
                 (MelancholicConfig.showExperienceOnGain() && this.willPrioritizeExperienceInfo()) ||
                 // exp should be rendered while the current screen is open
                 (!MelancholicConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen())
-        );
+        ) || melancholic_hunger$barAnimation.shouldStillDrawExperience();  // exp bar disappearance animation is not finished yet
     }
 
     /**
@@ -136,11 +136,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
     private void melancholic_hunger$wrapDrawExperienceLevel(
             GuiGraphicsExtractor graphics, Font textRenderer, int level, Operation<Void> original
     ) {
-        if (
-                !MelancholicConfig.hideExperienceBar() || melancholic_hunger$shouldRenderExperience()
-                        // exp lvl disappearance animation is not finished yet
-                        || melancholic_hunger$expLevelAnimation.shouldStillDrawExperience()
-        ) {
+        if (!MelancholicConfig.hideExperienceBar() || melancholic_hunger$shouldRenderExperience()) {
             melancholic_hunger$renderExperienceLevel(graphics, textRenderer, level);
         }
     }
@@ -219,18 +215,14 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         ) {
             return barType;
         }
-        if (
-                melancholic_hunger$shouldRenderExperience()
-                        // exp bar disappearance animation is not finished yet
-                        || melancholic_hunger$barAnimation.shouldStillDrawExperience()
-        ) {
+        if (melancholic_hunger$shouldRenderExperience()) {
             // making the exp bar to render in our special cases
             return Gui.ContextualInfo.EXPERIENCE;
         } else if (barType == Gui.ContextualInfo.EXPERIENCE && MelancholicConfig.hideExperienceBar()) {
             // making the exp bar to not render when it's set to be hidden in the config
             return Gui.ContextualInfo.EMPTY;
         } else if (
-                MelancholicConfig.renderExperienceOverBackground() &&
+                MelancholicConfig.hideExperienceBar() && MelancholicConfig.renderExperienceOverBackground() &&
                         melancholic_hunger$needToRenderExperienceHudOnCurrentScreen()
         ) {
             // making any bar to not render when we have an exp bar rendered on top of everything
@@ -257,7 +249,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
      * Renders the exp bar and level from an outside draw graphics, which is used to render it over the screens' background
      */
     public void melancholic_hunger$renderExperienceHudOverBackground(GuiGraphicsExtractor graphics) {
-        if (!this.minecraft.gameMode.hasExperience()) {
+        if (!this.minecraft.gameMode.hasExperience() || !MelancholicConfig.hideExperienceBar()) {
             return;
         }
         if (MelancholicConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen()) {
@@ -424,12 +416,14 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
 
     @Unique
     private void melancholic_hunger$drawHeartWithColor(
-            GuiGraphicsExtractor graphics, Gui.HeartType type, int x, int y, boolean hardcore, boolean blinking,
-            boolean half, int colorRed, int colorGreen, int colorBlue
+            GuiGraphicsExtractor graphics, RestoredHeartsDrawHelper.RenderedHeart renderedHeart, int x, int y
     ) {
-        graphics.blitSprite(
-                RenderPipelines.GUI_TEXTURED, type.getSprite(hardcore, half, blinking), x, y, 9, 9,
-                ARGB.color(colorRed, colorGreen, colorBlue)
+        if (renderedHeart.isAtlasTexture()) {
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, renderedHeart.texture(), x, y, 9, 9, renderedHeart.color().getRGB());
+            return;
+        }
+        graphics.innerBlit(
+                RenderPipelines.GUI_TEXTURED, renderedHeart.texture(), x, x + 9, y, y + 9, 0, 1, 0, 1, renderedHeart.color().getRGB()
         );
     }
 
@@ -455,21 +449,15 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         }
         y = restoredHeartsDrawHelper.updateCurrentY(y);
         var res = restoredHeartsDrawHelper.heartsToDraw();
-        RestoredHeartsDrawHelper.RestoredHeart firstHeart = res.getFirst();
+        RestoredHeartsDrawHelper.RenderedHeart firstHeart = res.getFirst();
         if (firstHeart != null) {
             // drawing container for correct background
             original.call(gui, graphics, Gui.HeartType.CONTAINER, x, y, hardcore, blinking, half);
-            melancholic_hunger$drawHeartWithColor(
-                    graphics, firstHeart.heartType(), x, y, hardcore, blinking, firstHeart.isHalf(),
-                    firstHeart.colorRed(), firstHeart.colorGreen(), firstHeart.colorBlue()
-            );
-            RestoredHeartsDrawHelper.RestoredHeart secondHeart = res.getSecond();
+            melancholic_hunger$drawHeartWithColor(graphics, firstHeart, x, y);
+            RestoredHeartsDrawHelper.RenderedHeart secondHeart = res.getSecond();
             if (secondHeart != null) {
                 // drawing second heart on top of the first
-                melancholic_hunger$drawHeartWithColor(
-                        graphics, secondHeart.heartType(), x, y, hardcore, blinking, secondHeart.isHalf(),
-                        secondHeart.colorRed(), secondHeart.colorGreen(), secondHeart.colorBlue()
-                );
+                melancholic_hunger$drawHeartWithColor(graphics, secondHeart, x, y);
             }
         }
         else {

@@ -39,7 +39,10 @@ public abstract class PlayerMixin extends LivingEntity {
         }
         switch (MelancholicConfig.sprinting()) {
             case DISABLED -> {
-                return false;
+                // fast swimming is not blocked by this config
+                if (!this.isUnderWater()) {
+                    return false;
+                }
             }
             case LIMITED_BY_HEALTH -> {
                 if (this.getHealth() <= MelancholicConfig.sprintingHealthLimit()) {

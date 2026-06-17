@@ -3,5 +3,5 @@ package antigers.melancholic_hunger.config;
 public enum HungerEffectOption {
     VANILLA,
     DISABLED,
-    REPLACED_WITH_POISON
+    REPLACED_WITH_OTHER
 }

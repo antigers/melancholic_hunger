@@ -12,7 +12,6 @@ import net.minecraft.server.permissions.Permission;
 import net.minecraft.server.permissions.PermissionLevel;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -23,6 +22,9 @@ class ConfigOption<T, U> {
 
     public record ConfigOptionDependency<U>(ConfigOption<U, ?> configOption, U requiredValue) {
         boolean isCurrentValueEqualsRequired() {
+            if (configOption.dependency != null && !configOption.dependency.isCurrentValueEqualsRequired()) {
+                return false;
+            }
             U value = configOption.getter.get();
             if (value == null) {
                 configOption.validateValue();
@@ -31,8 +33,21 @@ class ConfigOption<T, U> {
             return requiredValue.equals(value);
         }
 
+        ConfigOptionDependency<?> getDependencyWithUnmatchingPendingValue() {
+            if (configOption.dependency != null) {
+                var parentDependency = configOption.dependency.getDependencyWithUnmatchingPendingValue();
+                if (parentDependency != null) {
+                    return parentDependency;
+                }
+            }
+            if (!configOption.YACLOption.pendingValue().equals(requiredValue)) {
+                return this;
+            }
+            return null;
+        }
+
         boolean isPendingValueEqualsRequired() {
-            return configOption.YACLOption.pendingValue().equals(requiredValue);
+            return getDependencyWithUnmatchingPendingValue() == null;
         }
 
         Component getDependentOptionDescription() {
@@ -44,8 +59,8 @@ class ConfigOption<T, U> {
             }
             return Component.translatable(
                     CONFIG_PREFIX + "dependency_required_value_not_set_to",
-                    requiredValue == SprintingOption.LIMITED_BY_HEALTH
-                            ? Component.translatable(CONFIG_PREFIX + "sprinting_limited_by_health_option")
+                    requiredValue instanceof Enum<?> requiredEnum
+                            ? Component.translatable(CONFIG_PREFIX + "%s_%s_option".formatted(configOption.name, requiredEnum.name().toLowerCase()))
                             : requiredValue.toString()
             );
         }
@@ -60,10 +75,7 @@ class ConfigOption<T, U> {
     private final boolean isServerOption;
     private boolean playerHasPermission;
 
-    private final ArrayList<ConfigOption<?, T>> dependents = new ArrayList<>();
-    @Nullable private ConfigOptionDependency<?> dependency;
-    @Nullable private T valueOnDependencyTrue;
-    @Nullable private T valueOnDependencyFalse;
+    @Nullable private ConfigOptionDependency<U> dependency;
 
     public ConfigOption(
             String name, T defaultValue, boolean nostalgicTweaksRelated, boolean isServerOption,
@@ -92,19 +104,6 @@ class ConfigOption<T, U> {
         if (getter.get() == null) {
             setValueToDefault();
         }
-        updateValueAccordingToDependency();
-    }
-
-    protected void updateValueAccordingToDependency() {
-        if (dependency != null && !dependency.isCurrentValueEqualsRequired()) {
-            setValueForced(valueOnDependencyFalse);
-        }
-    }
-
-    protected void updateDependents() {
-        for (var dependent : dependents) {
-            dependent.updateValueAccordingToDependency();
-        }
     }
 
     private void setValueForced(T value) {
@@ -112,7 +111,6 @@ class ConfigOption<T, U> {
             return;
         }
         setter.accept(value);
-        updateDependents();
     }
 
     public void setValue(T value) {
@@ -122,18 +120,17 @@ class ConfigOption<T, U> {
         }
     }
 
-    public ConfigOption<T, U> addValueDependency(
-            ConfigOption<U, ?> configOption, U requiredValue, T valueOnTrue, T valueOnFalse
-    ) {
-        this.valueOnDependencyTrue = valueOnTrue;
-        this.valueOnDependencyFalse = valueOnFalse;
-        return addDependency(configOption, requiredValue);
-    }
-
     public ConfigOption<T, U> addDependency(ConfigOption<U, ?> dependencyOption, U requiredValue) {
         this.dependency = new ConfigOptionDependency<>(dependencyOption, requiredValue);
-        dependencyOption.dependents.add(this);
         return this;
+    }
+
+    public static void addOpPrivilegesRequiredToDescription(OptionDescription.Builder descriptionBuilder) {
+        descriptionBuilder.text(
+                Component.literal("\n"),
+                Component.translatable(CONFIG_PREFIX + "op_privileges_required_option")
+                        .setStyle(Style.EMPTY.withColor(16733525).withItalic(true))
+        );
     }
 
     protected OptionDescription buildOptionDescription(T value) {
@@ -148,21 +145,20 @@ class ConfigOption<T, U> {
             );
         }
         if (!playerHasPermission) {
-            descriptionBuilder.text(
-                    Component.literal("\n"),
-                    Component.translatable(CONFIG_PREFIX + "op_privileges_required_option")
-                            .setStyle(Style.EMPTY.withColor(16733525).withItalic(true))
-            );
+            addOpPrivilegesRequiredToDescription(descriptionBuilder);
         }
-        else if (dependency != null && !dependency.isPendingValueEqualsRequired()) {
-            descriptionBuilder.text(
-                    Component.literal("\n"),
-                    Component.translatable(
-                            CONFIG_PREFIX + "dependency_required_option",
-                            Component.translatable(OPTION_CONFIG_PREFIX + dependency.configOption.name + ".name"),
-                            dependency.getDependentOptionDescription()
-                    ).setStyle(Style.EMPTY.withColor(15118857).withItalic(true))
-            );
+        else if (dependency != null) {
+            var unmatchingDependency = dependency.getDependencyWithUnmatchingPendingValue();
+            if (unmatchingDependency != null) {
+                descriptionBuilder.text(
+                        Component.literal("\n"),
+                        Component.translatable(
+                                CONFIG_PREFIX + "dependency_required_option",
+                                Component.translatable(OPTION_CONFIG_PREFIX + unmatchingDependency.configOption.name + ".name"),
+                                unmatchingDependency.getDependentOptionDescription()
+                        ).setStyle(Style.EMPTY.withColor(15118857).withItalic(true))
+                );
+            }
         }
         return descriptionBuilder.build();
     }
@@ -172,29 +168,20 @@ class ConfigOption<T, U> {
             return;
         }
         var dependencyYACLOption = dependency.configOption.YACLOption;
-        if (valueOnDependencyTrue != null || valueOnDependencyFalse != null) {
-            // Updating value of the current option if dependency value changes
-            dependencyYACLOption.addEventListener(
-                    (option, event) -> {
-                        if (event != OptionEventListener.Event.STATE_CHANGE) {
-                            return;
-                        }
-                        var new_value = dependency.isPendingValueEqualsRequired()
-                                ? valueOnDependencyTrue : valueOnDependencyFalse;
-                        if (new_value != null) {
-                            YACLOption.requestSet(new_value);
-                        }
-                    }
-            );
-        }
         // Making current option unavailable if dependency value differs from the provided dependencyValue
         dependencyYACLOption.addEventListener(
                 (option, event) -> {
-                    if (event != OptionEventListener.Event.STATE_CHANGE) {
+                    if (event != OptionEventListener.Event.STATE_CHANGE && event != OptionEventListener.Event.AVAILABILITY_CHANGE) {
                         return;
                     }
+                    // we have to save the pending value here and write it back to the option later because it gets lost when setAvailable is called
                     var currentValue = YACLOption.pendingValue();
-                    YACLOption.setAvailable(dependency.isPendingValueEqualsRequired());
+                    boolean newAvailable = dependency.isPendingValueEqualsRequired();
+                    if (!YACLOption.available() && !newAvailable) {
+                        // triggering additional change to make description update to the top level parent required dependency
+                        YACLOption.setAvailable(true);
+                    }
+                    YACLOption.setAvailable(newAvailable);
                     YACLOption.requestSet(currentValue);
                 }
         );

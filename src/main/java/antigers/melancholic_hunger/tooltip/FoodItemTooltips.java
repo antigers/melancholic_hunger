@@ -115,6 +115,9 @@ public class FoodItemTooltips {
 	}
 
 	private static void appendTooltip(ItemStack stack, List<Component> lines) {
+		if (!MelancholicConfig.disableHunger() || !MelancholicConfig.showFoodItemTooltips()) {
+			return;
+		}
 		FoodProperties foodProperties = stack.get(DataComponents.FOOD);
 		if (foodProperties == null) {
 			var foodPropertiesOptional = EdibleBlockFoods.getFoodProperties(stack.getItem());
@@ -123,15 +126,12 @@ public class FoodItemTooltips {
 			}
 			foodProperties = foodPropertiesOptional.get();
 		}
-		if (!MelancholicConfig.showFoodItemTooltips()) {
-			return;
-		}
 		int foodNutrition = MelancholicConfig.getFoodHealth(stack, foodProperties);
 		if (foodNutrition <= 0) {
 			return;
 		}
 		lines.add(new FoodHealthTextComponent(foodNutrition));
-		if (!MelancholicConfig.gradualHealthRegeneration()) {
+		if (!MelancholicConfig.gradualHealthRegeneration() || !MelancholicConfig.saturationBasedRegeneration()) {
 			return;
 		}
 		float regenerationRatio = foodNutrition / foodProperties.saturation();

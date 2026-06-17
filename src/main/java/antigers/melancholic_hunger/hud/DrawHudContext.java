@@ -7,13 +7,13 @@ import net.minecraft.client.renderer.state.gui.GuiRenderState;
 import org.joml.Matrix3x2fStack;
 
 public class DrawHudContext extends GuiGraphicsExtractor {
+    public static boolean isDefaultArmorHudTexture;
     private final int offsetX;
     private final int healthBarY;
     private final int hudExperienceOffset;
     private int bubblesBarY;
     private int armorBarY;
     private final RestoredHeartsDrawHelper restoredHeartsDrawHelper;
-    public static boolean isDefaultArmorHudTexture;
     private final boolean hasMountHealth;
     private final int mountHealthRows;
     private final BarAnimation barAnimation;

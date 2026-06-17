@@ -101,7 +101,7 @@ public class RestoredHeartsDrawHelper {
             }
         }
 
-        consumedNutrition = player.getData(PlayerComponents.HEALTH_REGENERATION).getConsumedNutrition();
+        consumedNutrition = disableHunger ? player.getData(PlayerComponents.HEALTH_REGENERATION).getConsumedNutrition() : 0;
         heldFoodNutrition = foodComponent != null ? MelancholicConfig.getFoodHealth(heldItemStack, foodComponent) : 0;
         totalNutritionToDraw = highlightRegeneratedHearts ? consumedNutrition + heldFoodNutrition : heldFoodNutrition;
     }

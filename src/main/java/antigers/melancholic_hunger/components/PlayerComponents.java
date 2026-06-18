@@ -1,5 +1,6 @@
 package antigers.melancholic_hunger.components;
 
+import antigers.melancholic_hunger.MelancholicHunger;
 import net.minecraft.resources.ResourceLocation;
 import dev.onyxstudios.cca.api.v3.component.ComponentKey;
 import dev.onyxstudios.cca.api.v3.component.ComponentRegistry;
@@ -10,7 +11,7 @@ import dev.onyxstudios.cca.api.v3.entity.RespawnCopyStrategy;
 public class PlayerComponents implements EntityComponentInitializer {
     public static final ComponentKey<HealthRegenerationComponent> HEALTH_REGENERATION = ComponentRegistry
             .getOrCreate(
-                    new ResourceLocation("melancholic_hunger", "health_regeneration"),
+                    new ResourceLocation(MelancholicHunger.MOD_ID, "health_regeneration"),
                     HealthRegenerationComponent.class
             );
 

@@ -57,5 +57,12 @@ public class ResourcesReloadListener implements ResourceManagerReloadListener {
 		catch (IOException | NoSuchElementException ignored) {
 			DrawHudContext.isDefaultArmorHudTexture = false;
 		}
-	}
+
+		TextureHelper textureHelper = new TextureHelper();
+        try {
+            textureHelper.generateHeartTextures();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

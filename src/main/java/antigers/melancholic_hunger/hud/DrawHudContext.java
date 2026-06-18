@@ -12,13 +12,14 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
 
 public class DrawHudContext extends GuiGraphics {
+    public static boolean isDefaultArmorHudTexture;
+
     private final int offsetX;
     private final int healthBarY;
     private final int hudExperienceOffset;
     private int bubblesBarY;
     private int armorBarY;
     private final RestoredHeartsDrawHelper restoredHeartsDrawHelper;
-    public static boolean isDefaultArmorHudTexture;
     private final boolean hasMountHealth;
     private final int mountHealthRows;
     private final boolean playerHasArmor;

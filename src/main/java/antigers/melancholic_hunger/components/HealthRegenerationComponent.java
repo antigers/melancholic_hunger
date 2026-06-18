@@ -28,10 +28,15 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
         ConsumedFood (int foodNutrition, float foodSaturationModifier, int foodComponentId) {
             this.foodComponentId = foodComponentId;
             this.foodNutrition = foodNutrition;
-            float saturationModifier = Math.max(0.1F, foodSaturationModifier);
-            this.ticksToHeal = Math.max(
-                    1, (int)(10 / (saturationModifier * MelancholicConfig.gradualHealthRegenerationSpeed()))
-            );
+            if (MelancholicConfig.saturationBasedRegeneration()) {
+                float saturationModifier = Math.max(0.1F, foodSaturationModifier);
+                this.ticksToHeal = Math.max(
+                        1, (int)(10 / (saturationModifier * MelancholicConfig.gradualHealthRegenerationSpeed()))
+                );
+            }
+            else {
+                this.ticksToHeal = (int) (20 / MelancholicConfig.gradualHealthRegenerationSpeed());
+            }
         }
 
         int getFoodComponentId() {
@@ -101,7 +106,7 @@ public class HealthRegenerationComponent implements AutoSyncedComponent, ServerT
 
     @Override
     public void serverTick() {
-        if (!MelancholicConfig.gradualHealthRegeneration()) {
+        if (!MelancholicConfig.disableHunger() || !MelancholicConfig.gradualHealthRegeneration()) {
             return;
         }
         if (consumedFoods.isEmpty()) {

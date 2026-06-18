@@ -18,8 +18,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LocalPlayer.class)
 public abstract class LocalPlayerMixin extends AbstractClientPlayer {
-    @Shadow @Final protected Minecraft minecraft;
-    @Shadow public abstract boolean isUnderWater();
+    @Shadow
+    @Final
+    protected Minecraft minecraft;
+
+    @Shadow
+    public abstract boolean isUnderWater();
 
     public LocalPlayerMixin(ClientLevel clientLevel, GameProfile profile) {
         super(clientLevel, profile);
@@ -49,15 +53,15 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
         if (MelancholicConfig.disableHunger()) {
             return true;
         }
-        return (float)this.getFoodData().getFoodLevel() > 6.0F;
+        return (float) this.getFoodData().getFoodLevel() > 6.0F;
     }
 
     /**
      * Draw experience bar on experience gain
      */
     @Inject(
-            method="setExperienceValues",
-            at=@At("HEAD")
+            method = "setExperienceValues",
+            at = @At("HEAD")
     )
     private void melancholic_hunger$drawExpBarOnExpGain(float progress, int total, int level, CallbackInfo callback) {
         // checking age to see if player is fully initialized

@@ -46,8 +46,7 @@ public class ExperienceBarAnimation {
         if (isExpBarDrawnConstantly) {
             drawUntil = 0;
             beginIfNotAlready(now);
-        }
-        else if (now > drawUntil) {
+        } else if (now > drawUntil) {
             // starting to go backwards
             drawUntil = 0;
             beginReverseIfNotAlready(now);
@@ -61,14 +60,12 @@ public class ExperienceBarAnimation {
             if (animationTime < animationDuration) {
                 currentOpacity = (float) animationTime / animationDuration;
                 currentPos = (int) (currentOpacity * 7);
-            }
-            else {
+            } else {
                 currentOpacity = 1.0F;
                 currentPos = 7;
                 isRunning = false;
             }
-        }
-        else {
+        } else {
             currentOpacity = 1.0F;
             currentPos = 7;
             isRunning = false;

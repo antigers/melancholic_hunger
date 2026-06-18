@@ -9,13 +9,13 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(ClientTooltipComponent.class)
 public interface TooltipComponentMixin {
-	@WrapMethod(
-			method = "create(Lnet/minecraft/util/FormattedCharSequence;)Lnet/minecraft/client/gui/screens/inventory/tooltip/ClientTooltipComponent;"
-	)
-	private static ClientTooltipComponent melancholic_hunger$of(FormattedCharSequence text, Operation<ClientTooltipComponent> original) {
-		if (text instanceof FoodItemTooltips.FoodHealthTextComponent foodHealthTextComponent) {
-			return foodHealthTextComponent.getComponent();
-		}
-		return original.call(text);
-	}
+    @WrapMethod(
+            method = "create(Lnet/minecraft/util/FormattedCharSequence;)Lnet/minecraft/client/gui/screens/inventory/tooltip/ClientTooltipComponent;"
+    )
+    private static ClientTooltipComponent melancholic_hunger$of(FormattedCharSequence text, Operation<ClientTooltipComponent> original) {
+        if (text instanceof FoodItemTooltips.FoodHealthTextComponent foodHealthTextComponent) {
+            return foodHealthTextComponent.getComponent();
+        }
+        return original.call(text);
+    }
 }

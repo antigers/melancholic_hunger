@@ -10,7 +10,8 @@ import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(ListOptionImpl.class)
 public class YACLListOptionMixin implements CustomYACLListOption {
-    @Unique private OptionDescription overriddenDescription;
+    @Unique
+    private OptionDescription overriddenDescription;
 
     @WrapMethod(method = "description", remap = false)
     OptionDescription melancholic_hunger$getDescription(Operation<OptionDescription> original) {

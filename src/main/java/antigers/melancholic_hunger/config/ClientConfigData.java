@@ -21,7 +21,7 @@ public class ClientConfigData {
     public Integer experienceAnimationDuration;
     public Boolean renderExperienceOverBackground;
 
-    public record ImmutableClientConfigData (
+    public record ImmutableClientConfigData(
             Boolean hideHungerBar,
             Boolean highlightRegeneratedHearts,
             HeartTextureOption regeneratedHeartsTexture,
@@ -39,7 +39,8 @@ public class ClientConfigData {
             Boolean enableExperienceAnimation,
             Integer experienceAnimationDuration,
             Boolean renderExperienceOverBackground
-    ) {}
+    ) {
+    }
 
     public ImmutableClientConfigData getImmutable() {
         return new ImmutableClientConfigData(

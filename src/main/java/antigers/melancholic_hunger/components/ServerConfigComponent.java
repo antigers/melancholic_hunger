@@ -27,10 +27,12 @@ public class ServerConfigComponent implements AutoSyncedComponent, C2SSelfMessag
     }
 
     @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {}
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
 
     @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {}
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
 
     @Override
     public boolean shouldSyncWith(ServerPlayer player) {

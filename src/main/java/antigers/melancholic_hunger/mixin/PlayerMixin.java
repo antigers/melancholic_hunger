@@ -21,10 +21,11 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(Player.class)
 public abstract class PlayerMixin extends LivingEntity {
-    @Final @Shadow private Abilities abilities;
+    @Final
+    @Shadow
+    private Abilities abilities;
 
-    private PlayerMixin(EntityType<? extends LivingEntity> entityType, Level world)
-    {
+    private PlayerMixin(EntityType<? extends LivingEntity> entityType, Level world) {
         super(entityType, world);
     }
 
@@ -41,7 +42,7 @@ public abstract class PlayerMixin extends LivingEntity {
     private void melancholic_hunger$playerEatFood(
             FoodData foodData, FoodProperties foodProperties, Operation<Void> original, @Local(argsOnly = true) ItemStack itemStack
     ) {
-        boolean didConsume = HealthRegenerationComponent.get((Player)(Object) this).eat(itemStack, foodProperties);
+        boolean didConsume = HealthRegenerationComponent.get((Player) (Object) this).eat(itemStack, foodProperties);
         if (!didConsume) {
             original.call(foodData, foodProperties);
         }

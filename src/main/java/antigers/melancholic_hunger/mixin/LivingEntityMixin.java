@@ -24,7 +24,7 @@ public abstract class LivingEntityMixin {
      * Replace hunger effect with poison effect. Decreases duration of the effect 2 times
      */
     @WrapMethod(
-            method="addEffect(Lnet/minecraft/world/effect/MobEffectInstance;Lnet/minecraft/world/entity/Entity;)Z"
+            method = "addEffect(Lnet/minecraft/world/effect/MobEffectInstance;Lnet/minecraft/world/entity/Entity;)Z"
     )
     boolean melancholic_hunger$addStatusEffect(
             MobEffectInstance effect, Entity source, Operation<Boolean> original
@@ -36,16 +36,14 @@ public abstract class LivingEntityMixin {
             HungerEffectOption hungerEffect = MelancholicConfig.hungerEffect();
             if (hungerEffect == HungerEffectOption.DISABLED) {
                 return false;
-            }
-            else if (hungerEffect == HungerEffectOption.REPLACED_WITH_OTHER) {
+            } else if (hungerEffect == HungerEffectOption.REPLACED_WITH_OTHER) {
                 effect = new MobEffectInstance(
                         MelancholicConfig.hungerReplacementEffect(),
                         (int) (effect.getDuration() * MelancholicConfig.hungerReplacementDurationMultiplier()),
                         effect.getAmplifier()
                 );
             }
-        }
-        else if (InstalledMods.FARMERS_DELIGHT) {
+        } else if (InstalledMods.FARMERS_DELIGHT) {
             effect = NourishmentEffectHandler.getEffectToApply(effect);
         }
         return original.call(effect, source);
@@ -55,10 +53,10 @@ public abstract class LivingEntityMixin {
      * Enables instant eating
      */
     @WrapOperation(
-            method="startUsingItem",
-            at=@At(
-                    value="INVOKE",
-                    target="Lnet/minecraft/world/item/ItemStack;getUseDuration(Lnet/minecraft/world/entity/LivingEntity;)I"
+            method = "startUsingItem",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/item/ItemStack;getUseDuration(Lnet/minecraft/world/entity/LivingEntity;)I"
             )
     )
     private int melancholic_hunger$setCurrentHandMaxUseTime(

@@ -10,20 +10,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MelancholicHunger implements ModInitializer {
-	// This logger is used to write text to the console and the log file.
-	// It is considered best practice to use your mod id as the logger's name.
-	// That way, it's clear which mod wrote info, warnings, and errors.
-	public static final String MOD_ID = "melancholic_hunger";
+    // This logger is used to write text to the console and the log file.
+    // It is considered best practice to use your mod id as the logger's name.
+    // That way, it's clear which mod wrote info, warnings, and errors.
+    public static final String MOD_ID = "melancholic_hunger";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-	@Override
-	public void onInitialize() {
-		// This code runs as soon as Minecraft is in a mod-load-ready state.
-		// However, some things (like resources) may still be uninitialized.
-		MelancholicConfig.loadFromDisk();
-		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-			FoodItemTooltips.register();
-		}
-		FarmersDelightCompatRegistrator.register();
-	}
+    @Override
+    public void onInitialize() {
+        // This code runs as soon as Minecraft is in a mod-load-ready state.
+        // However, some things (like resources) may still be uninitialized.
+        MelancholicConfig.loadFromDisk();
+        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+            FoodItemTooltips.register();
+        }
+        FarmersDelightCompatRegistrator.register();
+    }
 }

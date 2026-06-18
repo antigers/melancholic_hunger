@@ -15,23 +15,23 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(CakeBlock.class)
 public class CakeBlockMixin {
 
-	/**
-	 * Handles eating cake, because it doesn't work the same way as all other food
-	 */
-	@WrapOperation(
-			method="eat",
-			at=@At(
-					value="INVOKE",
-					target="Lnet/minecraft/world/food/FoodData;eat(IF)V"
-			)
-	)
-	private static void melancholic_hunger$eatCake(
-			FoodData foodData, int foodLevelModifier, float saturationLevelModifier, Operation<Void> original,
-			@Local(argsOnly = true) Player player
-	) {
-		boolean didConsume = HealthRegenerationComponent.get(player).eat(Items.CAKE.getDefaultInstance(), EdibleBlockFoods.CAKE_PROPERTIES);
-		if (!didConsume) {
-			original.call(foodData, foodLevelModifier, saturationLevelModifier);
-		}
-	}
+    /**
+     * Handles eating cake, because it doesn't work the same way as all other food
+     */
+    @WrapOperation(
+            method = "eat",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/food/FoodData;eat(IF)V"
+            )
+    )
+    private static void melancholic_hunger$eatCake(
+            FoodData foodData, int foodLevelModifier, float saturationLevelModifier, Operation<Void> original,
+            @Local(argsOnly = true) Player player
+    ) {
+        boolean didConsume = HealthRegenerationComponent.get(player).eat(Items.CAKE.getDefaultInstance(), EdibleBlockFoods.CAKE_PROPERTIES);
+        if (!didConsume) {
+            original.call(foodData, foodLevelModifier, saturationLevelModifier);
+        }
+    }
 }

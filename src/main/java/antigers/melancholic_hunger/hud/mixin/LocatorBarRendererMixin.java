@@ -16,14 +16,15 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(LocatorBarRenderer.class)
 public class LocatorBarRendererMixin {
-    @Unique DrawHudContext drawHudContext;
+    @Unique
+    DrawHudContext drawHudContext;
 
     /**
      * Makes the locator bar to follow the animation
      */
     @WrapOperation(
-            method="extractBackground",
-            at= @At(
+            method = "extractBackground",
+            at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIII)V"
             )
@@ -41,7 +42,7 @@ public class LocatorBarRendererMixin {
     /**
      * Makes so that addons only render when the locator bar itself was actually rendered in this frame
      */
-    @WrapMethod(method="extractRenderState")
+    @WrapMethod(method = "extractRenderState")
     private void melancholic_hunger$renderAddons(
             GuiGraphicsExtractor graphics, DeltaTracker tickCounter, Operation<Void> original
     ) {
@@ -55,8 +56,8 @@ public class LocatorBarRendererMixin {
      * Makes the addons of the locator bar to follow the animation
      */
     @ModifyExpressionValue(
-            method="extractRenderState",
-            at= @At(
+            method = "extractRenderState",
+            at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/gui/contextualbar/LocatorBarRenderer;top(Lcom/mojang/blaze3d/platform/Window;)I"
             )

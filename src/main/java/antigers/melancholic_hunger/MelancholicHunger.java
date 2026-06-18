@@ -29,7 +29,7 @@ public class MelancholicHunger {
 
         Components.register(modEventBus);
         ConfigNetworkHandler.register(modEventBus);
-		FarmersDelightCompatRegistrator.register(modEventBus);
+        FarmersDelightCompatRegistrator.register(modEventBus);
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {

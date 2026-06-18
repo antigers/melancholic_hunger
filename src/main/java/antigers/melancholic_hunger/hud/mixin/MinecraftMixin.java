@@ -14,11 +14,12 @@ import java.io.IOException;
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin {
 
-    @Shadow public abstract boolean isGameLoadFinished();
+    @Shadow
+    public abstract boolean isGameLoadFinished();
 
     @Inject(
-            method="onResourceLoadFinished",
-            at=@At("RETURN")
+            method = "onResourceLoadFinished",
+            at = @At("RETURN")
     )
     private void melancholic_hunger$onFinishedLoading(Minecraft.GameLoadCookie loadingContext, CallbackInfo ci) throws IOException {
         if (!this.isGameLoadFinished()) {

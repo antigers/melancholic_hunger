@@ -51,14 +51,12 @@ public class DrawHudContext extends GuiGraphicsExtractor {
             armorBarY = aboveHealthY;
             // drawing bubbles above all mount health rows
             bubblesBarY = aboveHealthY - 10 * (mountHealthRows - 1);
-        }
-        else if (MelancholicConfig.hideHungerBar()) {
+        } else if (MelancholicConfig.hideHungerBar()) {
             // drawing armor in place of hunger bar (same height as health)
             armorBarY = healthBarY;
             // drawing bubbles above all health rows
             bubblesBarY = aboveHealthY;
-        }
-        else {
+        } else {
             // drawing armor above all health rows
             armorBarY = aboveHealthY;
             // drawing bubbles above the hunger bar

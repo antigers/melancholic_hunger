@@ -43,8 +43,7 @@ public class BarAnimation {
         var now = Util.getMillis();
         if (this.alwaysOnPredicate.test(currentBarType) || shouldDraw) {
             beginIfNotAlready(now);
-        }
-        else {
+        } else {
             // starting to go backwards
             beginReverseIfNotAlready(now);
         }
@@ -57,14 +56,12 @@ public class BarAnimation {
             if (animationTime < animationDuration) {
                 currentOpacity = (float) animationTime / animationDuration;
                 currentPos = (int) (currentOpacity * 7);
-            }
-            else {
+            } else {
                 currentOpacity = 1.0F;
                 currentPos = 7;
                 isRunning = false;
             }
-        }
-        else {
+        } else {
             currentOpacity = 1.0F;
             currentPos = 7;
             isRunning = false;

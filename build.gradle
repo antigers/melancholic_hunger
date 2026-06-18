@@ -178,7 +178,7 @@ dependencies {
     // Raised compatibility (compileOnly, because it breaks the server in the runtime)
     compileOnly "maven.modrinth:raised:${project.raised_version}"
 
-	// Farmer's Delight compatibility
+    // Farmer's Delight compatibility
     implementation "maven.modrinth:farmers-delight:${project.farmers_delight_version}"
 }
 

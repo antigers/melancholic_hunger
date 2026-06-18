@@ -12,19 +12,20 @@ import java.util.Optional;
 
 public class FarmersDelightEdibleBlockFoods {
 
-	public static Optional<FoodProperties> getFoodProperties(BlockItem blockItem) {
-		Block block = blockItem.getBlock();
-		FoodPropertiesAdder totalFoodProperties = new FoodPropertiesAdder();
-		switch (block) {
-			case PieBlock pieBlock -> totalFoodProperties.addFromItem(pieBlock.getPieSliceItem(), pieBlock.getMaxBites());
-			case RiceRollMedleyBlock riceRollMedleyBlock ->
-					riceRollMedleyBlock.riceRollServings.forEach(item -> totalFoodProperties.addFromItem(item.get().getDefaultInstance(), 1));
-			case FeastBlock feastBlock ->
-					totalFoodProperties.addFromItem(feastBlock.servingItem.get().getDefaultInstance(), feastBlock.getMaxServings());
-			default -> {
-				return Optional.empty();
-			}
-		}
-		return Optional.of(totalFoodProperties.getResult());
-	}
+    public static Optional<FoodProperties> getFoodProperties(BlockItem blockItem) {
+        Block block = blockItem.getBlock();
+        FoodPropertiesAdder totalFoodProperties = new FoodPropertiesAdder();
+        switch (block) {
+            case PieBlock pieBlock ->
+                    totalFoodProperties.addFromItem(pieBlock.getPieSliceItem(), pieBlock.getMaxBites());
+            case RiceRollMedleyBlock riceRollMedleyBlock ->
+                    riceRollMedleyBlock.riceRollServings.forEach(item -> totalFoodProperties.addFromItem(item.get().getDefaultInstance(), 1));
+            case FeastBlock feastBlock ->
+                    totalFoodProperties.addFromItem(feastBlock.servingItem.get().getDefaultInstance(), feastBlock.getMaxServings());
+            default -> {
+                return Optional.empty();
+            }
+        }
+        return Optional.of(totalFoodProperties.getResult());
+    }
 }

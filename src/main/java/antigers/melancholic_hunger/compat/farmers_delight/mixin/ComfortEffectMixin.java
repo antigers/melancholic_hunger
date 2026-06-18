@@ -12,16 +12,16 @@ import vectorwing.farmersdelight.common.effect.ComfortEffect;
 
 @Mixin(ComfortEffect.class)
 public class ComfortEffectMixin {
-	@WrapOperation(
-			method="applyEffectTick",
-			at=@At(
-					value="INVOKE",
-					target="Lnet/minecraft/world/food/FoodData;getSaturationLevel()F"
-			)
-	)
-	private float melancholic_hunger$comfortEffectSaturationCheck(
-			FoodData instance, Operation<Float> original, @Local(name = "player") Player player
-	) {
-		return ComfortEffectHandler.shouldApply(player) ? 0.0F : 1.0F;
-	}
+    @WrapOperation(
+            method = "applyEffectTick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/food/FoodData;getSaturationLevel()F"
+            )
+    )
+    private float melancholic_hunger$comfortEffectSaturationCheck(
+            FoodData instance, Operation<Float> original, @Local(name = "player") Player player
+    ) {
+        return ComfortEffectHandler.shouldApply(player) ? 0.0F : 1.0F;
+    }
 }

@@ -16,59 +16,58 @@ import vectorwing.farmersdelight.common.effect.NourishmentEffect;
 import vectorwing.farmersdelight.common.registry.ModEffects;
 
 public class NourishmentEffectHandler {
-	private static final DeferredRegister<MobEffect> MOB_EFFECTS = DeferredRegister.create(Registries.MOB_EFFECT, MelancholicHunger.MOD_ID);
+    private static final DeferredRegister<MobEffect> MOB_EFFECTS = DeferredRegister.create(Registries.MOB_EFFECT, MelancholicHunger.MOD_ID);
 
-	private static final Holder<MobEffect> NOURISHMENT_HEALTH_BOOST = MOB_EFFECTS.register(
-			"nourishment_health_boost", () -> new NourishmentHealthBoostEffect()
-					.addAttributeModifier(Attributes.MAX_HEALTH, ResourceLocation.fromNamespaceAndPath(MelancholicHunger.MOD_ID, "effect.health_boost"), 2.0, AttributeModifier.Operation.ADD_VALUE)
-	);
+    private static final Holder<MobEffect> NOURISHMENT_HEALTH_BOOST = MOB_EFFECTS.register(
+            "nourishment_health_boost", () -> new NourishmentHealthBoostEffect()
+                    .addAttributeModifier(Attributes.MAX_HEALTH, ResourceLocation.fromNamespaceAndPath(MelancholicHunger.MOD_ID, "effect.health_boost"), 2.0, AttributeModifier.Operation.ADD_VALUE)
+    );
 
-	private static class NourishmentHealthBoostEffect extends NourishmentEffect {
-		public String getDescriptionId() {
-			return ModEffects.NOURISHMENT.value().getDescriptionId();
-		}
+    private static class NourishmentHealthBoostEffect extends NourishmentEffect {
+        public String getDescriptionId() {
+            return ModEffects.NOURISHMENT.value().getDescriptionId();
+        }
 
-		public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
-			return false;
-		}
-	}
+        public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
+            return false;
+        }
+    }
 
-	public static MobEffectInstance getEffectToApply(MobEffectInstance effect) {
-		Holder<MobEffect> effectType = effect.getEffect();
-		if (effectType != ModEffects.NOURISHMENT || !MelancholicConfig.disableHunger()) {
-			return effect;
-		}
-		int nourishmentHealthBoostHeartsCount = MelancholicConfig.nourishmentHealthBoostHeartsCount();
-		int amplifier;
-		if (nourishmentHealthBoostHeartsCount > 0) {
-			effectType = NOURISHMENT_HEALTH_BOOST;
-			amplifier = nourishmentHealthBoostHeartsCount - 1;
-		}
-		else {
-			amplifier = effect.getAmplifier();
-		}
-		return new MobEffectInstance(
-				effectType, effect.getDuration(), amplifier, effect.isAmbient(), false, true
-		);
-	}
+    public static MobEffectInstance getEffectToApply(MobEffectInstance effect) {
+        Holder<MobEffect> effectType = effect.getEffect();
+        if (effectType != ModEffects.NOURISHMENT || !MelancholicConfig.disableHunger()) {
+            return effect;
+        }
+        int nourishmentHealthBoostHeartsCount = MelancholicConfig.nourishmentHealthBoostHeartsCount();
+        int amplifier;
+        if (nourishmentHealthBoostHeartsCount > 0) {
+            effectType = NOURISHMENT_HEALTH_BOOST;
+            amplifier = nourishmentHealthBoostHeartsCount - 1;
+        } else {
+            amplifier = effect.getAmplifier();
+        }
+        return new MobEffectInstance(
+                effectType, effect.getDuration(), amplifier, effect.isAmbient(), false, true
+        );
+    }
 
-	public static boolean isNourishmentHealthBoost(Holder<MobEffect> effect) {
-		return effect.getKey() == NOURISHMENT_HEALTH_BOOST.getKey();
-	}
+    public static boolean isNourishmentHealthBoost(Holder<MobEffect> effect) {
+        return effect.getKey() == NOURISHMENT_HEALTH_BOOST.getKey();
+    }
 
-	public static Holder<MobEffect> getEffectForSprite(Holder<MobEffect> effect) {
-		// making nourishment health boost effect use standard nourishment's sprite
-		if (isNourishmentHealthBoost(effect)) {
-			return ModEffects.NOURISHMENT;
-		}
-		return effect;
-	}
+    public static Holder<MobEffect> getEffectForSprite(Holder<MobEffect> effect) {
+        // making nourishment health boost effect use standard nourishment's sprite
+        if (isNourishmentHealthBoost(effect)) {
+            return ModEffects.NOURISHMENT;
+        }
+        return effect;
+    }
 
-	public static boolean playerHasEffect(Player player) {
-		return player.hasEffect(ModEffects.NOURISHMENT) || player.hasEffect(NOURISHMENT_HEALTH_BOOST);
-	}
+    public static boolean playerHasEffect(Player player) {
+        return player.hasEffect(ModEffects.NOURISHMENT) || player.hasEffect(NOURISHMENT_HEALTH_BOOST);
+    }
 
-	public static void register(IEventBus modBus) {
-		MOB_EFFECTS.register(modBus);
-	}
+    public static void register(IEventBus modBus) {
+        MOB_EFFECTS.register(modBus);
+    }
 }

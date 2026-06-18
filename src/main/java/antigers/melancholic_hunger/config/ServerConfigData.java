@@ -31,7 +31,7 @@ public class ServerConfigData {
     );
     public static final Gson gson = new Gson();
 
-    public record ImmutableServerConfigData (
+    public record ImmutableServerConfigData(
             Boolean disableHunger,
             HungerEffectOption hungerEffect,
             String hungerReplacementEffect,

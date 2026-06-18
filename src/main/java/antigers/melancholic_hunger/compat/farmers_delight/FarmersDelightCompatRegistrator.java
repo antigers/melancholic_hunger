@@ -4,9 +4,9 @@ import antigers.melancholic_hunger.InstalledMods;
 import net.neoforged.bus.api.IEventBus;
 
 public class FarmersDelightCompatRegistrator {
-	public static void register(IEventBus modBus) {
-		if (InstalledMods.FARMERS_DELIGHT) {
-			NourishmentEffectHandler.register(modBus);
-		}
-	}
+    public static void register(IEventBus modBus) {
+        if (InstalledMods.FARMERS_DELIGHT) {
+            NourishmentEffectHandler.register(modBus);
+        }
+    }
 }

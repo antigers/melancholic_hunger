@@ -15,28 +15,28 @@ import vectorwing.farmersdelight.client.gui.HUDOverlays;
 
 @Mixin(HUDOverlays.class)
 public class HUDOverlaysMixin {
-	@WrapOperation(
-			method="drawComfortOverlay",
-			at=@At(
-					value="INVOKE",
-					target="Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/ResourceLocation;IIIIII)V"
-			)
-	)
-	private static void melancholic_hunger$drawComfortOverlay(
-			GuiGraphics graphics, ResourceLocation atlasLocation, int x, int y, int uOffset, int vOffset, int uWidth, int vHeight, Operation<Void> original
-	) {
-		DrawHudContext drawHudContext = (DrawHudContext) graphics;
-		y = drawHudContext.getHelper().addShakingIfNeeded(drawHudContext.getHealthBarY());
-		original.call(graphics, atlasLocation, x, y, uOffset, vOffset, uWidth, vHeight);
-	}
+    @WrapOperation(
+            method = "drawComfortOverlay",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/ResourceLocation;IIIIII)V"
+            )
+    )
+    private static void melancholic_hunger$drawComfortOverlay(
+            GuiGraphics graphics, ResourceLocation atlasLocation, int x, int y, int uOffset, int vOffset, int uWidth, int vHeight, Operation<Void> original
+    ) {
+        DrawHudContext drawHudContext = (DrawHudContext) graphics;
+        y = drawHudContext.getHelper().addShakingIfNeeded(drawHudContext.getHealthBarY());
+        original.call(graphics, atlasLocation, x, y, uOffset, vOffset, uWidth, vHeight);
+    }
 
-	@WrapMethod(method="drawNourishmentOverlay")
-	private static void melancholic_hunger$drawNourishmentOverlay(
-			FoodData foodData, Minecraft minecraft, GuiGraphics graphics, int right, int top, boolean naturalHealing, Operation<Void> original
-	) {
-		if (MelancholicConfig.disableHunger()) {
-			return;
-		}
-		original.call(foodData, minecraft, graphics, right, top, naturalHealing);
-	}
+    @WrapMethod(method = "drawNourishmentOverlay")
+    private static void melancholic_hunger$drawNourishmentOverlay(
+            FoodData foodData, Minecraft minecraft, GuiGraphics graphics, int right, int top, boolean naturalHealing, Operation<Void> original
+    ) {
+        if (MelancholicConfig.disableHunger()) {
+            return;
+        }
+        original.call(foodData, minecraft, graphics, right, top, naturalHealing);
+    }
 }

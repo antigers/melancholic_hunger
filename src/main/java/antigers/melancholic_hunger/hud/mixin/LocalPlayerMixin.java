@@ -13,7 +13,8 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(LocalPlayer.class)
 public abstract class LocalPlayerMixin extends AbstractClientPlayer {
-    @Shadow public int experienceDisplayStartTick;
+    @Shadow
+    public int experienceDisplayStartTick;
 
     public LocalPlayerMixin(ClientLevel world, GameProfile profile) {
         super(world, profile);
@@ -35,10 +36,10 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
      * Makes that vanilla way of setting experienceDisplayStartTick to the player age isn't used
      */
     @ModifyExpressionValue(
-            method="setExperienceDisplayStartTickToTickCount",
-            at=@At(
-                    value="FIELD",
-                    target="Lnet/minecraft/client/player/LocalPlayer;tickCount:I"
+            method = "setExperienceDisplayStartTickToTickCount",
+            at = @At(
+                    value = "FIELD",
+                    target = "Lnet/minecraft/client/player/LocalPlayer;tickCount:I"
             )
     )
     private int melancholic_hunger$setExperience(int original) {

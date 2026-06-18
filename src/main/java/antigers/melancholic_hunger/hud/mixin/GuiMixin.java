@@ -45,45 +45,84 @@ import java.util.Objects;
 
 @Mixin(Gui.class)
 public abstract class GuiMixin implements ExperienceHudRenderer {
-    @Shadow private Pair<Gui.ContextualInfo, ContextualBarRenderer> contextualInfoBar;
-    @Shadow @Final private Minecraft minecraft;
-    @Shadow @Nullable protected abstract Player getCameraPlayer();
-    @Shadow protected abstract int getVehicleMaxHearts(@Nullable LivingEntity entity);
-    @Shadow protected abstract int getVisibleVehicleHeartRows(int heartCount);
-    @Shadow @Nullable protected abstract LivingEntity getPlayerVehicleWithHealth();
-    @Shadow @Final private RandomSource random;
-    @Shadow @Final private static Identifier ARMOR_EMPTY_SPRITE;
-    @Shadow @Final private static Identifier ARMOR_HALF_SPRITE;
-    @Shadow private boolean willPrioritizeExperienceInfo() {return false;}
-    @Shadow private boolean willPrioritizeJumpInfo() {return false;}
-    @Shadow private Gui.ContextualInfo nextContextualInfoState() {return Gui.ContextualInfo.EMPTY;}
+    @Shadow
+    private Pair<Gui.ContextualInfo, ContextualBarRenderer> contextualInfoBar;
+    @Shadow
+    @Final
+    private Minecraft minecraft;
 
-    @Unique private static final Identifier EXPERIENCE_BAR_BACKGROUND_TEXTURE = Identifier.withDefaultNamespace(
+    @Shadow
+    @Nullable
+    protected abstract Player getCameraPlayer();
+
+    @Shadow
+    protected abstract int getVehicleMaxHearts(@Nullable LivingEntity entity);
+
+    @Shadow
+    protected abstract int getVisibleVehicleHeartRows(int heartCount);
+
+    @Shadow
+    @Nullable
+    protected abstract LivingEntity getPlayerVehicleWithHealth();
+
+    @Shadow
+    @Final
+    private RandomSource random;
+    @Shadow
+    @Final
+    private static Identifier ARMOR_EMPTY_SPRITE;
+    @Shadow
+    @Final
+    private static Identifier ARMOR_HALF_SPRITE;
+
+    @Shadow
+    private boolean willPrioritizeExperienceInfo() {
+        return false;
+    }
+
+    @Shadow
+    private boolean willPrioritizeJumpInfo() {
+        return false;
+    }
+
+    @Shadow
+    private Gui.ContextualInfo nextContextualInfoState() {
+        return Gui.ContextualInfo.EMPTY;
+    }
+
+    @Unique
+    private static final Identifier EXPERIENCE_BAR_BACKGROUND_TEXTURE = Identifier.withDefaultNamespace(
             "hud/experience_bar_background"
     );
-    @Unique private static final Identifier EXPERIENCE_BAR_PROGRESS_TEXTURE = Identifier.withDefaultNamespace(
+    @Unique
+    private static final Identifier EXPERIENCE_BAR_PROGRESS_TEXTURE = Identifier.withDefaultNamespace(
             "hud/experience_bar_progress"
     );
-    @Unique private static final Identifier VANILLA_ARMOR_EMPTY_TEXTURE = Identifier.fromNamespaceAndPath(
+    @Unique
+    private static final Identifier VANILLA_ARMOR_EMPTY_TEXTURE = Identifier.fromNamespaceAndPath(
             MelancholicHunger.MOD_ID, "hud/armor_empty"
     );
-    @Unique private static final Identifier VANILLA_ARMOR_HALF_TEXTURE = Identifier.fromNamespaceAndPath(
+    @Unique
+    private static final Identifier VANILLA_ARMOR_HALF_TEXTURE = Identifier.fromNamespaceAndPath(
             MelancholicHunger.MOD_ID, "hud/armor_half"
     );
-    @Unique private static final Identifier VANILLA_ARMOR_HALF_TEXTURE_INVERSED = Identifier.fromNamespaceAndPath(
+    @Unique
+    private static final Identifier VANILLA_ARMOR_HALF_TEXTURE_INVERSED = Identifier.fromNamespaceAndPath(
             MelancholicHunger.MOD_ID, "hud/armor_half_inversed"
     );
-    @Unique private final BarAnimation melancholic_hunger$barAnimation = new BarAnimation(
+    @Unique
+    private final BarAnimation melancholic_hunger$barAnimation = new BarAnimation(
             currentBarType -> (currentBarType != Gui.ContextualInfo.EMPTY)
     );
-    @Unique private final BarAnimation melancholic_hunger$expLevelAnimation = new BarAnimation(
+    @Unique
+    private final BarAnimation melancholic_hunger$expLevelAnimation = new BarAnimation(
             _ -> (!MelancholicConfig.hideExperienceBar())
     );
 
     /**
      * Makes so that the exp bar is not drawn on the world start
      */
-    @WrapMethod(method="willPrioritizeExperienceInfo")
+    @WrapMethod(method = "willPrioritizeExperienceInfo")
     private boolean melancholic_hunger$shouldShowExperienceBar(Operation<Boolean> original) {
         if (this.minecraft.player.experienceDisplayStartTick <= 0) {
             return false;
@@ -99,8 +138,8 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         return (
                 // exp has been gained recently
                 (MelancholicConfig.showExperienceOnGain() && this.willPrioritizeExperienceInfo()) ||
-                // exp should be rendered while the current screen is open
-                (!MelancholicConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen())
+                        // exp should be rendered while the current screen is open
+                        (!MelancholicConfig.renderExperienceOverBackground() && melancholic_hunger$needToRenderExperienceHudOnCurrentScreen())
         ) || melancholic_hunger$barAnimation.shouldStillDrawExperience();  // exp bar disappearance animation is not finished yet
     }
 
@@ -129,7 +168,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
     @WrapOperation(
             method = "extractHotbarAndDecorations",
             at = @At(
-                    value="INVOKE",
+                    value = "INVOKE",
                     target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;extractExperienceLevel(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/gui/Font;I)V"
             )
     )
@@ -154,7 +193,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         int y = graphics.guiHeight() - 22 - melancholic_hunger$barAnimation.getCurrentPos();
         int alpha = (int) (melancholic_hunger$barAnimation.getCurrentOpacity() * 255);
         int color = ARGB.color(alpha, CommonColors.WHITE);
-        int progressWidth = (int)(clientPlayerEntity.experienceProgress * 183.0F);
+        int progressWidth = (int) (clientPlayerEntity.experienceProgress * 183.0F);
         graphics.blitSprite(
                 RenderPipelines.GUI_TEXTURED, EXPERIENCE_BAR_BACKGROUND_TEXTURE, x, y, 182, 5, color
         );
@@ -172,7 +211,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
     @WrapOperation(
             method = "extractHotbarAndDecorations",
             at = @At(
-                    value="INVOKE",
+                    value = "INVOKE",
                     target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;extractBackground(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V"
             )
     )
@@ -206,7 +245,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
     /**
      * Manipulates which bar should be rendered according to the config values
      */
-    @WrapMethod(method="nextContextualInfoState")
+    @WrapMethod(method = "nextContextualInfoState")
     private Gui.ContextualInfo melancholic_hunger$getCurrentBarType(Operation<Gui.ContextualInfo> original) {
         Gui.ContextualInfo barType = original.call();
         if (
@@ -237,11 +276,11 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         var currentScreen = this.minecraft.screen;
         return (
                 (MelancholicConfig.showExperienceInInventory() && currentScreen instanceof InventoryScreen) ||
-                (MelancholicConfig.showExperienceOnScreens() && (
-                        currentScreen instanceof FurnaceScreen || currentScreen instanceof BlastFurnaceScreen
-                        || currentScreen instanceof SmokerScreen || currentScreen instanceof EnchantmentScreen
-                        || currentScreen instanceof AnvilScreen || currentScreen instanceof GrindstoneScreen
-                ))
+                        (MelancholicConfig.showExperienceOnScreens() && (
+                                currentScreen instanceof FurnaceScreen || currentScreen instanceof BlastFurnaceScreen
+                                        || currentScreen instanceof SmokerScreen || currentScreen instanceof EnchantmentScreen
+                                        || currentScreen instanceof AnvilScreen || currentScreen instanceof GrindstoneScreen
+                        ))
         );
     }
 
@@ -270,10 +309,10 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
      * Moves the mount health bar according to the exp bar animation position if there is no mount jump bar
      */
     @WrapOperation(
-            method="extractVehicleHealth",
-            at=@At(
-                    value="INVOKE",
-                    target="Lnet/minecraft/client/gui/GuiGraphicsExtractor;guiHeight()I"
+            method = "extractVehicleHealth",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;guiHeight()I"
             )
     )
     private int melancholic_hunger$moveMountHealthBar(GuiGraphicsExtractor graphics, Operation<Integer> original) {
@@ -335,7 +374,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
     /**
      * Calculates positions of armor and bubbles bars
      */
-    @WrapMethod(method="extractArmor")
+    @WrapMethod(method = "extractArmor")
     private static void melancholic_hunger$wrapRenderArmor(
             GuiGraphicsExtractor graphics, Player player, int yLineBase, int numHealthRows, int healthRowHeight, int xLeft, Operation<Void> original
     ) {
@@ -372,10 +411,10 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
      * Moves armor bar right and down because hunger and experience bars are disabled
      */
     @WrapOperation(
-            method="extractArmor",
-            at=@At(
-                    value="INVOKE",
-                    target="Lnet/minecraft/client/gui/GuiGraphicsExtractor;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIII)V"
+            method = "extractArmor",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIII)V"
             )
     )
     private static void melancholic_hunger$moveArmorBar(
@@ -392,8 +431,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
                 return;
             }
             texture = melancholic_hunger$fixVanillaArmorTexture(texture, true);
-        }
-        else if (DrawHudContext.isDefaultArmorHudTexture) {
+        } else if (DrawHudContext.isDefaultArmorHudTexture) {
             texture = melancholic_hunger$fixVanillaArmorTexture(texture, false);
         }
         original.call(graphics, pipeline, texture, x, y, width, height);
@@ -402,7 +440,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
     /**
      * Moves health bar down because experience bar is disabled
      */
-    @WrapMethod(method="extractHearts")
+    @WrapMethod(method = "extractHearts")
     private void melancholic_hunger$moveHealthBar(
             GuiGraphicsExtractor graphics, Player player, int xLeft, int yLineBase, int healthRowHeight, int heartOffsetIndex,
             float maxHealth, int currentHealth, int oldHealth, int absorption, boolean blink, Operation<Void> original
@@ -431,10 +469,10 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
      * Draws amount of hearts that can be restored by eating currently held food item
      */
     @WrapOperation(
-            method="extractHearts",
-            at=@At(
-                    value="INVOKE",
-                    target="Lnet/minecraft/client/gui/Gui;extractHeart(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/gui/Gui$HeartType;IIZZZ)V"
+            method = "extractHearts",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/Gui;extractHeart(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/gui/Gui$HeartType;IIZZZ)V"
             )
     )
     private void melancholic_hunger$drawRestoredHearts(
@@ -459,8 +497,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
                 // drawing second heart on top of the first
                 melancholic_hunger$drawHeartWithColor(graphics, secondHeart, x, y);
             }
-        }
-        else {
+        } else {
             original.call(gui, graphics, type, x, y, hardcore, blinking, half);
         }
         restoredHeartsDrawHelper.updateCurrentHeart();
@@ -470,10 +507,10 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
      * Move air bubbles on top of health rows
      */
     @WrapOperation(
-            method="extractAirBubbles",
-            at=@At(
-                    value="INVOKE",
-                    target="Lnet/minecraft/client/gui/GuiGraphicsExtractor;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIII)V"
+            method = "extractAirBubbles",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIII)V"
             )
     )
     private void melancholic_hunger$moveBubblesBar(
@@ -488,7 +525,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         original.call(graphics, pipeline, texture, x, drawHudContext.getBubblesBarY(), width, height);
     }
 
-    @WrapMethod(method="getMobEffectSprite")
+    @WrapMethod(method = "getMobEffectSprite")
     private static Identifier melancholic_hunger$getEffectSprite(Holder<MobEffect> effect, Operation<Identifier> original) {
         if (InstalledMods.FARMERS_DELIGHT) {
             effect = NourishmentEffectHandler.getEffectForSprite(effect);

@@ -51,8 +51,7 @@ public class TextureHelper {
             byte[] vanillaTexture = vanillaArmorResource.orElseThrow().open().readAllBytes();
             byte[] currentTexture = currentArmorResource.orElseThrow().open().readAllBytes();
             DrawHudContext.isDefaultArmorHudTexture = Arrays.equals(vanillaTexture, currentTexture);
-        }
-        catch (IOException | NoSuchElementException ignored) {
+        } catch (IOException | NoSuchElementException ignored) {
             DrawHudContext.isDefaultArmorHudTexture = false;
         }
     }

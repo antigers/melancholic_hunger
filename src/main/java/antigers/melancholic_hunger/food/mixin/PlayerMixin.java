@@ -16,7 +16,9 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(Player.class)
 public abstract class PlayerMixin extends LivingEntity {
-    @Final @Shadow private Abilities abilities;
+    @Final
+    @Shadow
+    private Abilities abilities;
 
     @Shadow
     public abstract FoodData getFoodData();
@@ -24,8 +26,7 @@ public abstract class PlayerMixin extends LivingEntity {
     @Shadow
     public abstract Abilities getAbilities();
 
-    private PlayerMixin(EntityType<? extends LivingEntity> entityType, Level world)
-    {
+    private PlayerMixin(EntityType<? extends LivingEntity> entityType, Level world) {
         super(entityType, world);
     }
 
@@ -64,6 +65,6 @@ public abstract class PlayerMixin extends LivingEntity {
         if (this.abilities.invulnerable || ignoreHunger) {
             return true;
         }
-        return HealthRegenerationComponent.get((Player)(Object) this).canEat();
+        return HealthRegenerationComponent.get((Player) (Object) this).canEat();
     }
 }

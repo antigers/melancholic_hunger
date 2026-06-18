@@ -30,7 +30,7 @@ public class HealthRegenerationComponent {
         private int ticksCounter = 0;
         private final int ticksToHeal;
 
-        ConsumedFood (int foodNutrition, float foodSaturation, int foodComponentId) {
+        ConsumedFood(int foodNutrition, float foodSaturation, int foodComponentId) {
             this.foodComponentId = foodComponentId;
             this.foodNutrition = foodNutrition;
             if (MelancholicConfig.saturationBasedRegeneration()) {
@@ -38,8 +38,7 @@ public class HealthRegenerationComponent {
                 this.ticksToHeal = Math.max(
                         1, (int) (ratio * 20 / MelancholicConfig.gradualHealthRegenerationSpeed())
                 );
-            }
-            else {
+            } else {
                 this.ticksToHeal = (int) (20 / MelancholicConfig.gradualHealthRegenerationSpeed());
             }
         }
@@ -53,7 +52,7 @@ public class HealthRegenerationComponent {
         }
 
         boolean tick(float regenSpeedMultiplier) {
-            int ticksToHeal = Math.max(1, (int)(this.ticksToHeal / regenSpeedMultiplier));
+            int ticksToHeal = Math.max(1, (int) (this.ticksToHeal / regenSpeedMultiplier));
             if (ticksCounter < ticksToHeal) {
                 ticksCounter++;
                 return false;
@@ -64,7 +63,8 @@ public class HealthRegenerationComponent {
         }
     }
 
-    private static final TypeToken<HashSet<ConsumedFood>> consumedFoodSetTypeToken = new TypeToken<>() {};
+    private static final TypeToken<HashSet<ConsumedFood>> consumedFoodSetTypeToken = new TypeToken<>() {
+    };
     private static final Gson gson = new Gson();
 
     private static final AttachmentType<Integer> CONSUMED_NUTRITION_ATTACHMENT = AttachmentRegistry.create(
@@ -133,7 +133,7 @@ public class HealthRegenerationComponent {
         if (InstalledMods.FARMERS_DELIGHT && NourishmentEffectHandler.playerHasEffect(player)) {
             regenSpeedMultiplier = MelancholicConfig.nourishmentRegenSpeedMultiplier();
         }
-        for (var iterator = consumedFoods.iterator(); iterator.hasNext();) {
+        for (var iterator = consumedFoods.iterator(); iterator.hasNext(); ) {
             var consumedFood = iterator.next();
             var consumedFoodId = consumedFood.getFoodComponentId();
             if (digestingFoods.contains(consumedFoodId)) {
@@ -177,8 +177,7 @@ public class HealthRegenerationComponent {
             consumedNutrition += foodHealth;
             consumedFoods.add(new ConsumedFood(foodHealth, foodSaturation, foodComponentId));
             sync();
-        }
-        else {
+        } else {
             player.heal(foodHealth);
         }
     }

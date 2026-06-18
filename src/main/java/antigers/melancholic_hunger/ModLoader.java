@@ -6,33 +6,33 @@ import net.fabricmc.loader.api.FabricLoader;
 import java.nio.file.Path;
 
 public class ModLoader {
-	private static int hudOffset = 0;
+    private static int hudOffset = 0;
 
-	public static boolean isClientside() {
-		return FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT;
-	}
+    public static boolean isClientside() {
+        return FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT;
+    }
 
-	public static boolean isServerside() {
-		return !isClientside();
-	}
+    public static boolean isServerside() {
+        return !isClientside();
+    }
 
-	public static Path getConfigDir() {
-		return FabricLoader.getInstance().getConfigDir();
-	}
+    public static Path getConfigDir() {
+        return FabricLoader.getInstance().getConfigDir();
+    }
 
-	public static boolean isModLoaded(String modName) {
-		return FabricLoader.getInstance().getModContainer(modName).isPresent();
-	}
+    public static boolean isModLoaded(String modName) {
+        return FabricLoader.getInstance().getModContainer(modName).isPresent();
+    }
 
-	public static boolean isModLoading(String modName) {
-		return isModLoaded(modName);
-	}
+    public static boolean isModLoading(String modName) {
+        return isModLoaded(modName);
+    }
 
-	public static void setHudOffset(int offset) {
-		hudOffset = offset;
-	}
+    public static void setHudOffset(int offset) {
+        hudOffset = offset;
+    }
 
-	public static int getHudOffset() {
-		return hudOffset;
-	}
+    public static int getHudOffset() {
+        return hudOffset;
+    }
 }

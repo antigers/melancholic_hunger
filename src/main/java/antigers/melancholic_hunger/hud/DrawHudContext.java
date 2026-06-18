@@ -63,8 +63,7 @@ public class DrawHudContext extends GuiGraphics {
             armorBarY = aboveHealthY;
             // drawing bubbles above all mount health rows
             bubblesBarY = aboveHealthY - 10 * (mountHealthRows - 1);
-        }
-        else if (!MelancholicConfig.hideHungerBar()) {
+        } else if (!MelancholicConfig.hideHungerBar()) {
             // drawing armor above all health rows
             armorBarY = aboveHealthY;
             if (shouldRenderStamina) {
@@ -76,16 +75,14 @@ public class DrawHudContext extends GuiGraphics {
                 // drawing bubbles above the hunger bar
                 bubblesBarY = healthBarY - 10;
             }
-        }
-        else if (shouldRenderStamina && shouldRenderStaminaInPlaceOfHunger) {
+        } else if (shouldRenderStamina && shouldRenderStaminaInPlaceOfHunger) {
             // drawing armor above all health rows
             armorBarY = aboveHealthY;
             // drawing staminaBarY in place of hunger bar (same height as health)
             staminaBarY = healthBarY;
             // drawing bubbles above the stamina bar
             bubblesBarY = healthBarY - 10;
-        }
-        else {
+        } else {
             // drawing armor in place of hunger bar (same height as health)
             armorBarY = healthBarY;
             // drawing staminaBarY above the armor bar (if player has armor)

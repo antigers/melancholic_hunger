@@ -21,10 +21,18 @@ import java.util.LinkedHashMap;
 
 @Mixin(ConfigHandler.class)
 public abstract class ConfigHandlerMixin<T extends ConfigMeta> implements NostalgicTweaksConfigHandlerWriter {
-    @Shadow(remap=false) private @Nullable T loaded;
-    @Shadow(remap=false) public abstract boolean load();
-    @Shadow(remap=false) public abstract void save();
-    @Shadow(remap=false) @Final private Runnable onLoad;
+    @Shadow(remap = false)
+    private @Nullable T loaded;
+
+    @Shadow(remap = false)
+    public abstract boolean load();
+
+    @Shadow(remap = false)
+    public abstract void save();
+
+    @Shadow(remap = false)
+    @Final
+    private Runnable onLoad;
 
     @Unique
     void setGameplayConfigFromNT(
@@ -37,27 +45,21 @@ public abstract class ConfigHandlerMixin<T extends ConfigMeta> implements Nostal
         serverData.instantEating = instantEat;
         if (preventHungerEffect) {
             serverData.hungerEffect = HungerEffectOption.DISABLED;
-        }
-        else if (currentServerData.hungerEffect() != HungerEffectOption.DISABLED) {
+        } else if (currentServerData.hungerEffect() != HungerEffectOption.DISABLED) {
             serverData.hungerEffect = currentServerData.hungerEffect();
-        }
-        else if (disableHunger) {
+        } else if (disableHunger) {
             serverData.hungerEffect = HungerEffectOption.REPLACED_WITH_OTHER;
-        }
-        else {
+        } else {
             serverData.hungerEffect = HungerEffectOption.VANILLA;
         }
 
         if (disableSprint) {
             serverData.sprinting = SprintingOption.DISABLED;
-        }
-        else if (currentServerData.sprinting() != SprintingOption.DISABLED) {
+        } else if (currentServerData.sprinting() != SprintingOption.DISABLED) {
             serverData.sprinting = currentServerData.sprinting();
-        }
-        else if (disableHunger) {
+        } else if (disableHunger) {
             serverData.sprinting = SprintingOption.LIMITED_BY_HEALTH;
-        }
-        else {
+        } else {
             serverData.sprinting = SprintingOption.VANILLA;
         }
 
@@ -92,8 +94,7 @@ public abstract class ConfigHandlerMixin<T extends ConfigMeta> implements Nostal
             clientData.hideHungerBar = clientConfig.eyeCandy.hideHungerBar;
             clientData.hideExperienceBar = clientConfig.eyeCandy.hideExperienceBar;
             MelancholicConfig.setClientData(clientData.getImmutable());
-        }
-        else if (this.loaded instanceof ServerConfig serverConfig) {
+        } else if (this.loaded instanceof ServerConfig serverConfig) {
             var gameplayConfig = serverConfig.gameplay;
             setGameplayConfigFromNT(
                     gameplayConfig.disableHunger, gameplayConfig.preventHungerEffect, gameplayConfig.disableSprint,
@@ -135,8 +136,7 @@ public abstract class ConfigHandlerMixin<T extends ConfigMeta> implements Nostal
                 clientConfig.eyeCandy.hideHungerBar = clientData.hideHungerBar();
                 clientConfig.eyeCandy.hideExperienceBar = clientData.hideExperienceBar();
             }
-        }
-        else if (this.loaded instanceof ServerConfig serverConfig) {
+        } else if (this.loaded instanceof ServerConfig serverConfig) {
             var gameplayConfig = serverConfig.gameplay;
             gameplayConfig.disableHunger = disableHunger;
             gameplayConfig.preventHungerEffect = preventHungerEffect;
@@ -150,9 +150,9 @@ public abstract class ConfigHandlerMixin<T extends ConfigMeta> implements Nostal
     }
 
     @Inject(
-        method="save",
-        at=@At("RETURN"),
-        remap=false
+            method = "save",
+            at = @At("RETURN"),
+            remap = false
     )
     void save_nostalgic_tweaks_config(CallbackInfo ci) {
         setConfigFromNT();

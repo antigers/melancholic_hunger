@@ -16,12 +16,12 @@ import java.util.concurrent.TimeUnit;
 public interface TweakPacketMixin {
 
     @WrapOperation(
-            method="changeOnServer",
-            at=@At(
-                    value="INVOKE",
-                    target="Lmod/adrenix/nostalgic/util/server/ServerTimer;runAfter(JLjava/util/concurrent/TimeUnit;Ljava/lang/Runnable;)V"
+            method = "changeOnServer",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lmod/adrenix/nostalgic/util/server/ServerTimer;runAfter(JLjava/util/concurrent/TimeUnit;Ljava/lang/Runnable;)V"
             ),
-            remap=false
+            remap = false
     )
     private void melancholicHunger$changeOnServer(
             ServerTimer instance, long l, TimeUnit timeUnit, Runnable runnable, Operation<Void> original
@@ -38,12 +38,12 @@ public interface TweakPacketMixin {
     }
 
     @WrapOperation(
-            method="changeOnClient",
-            at=@At(
-                    value="INVOKE",
-                    target="Lmod/adrenix/nostalgic/util/client/timer/ClientTimer;runAfter(JLjava/util/concurrent/TimeUnit;Ljava/lang/Runnable;)V"
+            method = "changeOnClient",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lmod/adrenix/nostalgic/util/client/timer/ClientTimer;runAfter(JLjava/util/concurrent/TimeUnit;Ljava/lang/Runnable;)V"
             ),
-            remap=false
+            remap = false
     )
     private void melancholicHunger$changeOnClient(
             ClientTimer instance, long l, TimeUnit timeUnit, Runnable runnable, Operation<Void> original

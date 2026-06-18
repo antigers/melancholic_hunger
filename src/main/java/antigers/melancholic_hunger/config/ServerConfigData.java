@@ -21,7 +21,7 @@ public class ServerConfigData {
     public Integer nourishmentHealthBoostHeartsCount;
     public Float nourishmentRegenSpeedMultiplier;
 
-    public record ImmutableServerConfigData (
+    public record ImmutableServerConfigData(
             Boolean disableHunger,
             HungerEffectOption hungerEffect,
             String hungerReplacementEffect,
@@ -39,7 +39,8 @@ public class ServerConfigData {
             Boolean showFoodItemTooltips,
             Integer nourishmentHealthBoostHeartsCount,
             Float nourishmentRegenSpeedMultiplier
-    ) {}
+    ) {
+    }
 
     public ImmutableServerConfigData getImmutable() {
         return new ImmutableServerConfigData(

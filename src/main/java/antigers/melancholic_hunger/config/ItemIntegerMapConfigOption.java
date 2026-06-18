@@ -59,8 +59,7 @@ public class ItemIntegerMapConfigOption extends ConfigOption<List<String>, Boole
                     if (translationToItem.containsKey(key)) {
                         if (translationToItemsList.containsKey(key)) {
                             translationToItemsList.get(key).add(item);
-                        }
-                        else {
+                        } else {
                             translationToItemsList.put(
                                     key, new ArrayList<>(List.of(translationToItem.get(key), item))
                             );
@@ -174,7 +173,7 @@ public class ItemIntegerMapConfigOption extends ConfigOption<List<String>, Boole
                 .description(buildOptionDescription(null))
                 .addListener(
                         (opt, event) ->
-                                ((CustomYACLListOption)opt).melancholic_hunger$updateDescription(
+                                ((CustomYACLListOption) opt).melancholic_hunger$updateDescription(
                                         buildOptionDescription(null)
                                 )
                 )

@@ -13,7 +13,8 @@ import java.util.Set;
 
 @Mixin(Tweak.class)
 public abstract class TweakMixin<T> {
-    @Shadow(remap=false) private String jsonId;
+    @Shadow(remap = false)
+    private String jsonId;
 
     @Unique
     Set<String> overwrittenOptions = Set.of(
@@ -22,10 +23,10 @@ public abstract class TweakMixin<T> {
     );
 
     @Inject(
-        method="get",
-        at=@At("RETURN"),
-        cancellable=true,
-        remap=false
+            method = "get",
+            at = @At("RETURN"),
+            cancellable = true,
+            remap = false
     )
     void makeTweaksConstantlyFalse(CallbackInfoReturnable<T> callback) {
         if (this.jsonId == null) {

@@ -1,33 +1,33 @@
 plugins {
-	id 'net.fabricmc.fabric-loom' version "${loom_version}"
-	id 'maven-publish'
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
+    id 'maven-publish'
 }
 
 version = project.mod_version
 group = project.maven_group
 
 base {
-	archivesName = project.archives_base_name
+    archivesName = project.archives_base_name
 }
 
 repositories {
-	// Add repositories to retrieve artifacts from in here.
-	// You should only use this when depending on other mods because
-	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
-	// for more information about repositories.
-	maven {
-		name = 'Xander Maven'
-		url = 'https://maven.isxander.dev/releases'
-	}
-	maven {
-		name = 'TerraformersMC'
-		url = 'https://maven.terraformersmc.com/'
-	}
-	//	maven {
-	//		name = "Architectury"
-	//		url = "https://maven.architectury.dev/"
-	//	}
+    // Add repositories to retrieve artifacts from in here.
+    // You should only use this when depending on other mods because
+    // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
+    // See https://docs.gradle.org/current/userguide/declaring_repositories.html
+    // for more information about repositories.
+    maven {
+        name = 'Xander Maven'
+        url = 'https://maven.isxander.dev/releases'
+    }
+    maven {
+        name = 'TerraformersMC'
+        url = 'https://maven.terraformersmc.com/'
+    }
+    //	maven {
+    //		name = "Architectury"
+    //		url = "https://maven.architectury.dev/"
+    //	}
     exclusiveContent {
         forRepository {
             maven {
@@ -39,98 +39,98 @@ repositories {
             includeGroup "maven.modrinth"
         }
     }
-	exclusiveContent {
-		forRepository {
-			maven {
-				url = "https://jitpack.io"
-			}
-		}
-		filter {
-			includeGroup "com.github.Chocohead"
-		}
-	}
+    exclusiveContent {
+        forRepository {
+            maven {
+                url = "https://jitpack.io"
+            }
+        }
+        filter {
+            includeGroup "com.github.Chocohead"
+        }
+    }
 }
 
 dependencies {
-	// To change the versions see the gradle.properties file
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    // To change the versions see the gradle.properties file
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	// Fabric API. This is technically optional, but you probably want it anyway.
-	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+    // Fabric API. This is technically optional, but you probably want it anyway.
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
-	// YACL
-	implementation "dev.isxander:yet-another-config-lib:${project.YACL_version}"
+    // YACL
+    implementation "dev.isxander:yet-another-config-lib:${project.YACL_version}"
 
-	// ModMenu compatibility
-	api "com.terraformersmc:modmenu:${project.mod_menu_version}"
+    // ModMenu compatibility
+    api "com.terraformersmc:modmenu:${project.mod_menu_version}"
 
-	// Architectury (Nostalgic Tweaks dependency)
-	//	modApi "dev.architectury:architectury-fabric:${project.architectury_version}"
+    // Architectury (Nostalgic Tweaks dependency)
+    //	modApi "dev.architectury:architectury-fabric:${project.architectury_version}"
 
-	// Nostalgic Tweaks compatibility
-	//	modImplementation "maven.modrinth:nostalgic-tweaks:${project.nostalgic_tweaks_version}"
+    // Nostalgic Tweaks compatibility
+    //	modImplementation "maven.modrinth:nostalgic-tweaks:${project.nostalgic_tweaks_version}"
 
     // Raised compatibility
-	compileOnly "maven.modrinth:raised:${project.raised_version}"
+    compileOnly "maven.modrinth:raised:${project.raised_version}"
 
-	// Manningham Mills (Farmer's Delight dependency)
-	implementation("com.github.Chocohead:Fabric-ASM:${manningham_mills_version}") {
-		exclude (group: "net.fabricmc.fabric-api")
-	}
+    // Manningham Mills (Farmer's Delight dependency)
+    implementation("com.github.Chocohead:Fabric-ASM:${manningham_mills_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
 
-	// Farmer's Delight compatibility
-	compileOnly "maven.modrinth:farmers-delight-refabricated:${project.farmers_delight_version}"
+    // Farmer's Delight compatibility
+    compileOnly "maven.modrinth:farmers-delight-refabricated:${project.farmers_delight_version}"
 }
 
 processResources {
-	inputs.property "version", project.version
+    inputs.property "version", project.version
 
-	filesMatching("fabric.mod.json") {
-		expand "version": inputs.properties.version
-	}
+    filesMatching("fabric.mod.json") {
+        expand "version": inputs.properties.version
+    }
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 25
+    it.options.release = 25
 }
 
 java {
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-	// if it is present.
-	// If you remove this line, sources will not be generated.
-	withSourcesJar()
+    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+    // if it is present.
+    // If you remove this line, sources will not be generated.
+    withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_25
-	targetCompatibility = JavaVersion.VERSION_25
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 jar {
-	inputs.property "archivesName", project.base.archivesName
-	from("LICENSE") {
-		rename { "${it}_${inputs.properties.archivesName}"}
-	}
+    inputs.property "archivesName", project.base.archivesName
+    from("LICENSE") {
+        rename { "${it}_${inputs.properties.archivesName}" }
+    }
 }
 
 // configure the maven publication
 publishing {
-	publications {
-		create("mavenJava", MavenPublication) {
-			artifactId = project.archives_base_name
-			from components.java
-		}
-	}
+    publications {
+        create("mavenJava", MavenPublication) {
+            artifactId = project.archives_base_name
+            from components.java
+        }
+    }
 
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
-	}
+    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+    repositories {
+        // Add repositories to publish to here.
+        // Notice: This block does NOT have the same function as the block in the top level.
+        // The repositories here will be used for publishing your artifact, not for
+        // retrieving dependencies.
+    }
 }
 
 loom {
-	// adding access widener to the build
-	accessWidenerPath = file("src/main/resources/melancholic_hunger.accesswidener")
+    // adding access widener to the build
+    accessWidenerPath = file("src/main/resources/melancholic_hunger.accesswidener")
 }

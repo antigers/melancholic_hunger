@@ -19,7 +19,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class RestoredHeartsDrawHelper {
-    public record RenderedHeart(Identifier texture, boolean isAtlasTexture, Color color) {}
+    public record RenderedHeart(Identifier texture, boolean isAtlasTexture, Color color) {
+    }
 
     public static final Identifier WHITE_FULL_HEART_TEXTURE = Identifier.fromNamespaceAndPath(
             MelancholicHunger.MOD_ID, "white_full_heart_texture"
@@ -74,12 +75,14 @@ public class RestoredHeartsDrawHelper {
             Color regeneratedHeartsOverlayColor = MelancholicConfig.regeneratedHeartsOverlayColor();
             Color regeneratingHeartColor = new Color(
                     regeneratedHeartsOverlayColor.getRed(), regeneratedHeartsOverlayColor.getGreen(), regeneratedHeartsOverlayColor.getBlue(),
-                    (int)Math.floor(calculateRegeneratingHeartOpacity() * 255F)
+                    (int) Math.floor(calculateRegeneratingHeartOpacity() * 255F)
             );
             switch (MelancholicConfig.regeneratedHeartsTexture()) {
                 case SINGLE_COLOR -> regeneratedHeartGetter = isHalf -> getWhiteHeart(isHalf, regeneratingHeartColor);
-                case ORIGINAL -> regeneratedHeartGetter = isHalf -> getAtlasSpriteHeart(heartType, isHalf, false, regeneratingHeartColor);
-                case BLINKING -> regeneratedHeartGetter = isHalf -> getAtlasSpriteHeart(heartType, isHalf, true, regeneratingHeartColor);
+                case ORIGINAL ->
+                        regeneratedHeartGetter = isHalf -> getAtlasSpriteHeart(heartType, isHalf, false, regeneratingHeartColor);
+                case BLINKING ->
+                        regeneratedHeartGetter = isHalf -> getAtlasSpriteHeart(heartType, isHalf, true, regeneratingHeartColor);
             }
         }
 
@@ -119,11 +122,11 @@ public class RestoredHeartsDrawHelper {
         float minOpacity = MelancholicConfig.regeneratedHeartsOpacityMin();
         float amplitude = MelancholicConfig.regeneratedHeartsOpacityMax() - minOpacity;
         int period = MelancholicConfig.regeneratedHeartsBlinkingPeriod();
-		return Mth.abs(
-				Mth.sin(
-						(float)(Util.getMillis() % period) / (float)period * (float)(Math.PI * 2)
-				) * amplitude
-		) + minOpacity;
+        return Mth.abs(
+                Mth.sin(
+                        (float) (Util.getMillis() % period) / (float) period * (float) (Math.PI * 2)
+                ) * amplitude
+        ) + minOpacity;
     }
 
     public Pair<RenderedHeart, RenderedHeart> heartsToDraw() {
@@ -134,7 +137,8 @@ public class RestoredHeartsDrawHelper {
         if (highlightRegeneratedHearts && consumedNutrition > 0 && heartsDiff <= consumedNutrition) {
             // this heart is regenerating
             boolean isHalf = heartsDiff == consumedNutrition;
-            RenderedHeart regeneratingHeart = regeneratedHeartGetter.apply(isHalf);;
+            RenderedHeart regeneratingHeart = regeneratedHeartGetter.apply(isHalf);
+            ;
             if (isHalf && highlightRestoredHearts && heldFoodNutrition > 0) {
                 // the left half of this heart is regenerating and the right half can be restored by held food
                 return new Pair<>(regeneratingHeart, restoredRightHalfHeartGetter.get());
@@ -152,8 +156,7 @@ public class RestoredHeartsDrawHelper {
     public void updateCurrentHeart() {
         if (absorption <= 0) {
             currentHeart -= 2;
-        }
-        else {
+        } else {
             absorption -= 2;
         }
     }

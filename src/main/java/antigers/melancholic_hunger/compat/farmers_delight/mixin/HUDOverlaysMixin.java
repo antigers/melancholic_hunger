@@ -16,29 +16,29 @@ import vectorwing.farmersdelight.client.gui.HUDOverlays;
 
 @Mixin(HUDOverlays.class)
 public class HUDOverlaysMixin {
-	@WrapOperation(
-			method="drawComfortOverlay",
-			at=@At(
-					value="INVOKE",
-					target="Lnet/minecraft/client/gui/GuiGraphicsExtractor;blit(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIFFIIII)V"
-			)
-	)
-	private static void melancholic_hunger$drawComfortOverlay(
-			GuiGraphicsExtractor graphics, RenderPipeline pipeline, Identifier atlas, int x, int y, float u, float v, int width, int height, int textureWidth, int textureHeight, Operation<Void> original
-	) {
-		DrawHudContext drawHudContext = (DrawHudContext) graphics;
-		y = drawHudContext.getHelper().addShakingIfNeeded(drawHudContext.getHealthBarY());
-		original.call(graphics, pipeline, atlas, x, y, u, v, width, height, textureWidth, textureHeight);
-	}
+    @WrapOperation(
+            method = "drawComfortOverlay",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blit(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIFFIIII)V"
+            )
+    )
+    private static void melancholic_hunger$drawComfortOverlay(
+            GuiGraphicsExtractor graphics, RenderPipeline pipeline, Identifier atlas, int x, int y, float u, float v, int width, int height, int textureWidth, int textureHeight, Operation<Void> original
+    ) {
+        DrawHudContext drawHudContext = (DrawHudContext) graphics;
+        y = drawHudContext.getHelper().addShakingIfNeeded(drawHudContext.getHealthBarY());
+        original.call(graphics, pipeline, atlas, x, y, u, v, width, height, textureWidth, textureHeight);
+    }
 
-	@WrapMethod(method="drawNourishmentOverlay")
-	private static void melancholic_hunger$drawNourishmentOverlay(
-			FoodData foodData, Minecraft minecraft, GuiGraphicsExtractor graphics, int right, int top, boolean naturalHealing, Operation<Void> original
-	) {
-		if (MelancholicConfig.disableHunger()) {
-			return;
-		}
-		DrawHudContext drawHudContext = (DrawHudContext) graphics;
-		original.call(foodData, minecraft, graphics, right, top - drawHudContext.getHudExperienceOffset(), naturalHealing);
-	}
+    @WrapMethod(method = "drawNourishmentOverlay")
+    private static void melancholic_hunger$drawNourishmentOverlay(
+            FoodData foodData, Minecraft minecraft, GuiGraphicsExtractor graphics, int right, int top, boolean naturalHealing, Operation<Void> original
+    ) {
+        if (MelancholicConfig.disableHunger()) {
+            return;
+        }
+        DrawHudContext drawHudContext = (DrawHudContext) graphics;
+        original.call(foodData, minecraft, graphics, right, top - drawHudContext.getHudExperienceOffset(), naturalHealing);
+    }
 }

@@ -10,19 +10,19 @@ import net.minecraft.world.level.block.CakeBlock;
 import java.util.Optional;
 
 public class EdibleBlockFoods {
-	public static final FoodProperties CAKE_PROPERTIES = new FoodProperties.Builder().nutrition(2).saturationModifier(0.1F).build();
+    public static final FoodProperties CAKE_PROPERTIES = new FoodProperties.Builder().nutrition(2).saturationModifier(0.1F).build();
 
-	public static Optional<FoodProperties> getFoodProperties(Item item) {
-		if (item instanceof BlockItem blockItem) {
-			if (blockItem.getBlock() instanceof CakeBlock) {
-				FoodPropertiesAdder foodPropertiesAdder = new FoodPropertiesAdder();
-				foodPropertiesAdder.add(CAKE_PROPERTIES, CakeBlock.MAX_BITES + 1);
-				return Optional.of(foodPropertiesAdder.getResult());
-			}
-			if (InstalledMods.FARMERS_DELIGHT) {
-				return FarmersDelightEdibleBlockFoods.getFoodProperties(blockItem);
-			}
-		}
-		return Optional.empty();
-	}
+    public static Optional<FoodProperties> getFoodProperties(Item item) {
+        if (item instanceof BlockItem blockItem) {
+            if (blockItem.getBlock() instanceof CakeBlock) {
+                FoodPropertiesAdder foodPropertiesAdder = new FoodPropertiesAdder();
+                foodPropertiesAdder.add(CAKE_PROPERTIES, CakeBlock.MAX_BITES + 1);
+                return Optional.of(foodPropertiesAdder.getResult());
+            }
+            if (InstalledMods.FARMERS_DELIGHT) {
+                return FarmersDelightEdibleBlockFoods.getFoodProperties(blockItem);
+            }
+        }
+        return Optional.empty();
+    }
 }

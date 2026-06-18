@@ -75,7 +75,8 @@ class ConfigOption<T, U> {
     private final boolean isServerOption;
     private boolean playerHasPermission;
 
-    @Nullable private ConfigOptionDependency<U> dependency;
+    @Nullable
+    private ConfigOptionDependency<U> dependency;
 
     public ConfigOption(
             String name, T defaultValue, boolean nostalgicTweaksRelated, boolean isServerOption,
@@ -146,8 +147,7 @@ class ConfigOption<T, U> {
         }
         if (!playerHasPermission) {
             addOpPrivilegesRequiredToDescription(descriptionBuilder);
-        }
-        else if (dependency != null) {
+        } else if (dependency != null) {
             var unmatchingDependency = dependency.getDependencyWithUnmatchingPendingValue();
             if (unmatchingDependency != null) {
                 descriptionBuilder.text(

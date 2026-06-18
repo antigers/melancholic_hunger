@@ -13,11 +13,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Screen.class)
 public abstract class ScreenMixin extends AbstractContainerEventHandler {
-    @Shadow protected Minecraft minecraft;
+    @Shadow
+    protected Minecraft minecraft;
 
     @Inject(
-            method="extractTransparentBackground",
-            at=@At("TAIL")
+            method = "extractTransparentBackground",
+            at = @At("TAIL")
     )
     public void melancholic_hunger$renderExperienceOnTopOfBackground(GuiGraphicsExtractor graphics, CallbackInfo callback) {
         ExperienceHudRenderer gui = (ExperienceHudRenderer) this.minecraft.gui.hud;

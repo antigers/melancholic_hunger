@@ -12,16 +12,16 @@ import vectorwing.farmersdelight.client.gui.HUDOverlays;
 
 @Mixin(HUDOverlays.ComfortOverlay.class)
 public class ComfortOverlayMixin {
-	@WrapOperation(
-			method="render",
-			at=@At(
-					value="INVOKE",
-					target="Lnet/minecraft/world/food/FoodData;getSaturationLevel()F"
-			)
-	)
-	private float melancholic_hunger$comfortEffectHUDSaturationCheck(
-			FoodData instance, Operation<Float> original, @Local(name = "player") Player player
-	) {
-		return ComfortEffectHandler.shouldApply(player) ? 0.0F : 1.0F;
-	}
+    @WrapOperation(
+            method = "render",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/food/FoodData;getSaturationLevel()F"
+            )
+    )
+    private float melancholic_hunger$comfortEffectHUDSaturationCheck(
+            FoodData instance, Operation<Float> original, @Local(name = "player") Player player
+    ) {
+        return ComfortEffectHandler.shouldApply(player) ? 0.0F : 1.0F;
+    }
 }

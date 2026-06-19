@@ -439,7 +439,7 @@ public class MelancholicConfig {
                         .name(Component.translatable(CONFIG_PREFIX + "hunger_group_name"))
                         .description(OptionDescription.of(Component.translatable(CONFIG_PREFIX + "hunger_group_description")))
                         .option(DISABLE_HUNGER.buildYACLOption(MelancholicConfig::createBooleanController))
-                        .optionIf(InstalledMods.NOSTALGIC_TWEAKS, HIDE_HUNGER_BAR.buildYACLOption(MelancholicConfig::createBooleanController))
+                        .optionIf(InstalledMods.NOSTALGIC_TWEAKS, () -> HIDE_HUNGER_BAR.buildYACLOption(MelancholicConfig::createBooleanController))
                         .option(HUNGER_EFFECT.buildYACLOption(
                                 option -> EnumControllerBuilder.create(option).enumClass(HungerEffectOption.class)
                                         .formatValue(
@@ -534,7 +534,7 @@ public class MelancholicConfig {
         return ConfigCategory.createBuilder()
                 .name(Component.translatable(CONFIG_PREFIX + "hud_category_name"))
                 .tooltip(Component.translatable(CONFIG_PREFIX + "hud_category_tooltip"))
-                .groupIf(InstalledMods.NOSTALGIC_TWEAKS, OptionGroup.createBuilder()
+                .groupIf(InstalledMods.NOSTALGIC_TWEAKS, () -> OptionGroup.createBuilder()
                         .name(Component.translatable(CONFIG_PREFIX + "hud_hunger_bar_group_name"))
                         .description(OptionDescription.of(Component.translatable(CONFIG_PREFIX + "hud_hunger_bar_group_description")))
                         .option(HIDE_HUNGER_BAR.buildYACLOption(MelancholicConfig::createBooleanController))
@@ -690,7 +690,7 @@ public class MelancholicConfig {
                 .category(buildGameMechanicsCategory())
                 .category(buildHUDCategory())
                 .category(buildFoodItemsCategory())
-                .categoryIf(InstalledMods.FARMERS_DELIGHT, buildFarmersDelightCategory())
+                .categoryIf(InstalledMods.FARMERS_DELIGHT, MelancholicConfig::buildFarmersDelightCategory)
                 .save(() -> {
                     var client = Minecraft.getInstance();
                     boolean hasSingleplayerServer = client.hasSingleplayerServer();

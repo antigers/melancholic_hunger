@@ -15,31 +15,31 @@ import vectorwing.farmersdelight.client.gui.ComfortHealthOverlay;
 
 @Mixin(ComfortHealthOverlay.class)
 public class ComfortHealthOverlayMixin {
-	@WrapOperation(
-			method="renderComfortOverlay",
-			at=@At(
-					value="INVOKE",
-					target="Lnet/minecraft/world/food/FoodData;getSaturationLevel()F"
-			)
-	)
-	private static float melancholic_hunger$comfortEffectHUDSaturationCheck(
-			FoodData instance, Operation<Float> original, @Local(name = "player") Player player
-	) {
-		return ComfortEffectHandler.shouldApply(player) ? 0.0F : 1.0F;
-	}
+    @WrapOperation(
+            method = "renderComfortOverlay",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/food/FoodData;getSaturationLevel()F"
+            )
+    )
+    private static float melancholic_hunger$comfortEffectHUDSaturationCheck(
+            FoodData instance, Operation<Float> original, @Local(name = "player") Player player
+    ) {
+        return ComfortEffectHandler.shouldApply(player) ? 0.0F : 1.0F;
+    }
 
-	@WrapOperation(
-			method="drawComfortOverlay",
-			at=@At(
-					value="INVOKE",
-					target="Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/ResourceLocation;IIIIII)V"
-			)
-	)
-	private static void melancholic_hunger$drawComfortOverlay(
-			GuiGraphics graphics, ResourceLocation atlasLocation, int x, int y, int uOffset, int vOffset, int uWidth, int vHeight, Operation<Void> original
-	) {
-		DrawHudContext drawHudContext = (DrawHudContext) graphics;
-		y = drawHudContext.getHelper().addShakingIfNeeded(drawHudContext.getHealthBarY());
-		original.call(graphics, atlasLocation, x, y, uOffset, vOffset, uWidth, vHeight);
-	}
+    @WrapOperation(
+            method = "drawComfortOverlay",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/ResourceLocation;IIIIII)V"
+            )
+    )
+    private static void melancholic_hunger$drawComfortOverlay(
+            GuiGraphics graphics, ResourceLocation atlasLocation, int x, int y, int uOffset, int vOffset, int uWidth, int vHeight, Operation<Void> original
+    ) {
+        DrawHudContext drawHudContext = (DrawHudContext) graphics;
+        y = drawHudContext.getHelper().addShakingIfNeeded(drawHudContext.getHealthBarY());
+        original.call(graphics, atlasLocation, x, y, uOffset, vOffset, uWidth, vHeight);
+    }
 }

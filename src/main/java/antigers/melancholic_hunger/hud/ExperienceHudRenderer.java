@@ -4,5 +4,6 @@ import net.minecraft.client.gui.GuiGraphics;
 
 public interface ExperienceHudRenderer {
     void melancholic_hunger$renderExperienceHud(GuiGraphics drawContext);
+
     void melancholic_hunger$onAddExperience();
 }

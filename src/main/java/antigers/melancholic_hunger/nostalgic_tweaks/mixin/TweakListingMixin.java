@@ -10,12 +10,14 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(TweakListing.class)
 public class TweakListingMixin<V, T extends Listing<V, T>> {
-    @Shadow(remap=false) @Final private T diskList;
+    @Shadow(remap = false)
+    @Final
+    private T diskList;
 
     /**
      * setDisk always clears the value, even if value is the same
      */
-    @WrapMethod(method="setDisk(Lmod/adrenix/nostalgic/tweak/listing/Listing;)V", remap = false)
+    @WrapMethod(method = "setDisk(Lmod/adrenix/nostalgic/tweak/listing/Listing;)V", remap = false)
     private void melancholic_hunger$setDisk(T value, Operation<Void> original) {
         if (this.diskList != value) {
             original.call(value);

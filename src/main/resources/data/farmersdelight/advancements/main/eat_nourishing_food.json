@@ -32,7 +32,8 @@
     },
     "requirements": [
         [
-            "nourishment", "nourishment_health_boost"
+            "nourishment",
+            "nourishment_health_boost"
         ]
     ],
     "sends_telemetry_event": true

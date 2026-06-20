@@ -4,6 +4,7 @@ import antigers.melancholic_hunger.components.Components;
 import antigers.melancholic_hunger.config.ConfigNetworkHandler;
 import antigers.melancholic_hunger.compat.farmers_delight.FarmersDelightCompatRegistrator;
 import antigers.melancholic_hunger.config.MelancholicConfig;
+import antigers.melancholic_hunger.food.FoodItemStacks;
 import antigers.melancholic_hunger.tooltip.FoodItemTooltips;
 import net.fabricmc.api.ModInitializer;
 
@@ -25,6 +26,7 @@ public class MelancholicHunger implements ModInitializer {
         if (ModLoader.isClientside()) {
             FoodItemTooltips.register();
         }
+        FoodItemStacks.register();
         Components.register();
         ConfigNetworkHandler.register();
         FarmersDelightCompatRegistrator.register();

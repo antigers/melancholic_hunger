@@ -35,6 +35,7 @@
     "screen.melancholic_hunger.config.dependency_required_value_enabled": "включена",
     "screen.melancholic_hunger.config.dependency_required_value_not_enabled": "не включена",
     "screen.melancholic_hunger.config.dependency_required_value_not_set_to": "не установлена в значение \"%s\"",
+    "screen.melancholic_hunger.config.requires_game_reload_option": "Требуется перезагрузка игры для корректного применения этой опции!",
     "screen.melancholic_hunger.config.option.disableHunger.name": "Отключить голод",
     "screen.melancholic_hunger.config.option.disableHunger.description": "Отключает механику голода",
     "screen.melancholic_hunger.config.option.hideHungerBar.name": "Спрятать полоску голода",

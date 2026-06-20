@@ -17,7 +17,7 @@ public class EffectsInInventoryMixin {
             method = "extractEffects",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/Gui;getMobEffectSprite(Lnet/minecraft/core/Holder;)Lnet/minecraft/resources/Identifier;"
+                    target = "Lnet/minecraft/client/gui/Hud;getMobEffectSprite(Lnet/minecraft/core/Holder;)Lnet/minecraft/resources/Identifier;"
             )
     )
     private Identifier melancholic_hunger$getInventoryEffectSprite(Holder<MobEffect> effect, Operation<Identifier> original) {

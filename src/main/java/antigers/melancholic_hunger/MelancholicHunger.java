@@ -5,6 +5,7 @@ import antigers.melancholic_hunger.compat.farmers_delight.FarmersDelightCompatRe
 import antigers.melancholic_hunger.config.MelancholicConfig;
 import antigers.melancholic_hunger.components.Components;
 
+import antigers.melancholic_hunger.food.FoodItemStacks;
 import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 
@@ -27,6 +28,7 @@ public class MelancholicHunger {
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
 
+        FoodItemStacks.register(modEventBus);
         Components.register(modEventBus);
         ConfigNetworkHandler.register(modEventBus);
         FarmersDelightCompatRegistrator.register(modEventBus);

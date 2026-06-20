@@ -34,6 +34,7 @@
     "screen.melancholic_hunger.config.dependency_required_value_enabled": "enabled",
     "screen.melancholic_hunger.config.dependency_required_value_not_enabled": "not enabled",
     "screen.melancholic_hunger.config.dependency_required_value_not_set_to": "not set to \"%s\"",
+    "screen.melancholic_hunger.config.requires_game_reload_option": "A game restart is required for this option to apply correctly!",
     "screen.melancholic_hunger.config.option.disableHunger.name": "Disable hunger",
     "screen.melancholic_hunger.config.option.disableHunger.description": "If enabled, removes the hunger mechanic",
     "screen.melancholic_hunger.config.option.hideHungerBar.name": "Hide hunger bar",

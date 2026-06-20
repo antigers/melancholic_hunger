@@ -19,6 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(LocalPlayer.class)
 public abstract class LocalPlayerMixin extends AbstractClientPlayer {
     @Shadow @Final protected Minecraft minecraft;
+    @Shadow public abstract boolean isUnderWater();
 
     public LocalPlayerMixin(ClientLevel clientLevel, GameProfile profile) {
         super(clientLevel, profile);
@@ -34,7 +35,10 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
         }
         switch (MelancholicConfig.sprinting()) {
             case DISABLED -> {
-                return false;
+                // fast swimming is not blocked by this config
+                if (!this.isUnderWater()) {
+                    return false;
+                }
             }
             case LIMITED_BY_HEALTH -> {
                 if (this.getHealth() <= MelancholicConfig.sprintingHealthLimit()) {

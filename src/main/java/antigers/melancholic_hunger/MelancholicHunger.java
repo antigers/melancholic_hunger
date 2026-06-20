@@ -18,51 +18,46 @@ import org.slf4j.Logger;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(MelancholicHunger.MOD_ID)
-public class MelancholicHunger
-{
-	// Define mod id in a common place for everything to reference
-	public static final String MOD_ID = "melancholic_hunger";
-	// Directly reference a slf4j logger
-	public static final Logger LOGGER = LogUtils.getLogger();
+public class MelancholicHunger {
+    // Define mod id in a common place for everything to reference
+    public static final String MOD_ID = "melancholic_hunger";
+    // Directly reference a slf4j logger
+    public static final Logger LOGGER = LogUtils.getLogger();
 
-	public MelancholicHunger(FMLJavaModLoadingContext context)
-	{
-		IEventBus modEventBus = context.getModEventBus();
+    public MelancholicHunger(FMLJavaModLoadingContext context) {
+        IEventBus modEventBus = context.getModEventBus();
 
-		// Register the commonSetup method for modloading
-		modEventBus.addListener(this::commonSetup);
+        // Register the commonSetup method for modloading
+        modEventBus.addListener(this::commonSetup);
 
-		// Register YACL config screen
-		context.registerExtensionPoint(
-				ConfigScreenHandler.ConfigScreenFactory.class,
-				() -> new ConfigScreenHandler.ConfigScreenFactory(
-						(mc, parent) -> MelancholicConfig.getYACLInstance().generateScreen(parent)
-				)
-		);
+        // Register YACL config screen
+        context.registerExtensionPoint(
+                ConfigScreenHandler.ConfigScreenFactory.class,
+                () -> new ConfigScreenHandler.ConfigScreenFactory(
+                        (mc, parent) -> MelancholicConfig.getYACLInstance().generateScreen(parent)
+                )
+        );
 
-		// Registering custom player data components
-		PlayerComponents.register();
-		FarmersDelightCompatRegistrator.register(modEventBus);
-	}
+        // Registering custom player data components
+        PlayerComponents.register();
+        FarmersDelightCompatRegistrator.register(modEventBus);
+    }
 
-	private void commonSetup(final FMLCommonSetupEvent event)
-	{
-		MelancholicConfig.loadFromDisk();
-	}
+    private void commonSetup(final FMLCommonSetupEvent event) {
+        MelancholicConfig.loadFromDisk();
+    }
 
-	// You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
-	@Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-	public static class ClientModEvents
-	{
-		@SubscribeEvent
-		public static void onClientSetup(FMLClientSetupEvent event)
-		{
-			FoodItemTooltips.register();
-			// Disables hud_batching in Immediately Fast, because it breaks hearts rendering
-			if (ModList.get().isLoaded("immediatelyfast")) {
-				ImmediatelyFast.config.hud_batching = false;
-				ImmediatelyFast.runtimeConfig.hud_batching = false;
-			}
-		}
-	}
+    // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
+    @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+    public static class ClientModEvents {
+        @SubscribeEvent
+        public static void onClientSetup(FMLClientSetupEvent event) {
+            FoodItemTooltips.register();
+            // Disables hud_batching in Immediately Fast, because it breaks hearts rendering
+            if (ModList.get().isLoaded("immediatelyfast")) {
+                ImmediatelyFast.config.hud_batching = false;
+                ImmediatelyFast.runtimeConfig.hud_batching = false;
+            }
+        }
+    }
 }

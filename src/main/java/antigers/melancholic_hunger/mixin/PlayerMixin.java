@@ -11,7 +11,9 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(Player.class)
 public abstract class PlayerMixin {
-    @Final @Shadow private Abilities abilities;
+    @Final
+    @Shadow
+    private Abilities abilities;
 
     /**
      * Doesn't allow for the player to eat food if health is full
@@ -21,6 +23,6 @@ public abstract class PlayerMixin {
         if (this.abilities.invulnerable || ignoreHunger) {
             return true;
         }
-        return HealthRegenerationComponent.get((Player)(Object)this).canEat();
+        return HealthRegenerationComponent.get((Player) (Object) this).canEat();
     }
 }

@@ -127,7 +127,7 @@ public class MelancholicConfig {
     ).addDependency(HIGHLIGHT_RESTORED_HEARTS, true);
 
     private static final ConfigOption<Boolean, Boolean> HIGHLIGHT_REGENERATED_HEARTS = new ConfigOption<Boolean, Boolean>(
-            "highlightRegeneratedHearts",true, false, false,
+            "highlightRegeneratedHearts", true, false, false,
             () -> clientData.highlightRegeneratedHearts, val -> clientData.highlightRegeneratedHearts = val
     ).addDependency(GRADUAL_HEALTH_REGENERATION, true);
 
@@ -442,7 +442,7 @@ public class MelancholicConfig {
                         .name(Component.translatable(CONFIG_PREFIX + "hunger_group_name"))
                         .description(OptionDescription.of(Component.translatable(CONFIG_PREFIX + "hunger_group_description")))
                         .option(DISABLE_HUNGER.buildYACLOption(MelancholicConfig::createBooleanController))
-                        .optionIf(InstalledMods.NOSTALGIC_TWEAKS, HIDE_HUNGER_BAR.buildYACLOption(MelancholicConfig::createBooleanController))
+                        .optionIf(InstalledMods.NOSTALGIC_TWEAKS, () -> HIDE_HUNGER_BAR.buildYACLOption(MelancholicConfig::createBooleanController))
                         .option(HUNGER_EFFECT.buildYACLOption(
                                 option -> EnumControllerBuilder.create(option).enumClass(HungerEffectOption.class)
                                         .formatValue(
@@ -537,7 +537,7 @@ public class MelancholicConfig {
         return ConfigCategory.createBuilder()
                 .name(Component.translatable(CONFIG_PREFIX + "hud_category_name"))
                 .tooltip(Component.translatable(CONFIG_PREFIX + "hud_category_tooltip"))
-                .groupIf(InstalledMods.NOSTALGIC_TWEAKS, OptionGroup.createBuilder()
+                .groupIf(InstalledMods.NOSTALGIC_TWEAKS, () -> OptionGroup.createBuilder()
                         .name(Component.translatable(CONFIG_PREFIX + "hud_hunger_bar_group_name"))
                         .description(OptionDescription.of(Component.translatable(CONFIG_PREFIX + "hud_hunger_bar_group_description")))
                         .option(HIDE_HUNGER_BAR.buildYACLOption(MelancholicConfig::createBooleanController))
@@ -686,7 +686,7 @@ public class MelancholicConfig {
                 .category(buildGameMechanicsCategory())
                 .category(buildHUDCategory())
                 .category(buildFoodItemsCategory())
-                .categoryIf(InstalledMods.FARMERS_DELIGHT, buildFarmersDelightCategory())
+                .categoryIf(InstalledMods.FARMERS_DELIGHT, MelancholicConfig::buildFarmersDelightCategory)
                 .save(() -> {
                     var client = Minecraft.getInstance();
                     boolean isSinglePlayer = client.isSingleplayer();
@@ -702,8 +702,7 @@ public class MelancholicConfig {
                         if (hasSingleplayerServer) {
                             ServerConfigComponent.syncAllPlayersExceptOf(player.getId());
                         }
-                    }
-                    else {
+                    } else {
                         // sending config to the server if in multiplayer
                         ServerConfigComponent.sendToServer();
                     }
@@ -812,39 +811,51 @@ public class MelancholicConfig {
     public static boolean disableHunger() {
         return serverData.disableHunger;
     }
+
     public static boolean hideHungerBar() {
         return clientData.hideHungerBar || disableHunger();
     }
+
     public static boolean highlightRegeneratedHearts() {
         return clientData.highlightRegeneratedHearts;
     }
+
     public static HeartTextureOption regeneratedHeartsTexture() {
         return clientData.regeneratedHeartsTexture;
     }
+
     public static Color regeneratedHeartsOverlayColor() {
         return clientData.regeneratedHeartsOverlayColor;
     }
+
     public static float regeneratedHeartsOpacityMin() {
         return clientData.regeneratedHeartsOpacityMin;
     }
+
     public static float regeneratedHeartsOpacityMax() {
         return clientData.regeneratedHeartsOpacityMax;
     }
+
     public static int regeneratedHeartsBlinkingPeriod() {
         return clientData.regeneratedHeartsBlinkingPeriod;
     }
+
     public static boolean highlightRestoredHearts() {
         return clientData.highlightRestoredHearts;
     }
+
     public static HeartTextureOption restoredHeartsTexture() {
         return clientData.restoredHeartsTexture;
     }
+
     public static Color restoredHeartsOverlayColor() {
         return clientData.restoredHeartsOverlayColor;
     }
+
     public static HungerEffectOption hungerEffect() {
         return serverData.hungerEffect;
     }
+
     public static MobEffect hungerReplacementEffect() {
         MobEffect effect = BuiltInRegistries.MOB_EFFECT.get(
                 ResourceLocation.tryParse(serverData.hungerReplacementEffect)
@@ -855,21 +866,27 @@ public class MelancholicConfig {
         }
         return effect;
     }
+
     public static float hungerReplacementDurationMultiplier() {
         return serverData.hungerReplacementDurationMultiplier;
     }
+
     public static boolean gradualHealthRegeneration() {
         return serverData.gradualHealthRegeneration;
     }
+
     public static boolean saturationBasedRegeneration() {
         return serverData.saturationBasedRegeneration;
     }
+
     public static float gradualHealthRegenerationSpeed() {
         return serverData.gradualHealthRegenerationSpeed;
     }
+
     public static RegenerationAtFullHealthOption regenerationAtFullHealth() {
         return serverData.regenerationAtFullHealth;
     }
+
     public static boolean shouldInstantlyEat(Item item) {
         if (!serverData.instantEating) {
             return false;
@@ -879,9 +896,11 @@ public class MelancholicConfig {
         }
         return true;
     }
+
     public static boolean showFoodItemTooltips() {
         return serverData.showFoodItemTooltips;
     }
+
     public static Integer getItemStackSize(ItemStack itemStack) {
         var itemId = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).toString();
         if (!serverData.useCustomFoodStackSizes) {
@@ -895,27 +914,48 @@ public class MelancholicConfig {
         }
         return null;
     }
+
     public static SprintingOption sprinting() {
         return serverData.sprinting;
     }
+
     public static int sprintingHealthLimit() {
         return serverData.sprintingHealthLimit;
     }
+
     public static boolean hideExperienceBar() {
         return clientData.hideExperienceBar;
     }
+
     public static boolean showExperienceInInventory() {
         return clientData.showExperienceInInventory;
     }
+
     public static boolean showExperienceOnScreens() {
         return clientData.showExperienceOnScreens;
     }
+
     public static boolean showExperienceOnGain() {
         return clientData.showExperienceOnGain;
     }
-    public static boolean enableExperienceAnimation() {return clientData.enableExperienceAnimation;}
-    public static int experienceAnimationDuration() {return clientData.experienceAnimationDuration;}
-    public static boolean renderExperienceOverBackground() {return clientData.renderExperienceOverBackground;}
-    public static int nourishmentHealthBoostHeartsCount() {return serverData.nourishmentHealthBoostHeartsCount;}
-    public static float nourishmentRegenSpeedMultiplier() {return serverData.nourishmentRegenSpeedMultiplier;}
+
+    public static boolean enableExperienceAnimation() {
+        return clientData.enableExperienceAnimation;
+    }
+
+    public static int experienceAnimationDuration() {
+        return clientData.experienceAnimationDuration;
+    }
+
+    public static boolean renderExperienceOverBackground() {
+        return clientData.renderExperienceOverBackground;
+    }
+
+    public static int nourishmentHealthBoostHeartsCount() {
+        return serverData.nourishmentHealthBoostHeartsCount;
+    }
+
+    public static float nourishmentRegenSpeedMultiplier() {
+        return serverData.nourishmentRegenSpeedMultiplier;
+    }
 }

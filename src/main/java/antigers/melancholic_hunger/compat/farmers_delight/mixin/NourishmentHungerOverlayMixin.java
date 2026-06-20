@@ -12,13 +12,13 @@ import vectorwing.farmersdelight.client.gui.NourishmentHungerOverlay;
 
 @Mixin(NourishmentHungerOverlay.class)
 public class NourishmentHungerOverlayMixin {
-	@WrapMethod(method="drawNourishmentOverlay", remap=false)
-	private static void melancholic_hunger$drawNourishmentOverlay(
-			FoodData foodData, Minecraft minecraft, GuiGraphics graphics, int right, int top, boolean naturalHealing, Operation<Void> original
-	) {
-		if (MelancholicConfig.disableHunger()) {
-			return;
-		}
-		original.call(foodData, minecraft, graphics, right, top, naturalHealing);
-	}
+    @WrapMethod(method = "drawNourishmentOverlay", remap = false)
+    private static void melancholic_hunger$drawNourishmentOverlay(
+            FoodData foodData, Minecraft minecraft, GuiGraphics graphics, int right, int top, boolean naturalHealing, Operation<Void> original
+    ) {
+        if (MelancholicConfig.disableHunger()) {
+            return;
+        }
+        original.call(foodData, minecraft, graphics, right, top, naturalHealing);
+    }
 }

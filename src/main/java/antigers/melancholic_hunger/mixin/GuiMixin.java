@@ -31,10 +31,20 @@ import antigers.melancholic_hunger.hud.ExperienceHudRenderer;
 
 @Mixin(Gui.class)
 public abstract class GuiMixin implements ExperienceHudRenderer {
-    @Shadow @Final private Minecraft minecraft;
-    @Shadow private void renderExperienceBar(GuiGraphics context, int x) {};
-    @Shadow @Final private static ResourceLocation GUI_ICONS_LOCATION;
-    @Unique private final ExperienceBarAnimation melancholic_hunger$experienceBarAnimation = new ExperienceBarAnimation();
+    @Shadow
+    @Final
+    private Minecraft minecraft;
+
+    @Shadow
+    private void renderExperienceBar(GuiGraphics context, int x) {
+    }
+
+    ;
+    @Shadow
+    @Final
+    private static ResourceLocation GUI_ICONS_LOCATION;
+    @Unique
+    private final ExperienceBarAnimation melancholic_hunger$experienceBarAnimation = new ExperienceBarAnimation();
 
     public ExperienceBarAnimation melancholic_hunger$getExperienceBarAnimation() {
         return melancholic_hunger$experienceBarAnimation;
@@ -60,9 +70,9 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
      */
     @WrapOperation(
             method = "renderExperienceBar",
-            at=@At(
-                    value="INVOKE",
-                    target="Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/ResourceLocation;IIIIII)V"
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/ResourceLocation;IIIIII)V"
             )
     )
     private void melancholic_hunger$addExperienceBarShading(
@@ -99,11 +109,11 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
         var currentScreen = this.minecraft.screen;
         return (
                 (MelancholicConfig.showExperienceInInventory() && currentScreen instanceof InventoryScreen) ||
-                (MelancholicConfig.showExperienceOnScreens() && (
-                        currentScreen instanceof FurnaceScreen || currentScreen instanceof BlastFurnaceScreen
-                        || currentScreen instanceof SmokerScreen || currentScreen instanceof EnchantmentScreen
-                        || currentScreen instanceof AnvilScreen || currentScreen instanceof GrindstoneScreen
-                ))
+                        (MelancholicConfig.showExperienceOnScreens() && (
+                                currentScreen instanceof FurnaceScreen || currentScreen instanceof BlastFurnaceScreen
+                                        || currentScreen instanceof SmokerScreen || currentScreen instanceof EnchantmentScreen
+                                        || currentScreen instanceof AnvilScreen || currentScreen instanceof GrindstoneScreen
+                        ))
         );
     }
 
@@ -128,7 +138,7 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
     /**
      * Moves health bar down because experience bar is disabled
      */
-    @WrapMethod(method="renderHearts")
+    @WrapMethod(method = "renderHearts")
     private void melancholic_hunger$moveHealthBar(
             GuiGraphics drawContext, Player player, int x, int y, int lines,
             int regeneratingHeartIndex, float maxHealth, int lastHealth, int health, int absorption, boolean blinking,
@@ -166,10 +176,10 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
      * Draws amount of hearts that can be restored by eating currently held food item
      */
     @WrapOperation(
-            method="renderHearts",
-            at=@At(
-                    value="INVOKE",
-                    target="Lnet/minecraft/client/gui/Gui;renderHeart(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/gui/Gui$HeartType;IIIZZ)V"
+            method = "renderHearts",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/Gui;renderHeart(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/gui/Gui$HeartType;IIIZZ)V"
             )
     )
     private void melancholic_hunger$drawRestoredHearts(
@@ -196,18 +206,17 @@ public abstract class GuiMixin implements ExperienceHudRenderer {
                 // drawing second heart on top of the first
                 melancholic_hunger$drawHeartWithColor(drawContext, secondHeart, x, y, yOffset);
             }
-        }
-        else {
+        } else {
             original.call(inGameHud, drawContext, type, x, y, yOffset, renderHighlight, halfHeart);
         }
         restoredHeartsDrawHelper.updateCurrentHeart();
     }
 
     @WrapOperation(
-            method="renderEffects",
-            at=@At(
-                    value="INVOKE",
-                    target="Lnet/minecraft/client/resources/MobEffectTextureManager;get(Lnet/minecraft/world/effect/MobEffect;)Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;"
+            method = "renderEffects",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/resources/MobEffectTextureManager;get(Lnet/minecraft/world/effect/MobEffect;)Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;"
             )
     )
     private TextureAtlasSprite melancholic_hunger$getEffectSprite(

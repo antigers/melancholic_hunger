@@ -14,21 +14,23 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin {
-    @Shadow @Final private ReloadableResourceManager resourceManager;
+    @Shadow
+    @Final
+    private ReloadableResourceManager resourceManager;
     @Unique
     private final ResourcesReloadListener resourcesReloadListener = new ResourcesReloadListener();
 
     @Inject(
-            method="onGameLoadFinished",
-            at=@At("TAIL")
+            method = "onGameLoadFinished",
+            at = @At("TAIL")
     )
     private void melancholic_hunger$onFinishedLoading(CallbackInfo ci) {
         resourcesReloadListener.onResourceManagerReload(resourceManager);
     }
 
     @Inject(
-        method="<init>",
-        at=@At("TAIL")
+            method = "<init>",
+            at = @At("TAIL")
     )
     private void melancholic_hunger$registerResourcesReloadListener(GameConfig gameConfig, CallbackInfo ci) {
         resourceManager.registerReloadListener(resourcesReloadListener);

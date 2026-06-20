@@ -15,20 +15,20 @@ import vectorwing.farmersdelight.common.block.PieBlock;
 
 @Mixin(PieBlock.class)
 public class PieBlockMixin {
-	@WrapOperation(
-			method="consumeBite",
-			at=@At(
-					value="INVOKE",
-					target="Lnet/minecraft/world/food/FoodData;eat(Lnet/minecraft/world/item/Item;Lnet/minecraft/world/item/ItemStack;)V"
-			)
-	)
-	private void melancholic_hunger$eatPieBite(
-			FoodData foodData, Item item, ItemStack itemStack, Operation<Void> original,
-			@Local(argsOnly = true) Player player, @Local(name = "sliceFood") FoodProperties sliceFood, @Local(name = "sliceStack") ItemStack sliceStack
-	) {
-		boolean didConsume = HealthRegenerationComponent.get(player).eat(sliceStack, sliceFood);
-		if (!didConsume) {
-			original.call(foodData, item, itemStack);
-		}
-	}
+    @WrapOperation(
+            method = "consumeBite",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/food/FoodData;eat(Lnet/minecraft/world/item/Item;Lnet/minecraft/world/item/ItemStack;)V"
+            )
+    )
+    private void melancholic_hunger$eatPieBite(
+            FoodData foodData, Item item, ItemStack itemStack, Operation<Void> original,
+            @Local(argsOnly = true) Player player, @Local(name = "sliceFood") FoodProperties sliceFood, @Local(name = "sliceStack") ItemStack sliceStack
+    ) {
+        boolean didConsume = HealthRegenerationComponent.get(player).eat(sliceStack, sliceFood);
+        if (!didConsume) {
+            original.call(foodData, item, itemStack);
+        }
+    }
 }

@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 public abstract class ItemStackMixin {
     @WrapMethod(method = "getMaxStackSize")
     private int melancholic_hunger$customStackSize(Operation<Integer> original) {
-        var stackSize = MelancholicConfig.getItemStackSize((ItemStack)(Object) this);
+        var stackSize = MelancholicConfig.getItemStackSize((ItemStack) (Object) this);
         return stackSize != null ? stackSize : original.call();
     }
 }

@@ -9,10 +9,10 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(StaminaRenderer.class)
 public class StaminaRendererMixin {
-	@WrapMethod(method="render", remap = false)
-	private static void melancholic_hunger$renderStamina(GuiGraphics graphics, int rightHeight, Operation<Void> original) {
-		if (graphics instanceof DrawHudContext drawHudContext && drawHudContext.getIsStaminaRenderingActuallyHappening()) {
-			original.call(graphics, rightHeight);
-		}
-	}
+    @WrapMethod(method = "render", remap = false)
+    private static void melancholic_hunger$renderStamina(GuiGraphics graphics, int rightHeight, Operation<Void> original) {
+        if (graphics instanceof DrawHudContext drawHudContext && drawHudContext.getIsStaminaRenderingActuallyHappening()) {
+            original.call(graphics, rightHeight);
+        }
+    }
 }

@@ -165,10 +165,10 @@ public class MelancholicConfig {
             ).addDependency(SPRINTING, SprintingOption.LIMITED_BY_HEALTH)
     );
 
-    private static final ConfigOption<Boolean, Boolean> USE_CUSTOM_FOOD_STACK_SIZES = new ConfigOption<>(
+    private static final ConfigOption<Boolean, Boolean> USE_CUSTOM_FOOD_STACK_SIZES = new ConfigOption<Boolean, Boolean>(
             "useCustomFoodStackSizes", true, true, true,
             () -> serverData.useCustomFoodStackSizes, val -> serverData.useCustomFoodStackSizes = val
-    );
+    ).setRequiresGameReload();
 
     private static LinkedHashMap<String, Integer> getDefaultItemStackSizes() {
         var sizes = new LinkedHashMap<Item, Integer>();
@@ -234,7 +234,7 @@ public class MelancholicConfig {
     private static final ItemIntegerMapConfigOption CUSTOM_FOOD_STACK_SIZES = (ItemIntegerMapConfigOption) new ItemIntegerMapConfigOption(
             "customFoodStackSizes", getDefaultItemStackSizes(), true, true,
             () -> serverData.customFoodStackSizes, val -> serverData.customFoodStackSizes = val
-    ).addDependency(USE_CUSTOM_FOOD_STACK_SIZES, true);
+    ).addDependency(USE_CUSTOM_FOOD_STACK_SIZES, true).setRequiresGameReload();
 
     private static LinkedHashMap<String, Integer> getFarmersDelightDefaultItemStackSizes() {
         if (!InstalledMods.FARMERS_DELIGHT) {
@@ -343,7 +343,7 @@ public class MelancholicConfig {
     private static final ItemIntegerMapConfigOption FARMERS_DELIGHT_FOOD_STACK_SIZES = (ItemIntegerMapConfigOption) new ItemIntegerMapConfigOption(
             "farmersDelightFoodStackSizes", getFarmersDelightDefaultItemStackSizes(), false, true,
             () -> serverData.farmersDelightFoodStackSizes, val -> serverData.farmersDelightFoodStackSizes = val
-    ).addDependency(USE_CUSTOM_FOOD_STACK_SIZES, true);
+    ).addDependency(USE_CUSTOM_FOOD_STACK_SIZES, true).setRequiresGameReload();
 
     private static final ConfigOption<Boolean, NullType> HIDE_EXPERIENCE_BAR = new ConfigOption<>(
             "hideExperienceBar", true, true, false,
@@ -900,6 +900,25 @@ public class MelancholicConfig {
             return serverData.farmersDelightFoodStackSizes.get(itemId);
         }
         return null;
+    }
+
+    private static void fillItemMapFromStringMap(Map<Item, Integer> destination, Map<String, Integer> source) {
+        for (Map.Entry<String, Integer> entry : source.entrySet()) {
+            Item item = BuiltInRegistries.ITEM.getValue(Identifier.parse(entry.getKey()));
+            destination.put(item, entry.getValue());
+        }
+    }
+
+    public static Map<Item, Integer> getItemStackSizes() {
+        if (!serverData.useCustomFoodStackSizes) {
+            return null;
+        }
+        var allItemSizes = new HashMap<Item, Integer>();
+        fillItemMapFromStringMap(allItemSizes, serverData.customFoodStackSizes);
+        if (InstalledMods.FARMERS_DELIGHT) {
+            fillItemMapFromStringMap(allItemSizes, serverData.farmersDelightFoodStackSizes);
+        }
+        return allItemSizes;
     }
 
     public static SprintingOption sprinting() {

@@ -74,6 +74,7 @@ class ConfigOption<T, U> {
     protected Option<T> YACLOption;
     private final boolean isServerOption;
     private boolean playerHasPermission;
+    private boolean requiresGameReload;
 
     @Nullable
     private ConfigOptionDependency<U> dependency;
@@ -89,6 +90,7 @@ class ConfigOption<T, U> {
         this.setter = setter;
         this.isServerOption = isServerOption;
         playerHasPermission = true;
+        requiresGameReload = false;
     }
 
     public static boolean getPlayerHasPermission() {
@@ -126,6 +128,11 @@ class ConfigOption<T, U> {
         return this;
     }
 
+    public ConfigOption<T, U> setRequiresGameReload() {
+        this.requiresGameReload = true;
+        return this;
+    }
+
     public static void addOpPrivilegesRequiredToDescription(OptionDescription.Builder descriptionBuilder) {
         descriptionBuilder.text(
                 Component.literal("\n"),
@@ -147,7 +154,9 @@ class ConfigOption<T, U> {
         }
         if (!playerHasPermission) {
             addOpPrivilegesRequiredToDescription(descriptionBuilder);
-        } else if (dependency != null) {
+            return descriptionBuilder.build();
+        }
+        if (dependency != null) {
             var unmatchingDependency = dependency.getDependencyWithUnmatchingPendingValue();
             if (unmatchingDependency != null) {
                 descriptionBuilder.text(
@@ -158,7 +167,15 @@ class ConfigOption<T, U> {
                                 unmatchingDependency.getDependentOptionDescription()
                         ).setStyle(Style.EMPTY.withColor(15118857).withItalic(true))
                 );
+                return descriptionBuilder.build();
             }
+        }
+        if (requiresGameReload) {
+            descriptionBuilder.text(
+                    Component.literal("\n"),
+                    Component.translatable(CONFIG_PREFIX + "requires_game_reload_option")
+                            .setStyle(Style.EMPTY.withColor(16733525).withItalic(true))
+            );
         }
         return descriptionBuilder.build();
     }

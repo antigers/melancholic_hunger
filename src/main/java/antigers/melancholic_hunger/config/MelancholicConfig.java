@@ -441,7 +441,6 @@ public class MelancholicConfig {
                         .name(Component.translatable(CONFIG_PREFIX + "hunger_group_name"))
                         .description(OptionDescription.of(Component.translatable(CONFIG_PREFIX + "hunger_group_description")))
                         .option(DISABLE_HUNGER.buildYACLOption(MelancholicConfig::createBooleanController))
-                        .optionIf(InstalledMods.NOSTALGIC_TWEAKS, () -> HIDE_HUNGER_BAR.buildYACLOption(MelancholicConfig::createBooleanController))
                         .option(HUNGER_EFFECT.buildYACLOption(
                                 option -> EnumControllerBuilder.create(option).enumClass(HungerEffectOption.class)
                                         .formatValue(

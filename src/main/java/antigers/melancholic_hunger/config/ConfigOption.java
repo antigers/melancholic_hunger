@@ -77,7 +77,7 @@ class ConfigOption<T, U> {
     private boolean requiresGameReload;
 
     @Nullable
-    private ConfigOptionDependency<U> dependency;
+    protected ConfigOptionDependency<U> dependency;
 
     public ConfigOption(
             String name, T defaultValue, boolean nostalgicTweaksRelated, boolean isServerOption,

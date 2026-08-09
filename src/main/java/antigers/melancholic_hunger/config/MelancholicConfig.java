@@ -56,7 +56,7 @@ public class MelancholicConfig {
             () -> serverData.disableHunger, val -> serverData.disableHunger = val
     );
 
-    private static final ConfigOption<Boolean, Boolean> HIDE_HUNGER_BAR = new ConfigOption<Boolean, Boolean>(
+    private static final ConfigOption<Boolean, Boolean> HIDE_HUNGER_BAR = new HideHungerBarOption(
             "hideHungerBar", true, true, false,
             () -> clientData.hideHungerBar, val -> clientData.hideHungerBar = val
     ).addDependency(DISABLE_HUNGER, false);
@@ -533,7 +533,7 @@ public class MelancholicConfig {
         return ConfigCategory.createBuilder()
                 .name(Component.translatable(CONFIG_PREFIX + "hud_category_name"))
                 .tooltip(Component.translatable(CONFIG_PREFIX + "hud_category_tooltip"))
-                .groupIf(InstalledMods.NOSTALGIC_TWEAKS, () -> OptionGroup.createBuilder()
+                .group(OptionGroup.createBuilder()
                         .name(Component.translatable(CONFIG_PREFIX + "hud_hunger_bar_group_name"))
                         .description(OptionDescription.of(Component.translatable(CONFIG_PREFIX + "hud_hunger_bar_group_description")))
                         .option(HIDE_HUNGER_BAR.buildYACLOption(MelancholicConfig::createBooleanController))
@@ -694,10 +694,6 @@ public class MelancholicConfig {
                     var client = Minecraft.getInstance();
                     boolean hasSingleplayerServer = client.hasSingleplayerServer();
                     var player = client.player;
-                    if (!InstalledMods.NOSTALGIC_TWEAKS) {
-                        // hideHungerBar option is hidden when NT is not installed, so we have to correct its value
-                        clientData.hideHungerBar = serverData.disableHunger;
-                    }
                     if (hasSingleplayerServer || player == null) {
                         // writing config file if in singleplayer or if on title screen
                         HANDLER.save();
@@ -728,10 +724,6 @@ public class MelancholicConfig {
         HANDLER.load();
         for (var option : ALL_OPTIONS) {
             option.validateValue();
-        }
-        if (!InstalledMods.NOSTALGIC_TWEAKS) {
-            // hideHungerBar option is hidden when NT is not installed, so we have to correct its value
-            HIDE_HUNGER_BAR.setValue(false);
         }
         isLoadedFromDisk = true;
     }
@@ -776,10 +768,6 @@ public class MelancholicConfig {
             return false;
         }
         DISABLE_HUNGER.setValue(newServerData.disableHunger());
-        if (!InstalledMods.NOSTALGIC_TWEAKS) {
-            // hideHungerBar option is hidden when NT is not installed, so we have to correct its value
-            HIDE_HUNGER_BAR.setValue(false);
-        }
         HUNGER_EFFECT.setValue(newServerData.hungerEffect());
         HUNGER_REPLACEMENT_EFFECT.setValue(newServerData.hungerReplacementEffect());
         HUNGER_REPLACEMENT_DURATION_MULTIPLIER.setValue(newServerData.hungerReplacementDurationMultiplier());

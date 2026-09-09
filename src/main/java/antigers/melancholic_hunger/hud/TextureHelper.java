@@ -45,7 +45,7 @@ public class TextureHelper {
         }
         // getting texture from the default vanilla resource pack
         var vanillaResourceManager = new FallbackResourceManager(PackType.CLIENT_RESOURCES, "minecraft");
-        vanillaResourceManager.push(minecraft.getVanillaPackResources());
+        vanillaResourceManager.push(minecraft.getVanillaPackResources().fullResources());
         Optional<Resource> vanillaArmorResource = vanillaResourceManager.getResource(ARMOR_FULL_TEXTURE_PATH);
         try {
             byte[] vanillaTexture = vanillaArmorResource.orElseThrow().open().readAllBytes();

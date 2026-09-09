@@ -14,11 +14,11 @@ public class HudStatusBarHeightRegistryImplMixin {
             method = "getHeight",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/fabricmc/fabric/impl/client/rendering/hud/HudStatusBarHeightRegistryImpl$ResolvedHeightProvider;getResolvedHeight(Lnet/minecraft/world/entity/player/Player;)I"
+                    target = "Lnet/fabricmc/fabric/impl/client/rendering/hud/HudStatusBarHeightRegistryImpl$YPosProvider;getYPos(Lnet/minecraft/world/entity/player/Player;)I"
             )
     )
     private static int melancholic_hunger$getGuiElementsHeight(
-            HudStatusBarHeightRegistryImpl.ResolvedHeightProvider instance, Player player, Operation<Integer> original
+            HudStatusBarHeightRegistryImpl.YPosProvider instance, Player player, Operation<Integer> original
     ) {
         // making all gui layers follow our offset
         return original.call(instance, player) + ModLoader.getHudOffset();

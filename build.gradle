@@ -47,16 +47,6 @@ repositories {
         name = 'ParchmentMC'
         url = 'https://maven.parchmentmc.org'
     }
-    exclusiveContent {
-        forRepository {
-            maven {
-                url = "https://jitpack.io"
-            }
-        }
-        filter {
-            includeGroup "com.github.Chocohead"
-        }
-    }
 }
 
 dependencies {
@@ -90,7 +80,7 @@ dependencies {
     // Immediately Fast compatibility
     modImplementation "maven.modrinth:immediatelyfast:${project.immediately_fast_version}"
 
-    //Raised compatibility
+    // Raised compatibility
     modImplementation "maven.modrinth:raised:${project.raised_version}"
 
     // Farmer's Delight compatibility

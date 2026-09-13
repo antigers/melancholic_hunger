@@ -47,16 +47,6 @@ repositories {
         name = 'ParchmentMC'
         url = 'https://maven.parchmentmc.org'
     }
-    exclusiveContent {
-        forRepository {
-            maven {
-                url = "https://jitpack.io"
-            }
-        }
-        filter {
-            includeGroup "com.github.Chocohead"
-        }
-    }
 }
 
 dependencies {
@@ -87,7 +77,7 @@ dependencies {
     // Nostalgic Tweaks compatibility
     //	modImplementation "maven.modrinth:nostalgic-tweaks:${project.nostalgic_tweaks_version}"
 
-    //Raised compatibility
+    // Raised compatibility
     modImplementation "maven.modrinth:raised:${project.raised_version}"
 
     // Farmer's Delight compatibility

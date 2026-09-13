@@ -4,13 +4,15 @@ import antigers.melancholic_hunger.components.HealthRegenerationComponent;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.food.FoodData;
-import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import vectorwing.farmersdelight.common.block.PieBlock;
+
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 @Mixin(PieBlock.class)
 public class PieBlockMixin {
@@ -18,16 +20,16 @@ public class PieBlockMixin {
 			method="consumeBite",
 			at=@At(
 					value="INVOKE",
-					target="Lnet/minecraft/world/food/FoodData;eat(Lnet/minecraft/world/food/FoodProperties;)V"
+					target="Ljava/util/stream/Stream;forEach(Ljava/util/function/Consumer;)V"
 			)
 	)
 	private void melancholic_hunger$eatPieBite(
-			FoodData foodData, FoodProperties foodProperties, Operation<Void> original, @Local(argsOnly = true) Player player,
-			@Local(name = "sliceFood") FoodProperties sliceFood, @Local(name = "sliceStack") ItemStack sliceStack
+			Stream instance, Consumer<?> consumer, Operation<Void> original, @Local(argsOnly = true) Player player,
+			@Local(name = "sliceStack") ItemStack sliceStack
 	) {
-		boolean didConsume = HealthRegenerationComponent.get(player).eat(sliceStack, sliceFood);
+		boolean didConsume = HealthRegenerationComponent.get(player).eat(sliceStack, sliceStack.get(DataComponents.FOOD));
 		if (!didConsume) {
-			original.call(foodData, foodProperties);
+			original.call(instance, consumer);
 		}
 	}
 }

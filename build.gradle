@@ -56,8 +56,8 @@ neoForge {
     version = project.neo_version
 
     parchment {
-        mappingsVersion = project.parchment_mappings_version
-        minecraftVersion = project.parchment_minecraft_version
+        mappingsVersion = project.parchment_mappings.split(':')[1]
+        minecraftVersion = project.parchment_mappings.split(':')[0]
     }
 
 //    neoFormRuntime {}

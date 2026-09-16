@@ -39,7 +39,7 @@
     "screen.melancholic_hunger.config.option.disableHunger.name": "Отключить голод",
     "screen.melancholic_hunger.config.option.disableHunger.description": "Отключает механику голода",
     "screen.melancholic_hunger.config.option.hideHungerBar.name": "Спрятать полоску голода",
-    "screen.melancholic_hunger.config.option.hideHungerBar.description": "Позволяет убрать полоску голода с экрана игрока",
+    "screen.melancholic_hunger.config.option.hideHungerBar.description": "Позволяет убрать полоску голода с экрана игрока при включенной системе голода",
     "screen.melancholic_hunger.config.option.hungerEffect.name": "Эффект голода",
     "screen.melancholic_hunger.config.option.hungerEffect.description": "Без изменений: эффект голода работает как обычно\n\nОтключён: эффект голода отключён, т. е. он никогда не будет применён к игроку\n\nПодменён другим эффектом: вместо эффекта голода, игрок получает другой эффект (по умолчанию отравление), с изменённой длительностью (по умолчанию в два раза короче)",
     "screen.melancholic_hunger.config.hungerEffect_vanilla_option": "Без изменений",

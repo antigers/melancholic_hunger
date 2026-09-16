@@ -57,7 +57,7 @@ public class MelancholicConfig {
     );
 
     private static final ConfigOption<Boolean, Boolean> HIDE_HUNGER_BAR = new HideHungerBarOption(
-            "hideHungerBar", true, true, false,
+            "hideHungerBar", false, true, false,
             () -> clientData.hideHungerBar, val -> clientData.hideHungerBar = val
     ).addDependency(DISABLE_HUNGER, false);
 

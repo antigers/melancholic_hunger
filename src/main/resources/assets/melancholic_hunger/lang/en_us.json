@@ -38,7 +38,7 @@
     "screen.melancholic_hunger.config.option.disableHunger.name": "Disable hunger",
     "screen.melancholic_hunger.config.option.disableHunger.description": "If enabled, removes the hunger mechanic",
     "screen.melancholic_hunger.config.option.hideHungerBar.name": "Hide hunger bar",
-    "screen.melancholic_hunger.config.option.hideHungerBar.description": "If enabled, hides the hunger bar from the HUD",
+    "screen.melancholic_hunger.config.option.hideHungerBar.description": "If enabled, hides the hunger bar from the HUD when the hunger system is enabled",
     "screen.melancholic_hunger.config.option.hungerEffect.name": "Hunger effect",
     "screen.melancholic_hunger.config.option.hungerEffect.description": "Vanilla: hunger effect has vanilla behaviour\n\nDisabled: hunger effect is disabled, so it can never be applied to players\n\nReplaced with other effect: instead of hunger effect, players get another effect (poison by default) with modified duration (two times shorter by default)",
     "screen.melancholic_hunger.config.hungerEffect_vanilla_option": "Vanilla",

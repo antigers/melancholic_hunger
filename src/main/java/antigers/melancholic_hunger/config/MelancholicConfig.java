@@ -3,6 +3,7 @@ package antigers.melancholic_hunger.config;
 import antigers.melancholic_hunger.InstalledMods;
 import antigers.melancholic_hunger.MelancholicHunger;
 import antigers.melancholic_hunger.ModLoader;
+import antigers.melancholic_hunger.food.FoodItemStacks;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
@@ -40,7 +41,11 @@ public class MelancholicConfig {
     private static ServerConfigData serverData = new ServerConfigData();
 
     public static int getFoodHealth(ItemStack itemStack, FoodProperties foodProperties) {
-        return foodProperties.nutrition();
+        int nutrition = foodProperties.nutrition();
+        if (nutrition > 0) {
+            return nutrition;
+        }
+        return FoodItemStacks.getHealthFromMatchaRegeneration(itemStack);
     }
 
     private static final ConfigClassHandler<MelancholicConfig> HANDLER = ConfigClassHandler.createBuilder(MelancholicConfig.class)

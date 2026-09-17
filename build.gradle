@@ -65,7 +65,7 @@ dependencies {
     implementation "maven.modrinth:raised:${project.raised_version}"
 
     // Farmer's Delight compatibility
-    implementation "maven.modrinth:farmers-delight-refabricated:${project.farmers_delight_version}"
+    compileOnly "maven.modrinth:farmers-delight-refabricated:${project.farmers_delight_version}"
 }
 
 processResources {

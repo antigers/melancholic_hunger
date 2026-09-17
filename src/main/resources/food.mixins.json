@@ -3,6 +3,7 @@
     "package": "antigers.melancholic_hunger.food.mixin",
     "compatibilityLevel": "JAVA_25",
     "mixins": [
+        "ApplyStatusEffectsConsumeEffectMixin",
         "FoodPropertiesMixin",
         "FoodDataMixin",
         "ItemInstanceMixin",

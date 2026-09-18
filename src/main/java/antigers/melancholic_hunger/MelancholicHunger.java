@@ -1,5 +1,6 @@
 package antigers.melancholic_hunger;
 
+import antigers.melancholic_hunger.compat.matcha_flavoured.MatchaCompatRegistrator;
 import antigers.melancholic_hunger.components.Components;
 import antigers.melancholic_hunger.config.ConfigNetworkHandler;
 import antigers.melancholic_hunger.compat.farmers_delight.FarmersDelightCompatRegistrator;
@@ -8,6 +9,7 @@ import antigers.melancholic_hunger.food.FoodItemStacks;
 import antigers.melancholic_hunger.tooltip.FoodItemTooltips;
 import net.fabricmc.api.ModInitializer;
 
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +24,7 @@ public class MelancholicHunger implements ModInitializer {
     public void onInitialize() {
         // This code runs as soon as Minecraft is in a mod-load-ready state.
         // However, some things (like resources) may still be uninitialized.
+        ServerLifecycleEvents.SERVER_STARTED.register(ModLoader::setServerInstance);
         MelancholicConfig.loadFromDisk();
         if (ModLoader.isClientside()) {
             FoodItemTooltips.register();
@@ -30,5 +33,6 @@ public class MelancholicHunger implements ModInitializer {
         Components.register();
         ConfigNetworkHandler.register();
         FarmersDelightCompatRegistrator.register();
+        MatchaCompatRegistrator.register();
     }
 }

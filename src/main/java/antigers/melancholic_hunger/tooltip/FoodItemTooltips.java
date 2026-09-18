@@ -4,6 +4,7 @@ import antigers.melancholic_hunger.config.MelancholicConfig;
 import antigers.melancholic_hunger.food.EdibleBlockFoods;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.Hud;
@@ -122,7 +123,7 @@ public class FoodItemTooltips {
             }
             foodProperties = foodPropertiesOptional.get();
         }
-        int foodNutrition = MelancholicConfig.getFoodHealth(stack, foodProperties);
+        int foodNutrition = MelancholicConfig.getFoodValues(stack, foodProperties, Minecraft.getInstance().level).nutrition();
         if (foodNutrition <= 0) {
             return;
         }

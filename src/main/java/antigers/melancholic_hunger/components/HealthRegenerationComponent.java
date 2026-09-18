@@ -186,8 +186,8 @@ public class HealthRegenerationComponent {
         if (!(player instanceof ServerPlayer) || !MelancholicConfig.disableHunger()) {
             return false;
         }
-        var foodHealth = MelancholicConfig.getFoodHealth(itemStack, foodComponent);
-        eat(foodHealth, foodComponent.saturation(), foodComponent.hashCode());
+        var foodValues = MelancholicConfig.getFoodValues(itemStack, foodComponent, player.level());
+        eat(foodValues.nutrition(), foodValues.saturation(), foodComponent.hashCode());
         return true;
     }
 

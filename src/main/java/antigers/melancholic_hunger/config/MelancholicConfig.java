@@ -3,7 +3,8 @@ package antigers.melancholic_hunger.config;
 import antigers.melancholic_hunger.InstalledMods;
 import antigers.melancholic_hunger.MelancholicHunger;
 import antigers.melancholic_hunger.ModLoader;
-import antigers.melancholic_hunger.food.FoodItemStacks;
+import antigers.melancholic_hunger.compat.matcha_flavoured.MatchaHealthRegeneration;
+import com.mojang.datafixers.util.Pair;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
@@ -22,6 +23,7 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 import vectorwing.farmersdelight.common.registry.ModItems;
 
 import javax.lang.model.type.NullType;
@@ -40,12 +42,14 @@ public class MelancholicConfig {
     @SerialEntry(value = "serverOptions")
     private static ServerConfigData serverData = new ServerConfigData();
 
-    public static int getFoodHealth(ItemStack itemStack, FoodProperties foodProperties) {
+    public record FoodValues(int nutrition, float saturation) {};
+
+    public static FoodValues getFoodValues(ItemStack itemStack, FoodProperties foodProperties, Level level) {
         int nutrition = foodProperties.nutrition();
         if (nutrition > 0) {
-            return nutrition;
+            return new FoodValues(nutrition, foodProperties.saturation());
         }
-        return FoodItemStacks.getHealthFromMatchaRegeneration(itemStack);
+        return MatchaHealthRegeneration.getFoodValuesFromComponents(itemStack, level);
     }
 
     private static final ConfigClassHandler<MelancholicConfig> HANDLER = ConfigClassHandler.createBuilder(MelancholicConfig.class)

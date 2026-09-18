@@ -1,5 +1,6 @@
-package antigers.melancholic_hunger.food.mixin;
+package antigers.melancholic_hunger.compat.matcha_flavoured.mixin;
 
+import antigers.melancholic_hunger.compat.matcha_flavoured.MatchaInstalledFlag;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -14,6 +15,9 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(ApplyStatusEffectsConsumeEffect.class)
 public class ApplyStatusEffectsConsumeEffectMixin {
+    /**
+     * Makes so that Matcha Flavoured's regeneration effect on food items is ignored, because health regen is handled by Melancholic
+     */
     @WrapOperation(
             method="apply",
             at=@At(
@@ -24,7 +28,12 @@ public class ApplyStatusEffectsConsumeEffectMixin {
     private boolean melancholic_hunger$addEffectLimiter(
             LivingEntity instance, MobEffectInstance newEffect, Operation<Boolean> original, @Local(argsOnly = true) ItemStack stack
     ) {
-        if (stack.has(DataComponents.FOOD) && newEffect.is(MobEffects.REGENERATION) && newEffect.getAmplifier() == 2) {
+        if (
+                MatchaInstalledFlag.get(instance.level())
+                        && stack.has(DataComponents.FOOD)
+                        && newEffect.is(MobEffects.REGENERATION)
+                        && newEffect.getAmplifier() == 2
+        ) {
             return false;
         }
         return original.call(instance, newEffect);

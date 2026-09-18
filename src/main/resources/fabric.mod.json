@@ -28,7 +28,8 @@
         "food.mixins.json",
         "hud.mixins.json",
         "tooltip.mixins.json",
-        "farmers_delight.mixins.json"
+        "farmers_delight.mixins.json",
+        "matcha_flavoured.mixins.json"
     ],
     "depends": {
         "fabricloader": "*",

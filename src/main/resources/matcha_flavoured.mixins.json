@@ -1,0 +1,12 @@
+{
+    "package": "antigers.melancholic_hunger.compat.matcha_flavoured.mixin",
+    "compatibilityLevel": "JAVA_25",
+    "mixins": [
+        "ApplyStatusEffectsConsumeEffectMixin"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    },
+    "client": [
+    ]
+}

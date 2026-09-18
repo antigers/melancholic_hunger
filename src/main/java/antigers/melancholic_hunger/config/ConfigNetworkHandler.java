@@ -1,18 +1,16 @@
 package antigers.melancholic_hunger.config;
 
+import antigers.melancholic_hunger.ModLoader;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.Minecraft;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.Permission;
 import net.minecraft.server.permissions.PermissionLevel;
 
 public class ConfigNetworkHandler {
-    private static MinecraftServer SERVER_INSTANCE;
 
     public static void syncAllPlayers() {
         syncAllPlayersExceptOf(null);
@@ -20,7 +18,7 @@ public class ConfigNetworkHandler {
 
     public static void syncAllPlayersExceptOf(Integer ignoredPlayerId) {
         ServerConfigData.ImmutableServerConfigData data = MelancholicConfig.getServerData();
-        for (var player : SERVER_INSTANCE.getPlayerList().getPlayers()) {
+        for (var player : ModLoader.getServerInstance().getPlayerList().getPlayers()) {
             if (ignoredPlayerId != null && player.getId() == ignoredPlayerId) {
                 continue;
             }
@@ -66,7 +64,6 @@ public class ConfigNetworkHandler {
                 ServerConfigData.PAYLOAD_TYPE, (data, context) -> handleC2SPacket(data, context.player())
         );
 
-        ServerLifecycleEvents.SERVER_STARTED.register(server -> SERVER_INSTANCE = server);
         // syncing server config to the player after they join the server
         ServerPlayConnectionEvents.JOIN.register(
                 (_, sender, _) -> sender.sendPacket(MelancholicConfig.getServerData())

@@ -22,14 +22,14 @@ public class MatchaInstalledFlag {
     );
 
     public static boolean get(Level level) {
-        return level.getAttachedOrElse(MATCHA_INSTALLED_ATTACHMENT, false);
+        if (level == null)
+            return false;
+        return level.globalAttachments().getAttachedOrElse(MATCHA_INSTALLED_ATTACHMENT, false);
     }
 
     private static void updateFlagValue(MinecraftServer server) {
         Optional<Resource> resource = server.getResourceManager().getResource(MATCHA_TEST_RESOURCE_ID);
-        for (Level level : server.getAllLevels()) {
-            level.setAttached(MATCHA_INSTALLED_ATTACHMENT, resource.isPresent());
-        }
+        server.globalAttachments().setAttached(MATCHA_INSTALLED_ATTACHMENT, resource.isPresent());
     }
 
     public static void register() {

@@ -3,8 +3,7 @@ package antigers.melancholic_hunger.config;
 import antigers.melancholic_hunger.InstalledMods;
 import antigers.melancholic_hunger.MelancholicHunger;
 import antigers.melancholic_hunger.ModLoader;
-import antigers.melancholic_hunger.compat.matcha_flavoured.MatchaHealthRegeneration;
-import com.mojang.datafixers.util.Pair;
+import antigers.melancholic_hunger.compat.matcha_flavoured.MatchaFoodItems;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
@@ -42,14 +41,12 @@ public class MelancholicConfig {
     @SerialEntry(value = "serverOptions")
     private static ServerConfigData serverData = new ServerConfigData();
 
-    public record FoodValues(int nutrition, float saturation) {};
-
-    public static FoodValues getFoodValues(ItemStack itemStack, FoodProperties foodProperties, Level level) {
+    public static FoodProperties getFoodValues(ItemStack itemStack, FoodProperties foodProperties, Level level) {
         int nutrition = foodProperties.nutrition();
         if (nutrition > 0) {
-            return new FoodValues(nutrition, foodProperties.saturation());
+            return foodProperties;
         }
-        return MatchaHealthRegeneration.getFoodValuesFromComponents(itemStack, level);
+        return MatchaFoodItems.getFoodValuesFromComponents(itemStack, level);
     }
 
     private static final ConfigClassHandler<MelancholicConfig> HANDLER = ConfigClassHandler.createBuilder(MelancholicConfig.class)

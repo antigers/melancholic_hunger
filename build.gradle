@@ -62,7 +62,7 @@ dependencies {
     //	modImplementation "maven.modrinth:nostalgic-tweaks:${project.nostalgic_tweaks_version}"
 
     // Raised compatibility
-    compileOnly "maven.modrinth:raised:${project.raised_version}"
+    implementation "maven.modrinth:raised:${project.raised_version}"
 
     // Farmer's Delight compatibility
     implementation "maven.modrinth:farmers-delight-refabricated:${project.farmers_delight_version}"

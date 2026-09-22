@@ -35,6 +35,13 @@ public class ResourcesReloadListener implements ResourceManagerReloadListener {
 
     @Override
     public void onResourceManagerReload(ResourceManager resourceManager) {
+        TextureHelper textureHelper = new TextureHelper();
+        try {
+            textureHelper.generateHeartTextures();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         var currentArmorResource = resourceManager.getResource(Gui.GUI_ICONS_LOCATION);
         boolean isDefaultArmorHudTexture = currentArmorResource
                 .map(value -> value.sourcePackId().equals("vanilla"))
@@ -55,13 +62,6 @@ public class ResourcesReloadListener implements ResourceManagerReloadListener {
             }
         } catch (IOException | NoSuchElementException ignored) {
             DrawHudContext.isDefaultArmorHudTexture = false;
-        }
-
-        TextureHelper textureHelper = new TextureHelper();
-        try {
-            textureHelper.generateHeartTextures();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 }
